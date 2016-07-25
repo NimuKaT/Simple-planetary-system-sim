@@ -1,2 +1,73 @@
-html {
-  background: pink; }
+@font-face {
+  font-family: "monosten";
+  src: url("assets/monosten.woff2") format("woff2"); }
+body {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Helvetica, Arial, sans-serif;
+  font-weight: 300; }
+
+#sidebar, canvas {
+  position: relative;
+  display: block;
+  height: 100%;
+  float: left;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box; }
+
+#sidebar {
+  width: 25%;
+  background: #E4E6E9;
+  padding: 0 15px;
+  box-shadow: 0 0 20px 5px rgba(0, 0, 0, 0.3); }
+  #sidebar #start h1 {
+    font-family: "monosten";
+    font-size: 40px;
+    margin: 0;
+    padding: 70px 0 20px 0;
+    color: #21252b; }
+  #sidebar #start line {
+    display: block;
+    position: relative;
+    width: 100px;
+    height: 2px;
+    background: #21252b;
+    margin-bottom: 20px; }
+  #sidebar #start p {
+    font-size: 15px;
+    line-height: 1.5; }
+    #sidebar #start p:nth-child(3) {
+      font-style: italic; }
+  #sidebar #start button {
+    position: relative;
+    display: block;
+    border: none;
+    background: none;
+    color: #21252b;
+    border-radius: 0;
+    padding: 2px 5px 2px 2px;
+    margin-bottom: 10px;
+    font-size: 13px;
+    font-family: Helvetica, Arial, sans-serif;
+    border-bottom: 2px solid #21252b; }
+    #sidebar #start button:focus, #sidebar #start button:active {
+      outline: none; }
+    #sidebar #start button:hover {
+      cursor: pointer;
+      color: #EB423E;
+      border-bottom: 2px solid #EB423E; }
+  #sidebar #tutorial {
+    position: relative; }
+  #sidebar #start, #sidebar #tutorial, #sidebar #object-creation, #sidebar #settings, #sidebar #load-state {
+    display: none; }
+    #sidebar #start.open, #sidebar #tutorial.open, #sidebar #object-creation.open, #sidebar #settings.open, #sidebar #load-state.open {
+      display: block; }
+
+canvas {
+  width: 75%;
+  background: #21252b; }
