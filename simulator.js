@@ -44,3 +44,15 @@ var init = function() {
 
 
 init();
+
+
+
+function planet (density=1, radius=1, color=#ffffff, x=0, y=0){
+    this.density = density;
+    this.radius = radius;
+    this.color = color;
+    this.x = x;
+    this.y = y;
+    this.mass = (4/3) * math.PI * math.pow(this.radius, 3);
+     
+}
