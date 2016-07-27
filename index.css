@@ -77,29 +77,30 @@ body {
     #sidebar #object-creation .input-group label {
       display: block;
       font-size: 14px;
-      font-weight: normal;
-      text-decoration: underline; }
+      font-weight: normal; }
     #sidebar #object-creation .input-group input, #sidebar #object-creation .input-group select {
       border: none;
       background: none; }
       #sidebar #object-creation .input-group input:focus, #sidebar #object-creation .input-group input:active, #sidebar #object-creation .input-group input:hover, #sidebar #object-creation .input-group select:focus, #sidebar #object-creation .input-group select:active, #sidebar #object-creation .input-group select:hover {
         outline: none; }
+    #sidebar #object-creation .input-group:nth-child(3) {
+      margin-top: 30px; }
+      #sidebar #object-creation .input-group:nth-child(3) input {
+        padding: 0;
+        width: 80px;
+        height: 30px;
+        margin-left: -2px; }
     #sidebar #object-creation .input-group:nth-child(4) input {
-      padding: 0;
-      width: 80px;
-      height: 30px;
-      margin-left: -2px; }
-    #sidebar #object-creation .input-group:nth-child(5) input {
       border-bottom: 1px solid black;
       width: 70px;
       line-height: 1.5;
       margin-top: 5px; }
-    #sidebar #object-creation .input-group:nth-child(5) span {
+    #sidebar #object-creation .input-group:nth-child(4) span {
       font-size: 11px;
       line-height: 1.5; }
-    #sidebar #object-creation .input-group:nth-child(6) {
+    #sidebar #object-creation .input-group:nth-child(5) {
       margin-bottom: 30px; }
-      #sidebar #object-creation .input-group:nth-child(6) select {
+      #sidebar #object-creation .input-group:nth-child(5) select {
         background: #efefef;
         border: 1px solid black;
         border-radius: 0;
@@ -107,11 +108,11 @@ body {
         width: 120px;
         height: 20px;
         padding: 10px; }
-      #sidebar #object-creation .input-group:nth-child(6) input {
+      #sidebar #object-creation .input-group:nth-child(5) input {
         display: none;
         border-bottom: 1px solid black;
         margin-left: 5px; }
-        #sidebar #object-creation .input-group:nth-child(6) input.shown {
+        #sidebar #object-creation .input-group:nth-child(5) input.shown {
           display: inline-block; }
   #sidebar #object-creation section button {
     background: #73c990;
@@ -121,14 +122,6 @@ body {
     #sidebar #object-creation section button:hover {
       background: #4ebb73;
       color: #000; }
-  #sidebar #object-creation line {
-    position: relative;
-    width: 100px;
-    height: 1px;
-    background: #333;
-    display: block;
-    margin-top: 5px;
-    margin-bottom: 20px; }
   #sidebar #start, #sidebar #tutorial, #sidebar #object-creation, #sidebar #settings, #sidebar #load-state {
     display: none;
     position: relative;
@@ -160,7 +153,7 @@ body {
     #sidebar #tutorial section, #sidebar #object-creation section, #sidebar #settings section, #sidebar #load-state section {
       position: relative;
       overflow: scroll;
-      height: calc(100% - 70px); }
+      height: calc(100% - 80px); }
   #sidebar button {
     position: relative;
     display: block;

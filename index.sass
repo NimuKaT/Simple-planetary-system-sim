@@ -92,7 +92,6 @@ body
         display: block
         font-size: 14px
         font-weight: normal
-        text-decoration: underline
 
       input,select
         border: none
@@ -101,14 +100,16 @@ body
         &:focus, &:active, &:hover
           outline: none
 
-      &:nth-child(4)
+      &:nth-child(3)
+        margin-top: 30px
+        
         input
           padding: 0
           width: 80px
           height: 30px
           margin-left: -2px
 
-      &:nth-child(5)
+      &:nth-child(4)
         input
           border-bottom: 1px solid black
           width: 70px
@@ -119,7 +120,7 @@ body
           font-size: 11px
           line-height: 1.5
 
-      &:nth-child(6)
+      &:nth-child(5)
         margin-bottom: 30px
 
         select
@@ -148,15 +149,6 @@ body
       &:hover
         background: darken(#73c990, 10%)
         color: #000
-
-    line
-      position: relative
-      width: 100px
-      height: 1px
-      background: #333
-      display: block
-      margin-top: 5px
-      margin-bottom: 20px
 
   #start, #tutorial, #object-creation, #settings, #load-state
     display: none
@@ -197,7 +189,7 @@ body
     section
       position: relative
       overflow: scroll
-      height: calc(100% - 70px)
+      height: calc(100% - 80px)
 
   button
     position: relative
