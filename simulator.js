@@ -1,5 +1,15 @@
+<<<<<<< HEAD
 const canvas = document.getElementById('simulation');
 const canvasContext = canvas.getContext('2d');
+=======
+const UNIVERSAL_GRAVITATIONAL_CONSTANT = 6.67e-11;
+const KM_TO_PIXELS = 1/1e3; //subject to change
+const COLLISION_THRESHOLD = 0.85;
+
+var openTutorialWindow = function() {
+  document.getElementById('tutorial').className = 'open';
+};
+>>>>>>> origin/master
 
 
 // open a window in the sidebar
@@ -76,7 +86,6 @@ var init = function() {
     closeWindow('load-state');
   });
 
-
   // object creation material custom toggle
   document.getElementById('object-material').onchange = function () {
     var elem = document.getElementById('object-material');
@@ -144,3 +153,47 @@ var removeFollowObject = function() {
 // context.lineWidth = 5;
 // context.strokeStyle = '#f1c40f';
 // context.stroke();
+
+
+function planet (density, radius, color, x, y){
+    this.density = density;
+    this.radius = radius;
+    this.color = color;
+    this.x = x;
+    this.y = y;
+    this.volume = (4/3) * Math.PI * Math.pow(this.radius, 3);
+
+};
+
+function main(){
+    this.objects = [];
+    this.magnificationMultiplyer = 1.0;
+    this.currentCoordinate = 1;
+
+    this.createObject = function(density, radius, color, x, y){
+        this.objects.push(planet(density, radius, color, x, y));
+    };
+
+    this.update = function(){
+        for(var i = 0; i < this.object.length; i++){
+
+        };
+
+    };
+
+    this.hitDetect = function(object_1, object_2){
+        var hasHit = false;
+        var x1 = object_1.x;
+        var y1 = object_1.y;
+        var r1 = object_1.radius;
+        var x2 = object_2.x;
+        var y2 = object_2.y;
+        var r2 = object_2.radius;
+        var distance = Math.root((x1 - x2)^2 + (y1 - y1)^2);
+        if (distance >= COLLISION_THRESHOLD*(r1 + r2)){
+            hasHit = true;
+        };
+        return hasHit;
+    };
+
+};
