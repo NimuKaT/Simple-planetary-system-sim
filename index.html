@@ -12,6 +12,8 @@
 
 </div>
 
+<div id="object-undermouse"></div>
+
 <div id="sidebar">
 
   <!-- Start Sidebar -->
@@ -28,22 +30,93 @@
     </p>
 
     <button id="str-btn-tutorial">Tutorial</button>
-    <button id="str-btn-begin">Begin Creating</button>
-    <button id="str-btn-settings">Space Settings</button>
+    <button id="str-btn-object">Object Creating</button>
+    <button id="str-btn-settings">Manage Space</button>
     <button id="str-btn-loadstate">Load State</button>
   </div>
 
   <!-- Tutorial Sidebar -->
-  <div id="tutorial"></div>
+  <div id="tutorial">
+    <h2 class="sidebar-header">SPACE SIMULATOR <span>//&nbsp;&nbsp;Gab, Takumi and Aidan</span></h2>
+
+    <section>
+      <div class="sidebar-title">
+        <span>01</span>
+        <h3>How to create objects.</h3>
+      </div>
+      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec fermentum nisi turpis, euismod fermentum leo ullamcorper a. Etiam efficitur fringilla vulputate. Nunc suscipit laoreet lectus, sit amet dapibus nunc condimentum non. Fusce malesuada ex pulvinar orci tincidunt, id lobortis sem scelerisque. Duis lobortis risus euismod, facilisis mauris feugiat, sagittis libero. Sed ut ullamcorper nisl, vitae porttitor nunc.</p>
+    </section>
+
+    <button id="sidebar-return-tutorial">Go Back</button>
+  </div>
 
   <!-- Creating -->
-  <div id="object-creation"></div>
+  <div id="object-creation">
+    <h2 class="sidebar-header">SPACE SIMULATOR <span>//&nbsp;&nbsp;Gab, Takumi and Aidan</span></h2>
+
+    <section>
+      <h3>Object Creation</h3>
+
+      <p>
+        Create an object and then click where you would like to place the object.
+        After placing the object give it a velocity by clicking again,
+        where the distance from the object affects the speed and the direction chooses which way the object travels.
+      </p>
+
+      <line></line>
+
+      <div class="input-group">
+        <label>Colour</label>
+        <input type="color" id="object-colour" />
+      </div>
+
+      <div class="input-group">
+        <label>Radius</label>
+        <input type="number" id="object-radius" value="100" min="1" max="10000" />
+        <span>kilometers</span>
+      </div>
+
+      <div class="input-group">
+        <label>Material</label>
+        <select id="object-material">
+          <option value="1">Gas (1)</option>
+          <option value="5">Soil (5)</option>
+          <option value="10" selected>Iron (10)</option>
+          <option value="12">Lead (12)</option>
+          <option value="0">Custom (1-100)</option>
+        </select>
+        <input type="number" id="object-material-custom" min="1" max="100" value="10" />
+      </div>
+
+      <button id="object-create">Create Object</button>
+      <button id="object-generate-random">Generate Random Object</button>
+
+    </section>
+
+    <button id="sidebar-return-objectcreation">Go Back</button>
+  </div>
 
   <!-- Settings -->
-  <div id="settings"></div>
+  <div id="settings">
+    <h2 class="sidebar-header">SPACE SIMULATOR <span>//&nbsp;&nbsp;Gab, Takumi and Aidan</span></h2>
+
+    <section>
+      <h3>Manage Space</h3>
+    </section>
+
+    <button id="sidebar-return-settings">Go Back</button>
+  </div>
 
   <!-- Load State -->
-  <div id="load-state"></div>
+  <div id="load-state">
+    <h2 class="sidebar-header">SPACE SIMULATOR <span>//&nbsp;&nbsp;Gab, Takumi and Aidan</span></h2>
+
+    <section>
+      <h3>Load State</h3>
+    </section>
+
+    <button id="sidebar-return-loadstate">Go Back</button>
+  </div>
 </div>
 
 <script src="simulator.js"></script>

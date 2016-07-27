@@ -28,6 +28,7 @@ body
   box-shadow: 0 0 20px 5px rgba(0,0,0,0.3)
 
   #start
+    padding: 10px
     h1
       font-family: 'monosten'
       font-size: 40px
@@ -50,34 +51,184 @@ body
       &:nth-child(3)
         font-style: italic
 
-    button
+  #tutorial
+    .sidebar-title
       position: relative
       display: block
-      border: none
-      background: none
-      color: #21252b
-      border-radius: 0
-      padding: 2px 5px 2px 2px
-      margin-bottom: 10px
-      font-size: 13px
-      font-family: Helvetica, Arial, sans-serif
-      border-bottom: 2px solid #21252b
+      width: 100%
+      padding-top: 20px
+      margin-left: -6px
 
-      &:focus, &:active
-        outline: none
+      &:after
+        display: block
+        content: ' '
+        clear: both
+
+      span, h3
+        display: inline-block
+        position: relative
+        height: 100%
+        float: left
+
+      span
+        width: 110px
+        font-family: 'monosten'
+        font-size: 80px
+        line-height: 75px
+        color: #EB423E
+
+      h3
+        width: calc(100% - 110px)
+        margin: 0
+        padding: 6px 0
+
+  #object-creation
+    .input-group
+      display: block
+      margin-bottom: 20px
+      font-family: Helvetica, Arial, sans-serif
+
+      label
+        display: block
+        font-size: 14px
+        font-weight: normal
+        text-decoration: underline
+
+      input,select
+        border: none
+        background: none
+
+        &:focus, &:active, &:hover
+          outline: none
+
+      &:nth-child(4)
+        input
+          padding: 0
+          width: 80px
+          height: 30px
+          margin-left: -2px
+
+      &:nth-child(5)
+        input
+          border-bottom: 1px solid black
+          width: 70px
+          line-height: 1.5
+          margin-top: 5px
+
+        span
+          font-size: 11px
+          line-height: 1.5
+
+      &:nth-child(6)
+        margin-bottom: 30px
+
+        select
+          background: #efefef
+          border: 1px solid black
+          border-radius: 0
+          margin-top: 5px
+          width: 120px
+          height: 20px
+          padding: 10px
+
+        input
+          display: none
+          border-bottom: 1px solid black
+          margin-left: 5px
+
+          &.shown
+            display: inline-block
+
+    section button
+      background: #73c990
+      padding: 5px 10px
+      color: #111
+      border: none
 
       &:hover
-        cursor: pointer
-        color: #EB423E
-        border-bottom: 2px solid #EB423E
+        background: darken(#73c990, 10%)
+        color: #000
 
-  #tutorial
-    position: relative
+    line
+      position: relative
+      width: 100px
+      height: 1px
+      background: #333
+      display: block
+      margin-top: 5px
+      margin-bottom: 20px
 
   #start, #tutorial, #object-creation, #settings, #load-state
     display: none
+    position: relative
+    height: 95%
+    box-sizing: border-box
+
     &.open
       display: block
+
+    .sidebar-header
+      font-size: 14px
+      font-weight: bold
+      font-family: 'monosten'
+      padding-top: 15px
+
+      span
+        font-weight: 300
+        font-family: Helvetica
+        font-size: 12px
+        color: #333
+
+    h3
+      line-height: 30px
+      font-size: 30px
+      font-weight: 300
+
+    p
+      line-height: 1.7
+      font-size: 14px
+
+  #tutorial, #object-creation, #settings, #load-state
+    padding: 15px
+
+    button
+      margin-top: 10px
+
+    section
+      position: relative
+      overflow: scroll
+      height: calc(100% - 70px)
+
+  button
+    position: relative
+    display: block
+    border: none
+    background: none
+    color: #21252b
+    border-radius: 0
+    padding: 2px 5px 2px 2px
+    margin-bottom: 10px
+    font-size: 13px
+    font-family: Helvetica, Arial, sans-serif
+    border-bottom: 2px solid #21252b
+
+    &:focus, &:active
+      outline: none
+
+    &:hover
+      cursor: pointer
+      color: #e74c3c
+      // #EB423E
+      border-bottom: 2px solid #e74c3c
+      //#EB423E
+
+
+#object-undermouse
+  position: absolute
+  display: block
+  border-radius: 50%
+  opacity: 0.8
+  display: none
 
 canvas
   width: 75%

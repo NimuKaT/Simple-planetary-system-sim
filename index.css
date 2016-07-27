@@ -25,25 +25,143 @@ body {
   background: #E4E6E9;
   padding: 0 15px;
   box-shadow: 0 0 20px 5px rgba(0, 0, 0, 0.3); }
-  #sidebar #start h1 {
-    font-family: "monosten";
-    font-size: 40px;
-    margin: 0;
-    padding: 70px 0 20px 0;
-    color: #21252b; }
-  #sidebar #start line {
+  #sidebar #start {
+    padding: 10px; }
+    #sidebar #start h1 {
+      font-family: "monosten";
+      font-size: 40px;
+      margin: 0;
+      padding: 70px 0 20px 0;
+      color: #21252b; }
+    #sidebar #start line {
+      display: block;
+      position: relative;
+      width: 100px;
+      height: 2px;
+      background: #21252b;
+      margin-bottom: 20px; }
+    #sidebar #start p {
+      font-size: 15px;
+      line-height: 1.5; }
+      #sidebar #start p:nth-child(3) {
+        font-style: italic; }
+  #sidebar #tutorial .sidebar-title {
+    position: relative;
     display: block;
+    width: 100%;
+    padding-top: 20px;
+    margin-left: -6px; }
+    #sidebar #tutorial .sidebar-title:after {
+      display: block;
+      content: " ";
+      clear: both; }
+    #sidebar #tutorial .sidebar-title span, #sidebar #tutorial .sidebar-title h3 {
+      display: inline-block;
+      position: relative;
+      height: 100%;
+      float: left; }
+    #sidebar #tutorial .sidebar-title span {
+      width: 110px;
+      font-family: "monosten";
+      font-size: 80px;
+      line-height: 75px;
+      color: #EB423E; }
+    #sidebar #tutorial .sidebar-title h3 {
+      width: calc(100% - 110px);
+      margin: 0;
+      padding: 6px 0; }
+  #sidebar #object-creation .input-group {
+    display: block;
+    margin-bottom: 20px;
+    font-family: Helvetica, Arial, sans-serif; }
+    #sidebar #object-creation .input-group label {
+      display: block;
+      font-size: 14px;
+      font-weight: normal;
+      text-decoration: underline; }
+    #sidebar #object-creation .input-group input, #sidebar #object-creation .input-group select {
+      border: none;
+      background: none; }
+      #sidebar #object-creation .input-group input:focus, #sidebar #object-creation .input-group input:active, #sidebar #object-creation .input-group input:hover, #sidebar #object-creation .input-group select:focus, #sidebar #object-creation .input-group select:active, #sidebar #object-creation .input-group select:hover {
+        outline: none; }
+    #sidebar #object-creation .input-group:nth-child(4) input {
+      padding: 0;
+      width: 80px;
+      height: 30px;
+      margin-left: -2px; }
+    #sidebar #object-creation .input-group:nth-child(5) input {
+      border-bottom: 1px solid black;
+      width: 70px;
+      line-height: 1.5;
+      margin-top: 5px; }
+    #sidebar #object-creation .input-group:nth-child(5) span {
+      font-size: 11px;
+      line-height: 1.5; }
+    #sidebar #object-creation .input-group:nth-child(6) {
+      margin-bottom: 30px; }
+      #sidebar #object-creation .input-group:nth-child(6) select {
+        background: #efefef;
+        border: 1px solid black;
+        border-radius: 0;
+        margin-top: 5px;
+        width: 120px;
+        height: 20px;
+        padding: 10px; }
+      #sidebar #object-creation .input-group:nth-child(6) input {
+        display: none;
+        border-bottom: 1px solid black;
+        margin-left: 5px; }
+        #sidebar #object-creation .input-group:nth-child(6) input.shown {
+          display: inline-block; }
+  #sidebar #object-creation section button {
+    background: #73c990;
+    padding: 5px 10px;
+    color: #111;
+    border: none; }
+    #sidebar #object-creation section button:hover {
+      background: #4ebb73;
+      color: #000; }
+  #sidebar #object-creation line {
     position: relative;
     width: 100px;
-    height: 2px;
-    background: #21252b;
+    height: 1px;
+    background: #333;
+    display: block;
+    margin-top: 5px;
     margin-bottom: 20px; }
-  #sidebar #start p {
-    font-size: 15px;
-    line-height: 1.5; }
-    #sidebar #start p:nth-child(3) {
-      font-style: italic; }
-  #sidebar #start button {
+  #sidebar #start, #sidebar #tutorial, #sidebar #object-creation, #sidebar #settings, #sidebar #load-state {
+    display: none;
+    position: relative;
+    height: 95%;
+    box-sizing: border-box; }
+    #sidebar #start.open, #sidebar #tutorial.open, #sidebar #object-creation.open, #sidebar #settings.open, #sidebar #load-state.open {
+      display: block; }
+    #sidebar #start .sidebar-header, #sidebar #tutorial .sidebar-header, #sidebar #object-creation .sidebar-header, #sidebar #settings .sidebar-header, #sidebar #load-state .sidebar-header {
+      font-size: 14px;
+      font-weight: bold;
+      font-family: "monosten";
+      padding-top: 15px; }
+      #sidebar #start .sidebar-header span, #sidebar #tutorial .sidebar-header span, #sidebar #object-creation .sidebar-header span, #sidebar #settings .sidebar-header span, #sidebar #load-state .sidebar-header span {
+        font-weight: 300;
+        font-family: Helvetica;
+        font-size: 12px;
+        color: #333; }
+    #sidebar #start h3, #sidebar #tutorial h3, #sidebar #object-creation h3, #sidebar #settings h3, #sidebar #load-state h3 {
+      line-height: 30px;
+      font-size: 30px;
+      font-weight: 300; }
+    #sidebar #start p, #sidebar #tutorial p, #sidebar #object-creation p, #sidebar #settings p, #sidebar #load-state p {
+      line-height: 1.7;
+      font-size: 14px; }
+  #sidebar #tutorial, #sidebar #object-creation, #sidebar #settings, #sidebar #load-state {
+    padding: 15px; }
+    #sidebar #tutorial button, #sidebar #object-creation button, #sidebar #settings button, #sidebar #load-state button {
+      margin-top: 10px; }
+    #sidebar #tutorial section, #sidebar #object-creation section, #sidebar #settings section, #sidebar #load-state section {
+      position: relative;
+      overflow: scroll;
+      height: calc(100% - 70px); }
+  #sidebar button {
     position: relative;
     display: block;
     border: none;
@@ -55,18 +173,19 @@ body {
     font-size: 13px;
     font-family: Helvetica, Arial, sans-serif;
     border-bottom: 2px solid #21252b; }
-    #sidebar #start button:focus, #sidebar #start button:active {
+    #sidebar button:focus, #sidebar button:active {
       outline: none; }
-    #sidebar #start button:hover {
+    #sidebar button:hover {
       cursor: pointer;
-      color: #EB423E;
-      border-bottom: 2px solid #EB423E; }
-  #sidebar #tutorial {
-    position: relative; }
-  #sidebar #start, #sidebar #tutorial, #sidebar #object-creation, #sidebar #settings, #sidebar #load-state {
-    display: none; }
-    #sidebar #start.open, #sidebar #tutorial.open, #sidebar #object-creation.open, #sidebar #settings.open, #sidebar #load-state.open {
-      display: block; }
+      color: #e74c3c;
+      border-bottom: 2px solid #e74c3c; }
+
+#object-undermouse {
+  position: absolute;
+  display: block;
+  border-radius: 50%;
+  opacity: 0.8;
+  display: none; }
 
 canvas {
   width: 75%;
