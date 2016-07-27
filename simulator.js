@@ -7,12 +7,12 @@ const COLLISION_THRESHOLD = 0.85;
 
 // open a window in the sidebar
 var openWindow = function(itemName) {
-  document.getElementById(itemName).className = 'open';
+  document.getElementById(itemName).className = 'open'; // add class open to the chosen element
 };
 
 // close a window in the sidebar
 var closeWindow = function(itemName) {
-  document.getElementById(itemName).className = '';
+  document.getElementById(itemName).className = '';     // remove all classes from the chosen element
 };
 
 var init = function() {
