@@ -1,7 +1,6 @@
-<<<<<<< HEAD
 const canvas = document.getElementById('simulation');
 const canvasContext = canvas.getContext('2d');
-=======
+
 const UNIVERSAL_GRAVITATIONAL_CONSTANT = 6.67e-11;
 const KM_TO_PIXELS = 1/1e3; //subject to change
 const COLLISION_THRESHOLD = 0.85;
@@ -9,7 +8,6 @@ const COLLISION_THRESHOLD = 0.85;
 var openTutorialWindow = function() {
   document.getElementById('tutorial').className = 'open';
 };
->>>>>>> origin/master
 
 
 // open a window in the sidebar
@@ -155,14 +153,78 @@ var removeFollowObject = function() {
 // context.stroke();
 
 
-function planet (density, radius, color, x, y){
-    this.density = density;
-    this.radius = radius;
-    this.color = color;
+function object (density, radius, color, x, y) { // Aidan
+    // constants on creation
     this.x = x;
     this.y = y;
+    this.radius = radius;
+    this.density = density;
     this.volume = (4/3) * Math.PI * Math.pow(this.radius, 3);
+    this.mass = this.density * this.volume;
+    this.color = color;
 
+    // variables that change as the planet moves
+    this.vx = 0;
+    this.vy = 0;
+
+    this.drawObject = function(x,y) {
+        // given its position on the canvas, draws it centred to that location
+        canvasContext.beginPath();
+        canvasContext.arc(x, y, this.radius, 0, 2 * Math.PI, false);
+        canvasContext.fillStyle = this.colour;
+        canvasContext.fill();
+    };
+
+    this.updatePosition = function(accelX, accelY) {
+        // given the acceleration of the object for a frame, moves its position
+        // update the objects velocity
+        this.vx += accelX;
+        this.vy += accelY;
+
+        // update the objects position
+        this.x += vx;
+        this.y += vy;
+    };
+
+    // getters for all parts of the class needed elsewhere
+    this.getX = function() {
+        return this.x;
+    };
+
+    this.getY = function() {
+        return this.y;
+    };
+
+    this.getMass = function() {
+        return this.mass;
+    };
+
+    this.getVolume = function() {
+        this.volume;
+    };
+
+    this.getDensity = function() {
+        this.density
+    };
+
+    this.getX = function() {
+        this.radius;
+    };
+
+    this.getColor = function() {
+        this.color;
+    };
+
+    this.setVelocity = function(vx, vy) {
+        // gives the object an instantaneous velocity on creation
+        this.vx = vx;
+        this.vy = vy;
+    }
+};
+
+function calculateDistance(x1, y1, x2, y2) {
+    var distance = Math.root((x1 - x2)^2 + (y1 - y1)^2);
+    return distance;
 };
 
 function main(){
@@ -181,16 +243,16 @@ function main(){
 
     };
 
-    this.hitDetect = function(object_1, object_2){
+    this.hitDetect = function(object1, object2){
         var hasHit = false;
-        var x1 = object_1.x;
-        var y1 = object_1.y;
-        var r1 = object_1.radius;
-        var x2 = object_2.x;
-        var y2 = object_2.y;
-        var r2 = object_2.radius;
-        var distance = Math.root((x1 - x2)^2 + (y1 - y1)^2);
-        if (distance >= COLLISION_THRESHOLD*(r1 + r2)){
+        var x1 = object1.getX();
+        var y1 = object1.getY();
+        var r1 = object1.getRadius();
+        var x2 = object2.getX();
+        var y2 = object2.getY();
+        var r2 = object2.getRadius();
+        var distance = calculateDistance(x1, y1, x2, y2); // get the distance between planets
+        if (distance >= COLLISION_THRESHOLD*(r1 + r2)){ // check if the planets are close enough for a collision
             hasHit = true;
         };
         return hasHit;
