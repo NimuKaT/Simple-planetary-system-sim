@@ -1,9 +1,9 @@
-
 const CANVAS = document.getElementById('simulation');
 const CANVAS_CONTEXT = CANVAS.getContext('2d');
 const UNIVERSAL_GRAVITATIONAL_CONSTANT = 6.67e-11;
 const KM_TO_PIXELS = 1/1e3; //subject to change
 const COLLISION_THRESHOLD = 0.85;
+const TICKS_PER_SECOND = 25
 
 // open a window in the sidebar
 var openWindow = function(itemName) {
@@ -187,15 +187,15 @@ function object (density, radius, color, x, y) { // Aidan
         canvasContext.fill();
     };
 
-    this.updatePosition = function(accelX, accelY) {
+    this.updatePosition = function(accelX, accelY, timeScale) {
         // given the acceleration of the object for a frame, moves its position
         // update the objects velocity
         this.vx += accelX;
         this.vy += accelY;
 
         // update the objects position
-        this.x += vx;
-        this.y += vy;
+        this.x += vx*timeScale/TICKS_PER_SECOND;
+        this.y += vy*timeScale/TICKS_PER_SECOND;
     };
 
     // getters for all parts of the class needed elsewhere
@@ -227,6 +227,10 @@ function object (density, radius, color, x, y) { // Aidan
         return this.color; // gets object color
     };
 
+    this.getVelocity = function() {
+        return [this.vx, this.vy];
+    }
+
     this.setVelocity = function(vx, vy) {
         // gives the object an instantaneous velocity on creation
         return this.vx = vx;
@@ -235,9 +239,16 @@ function object (density, radius, color, x, y) { // Aidan
 };
 
 function calculateDistance(x1, y1, x2, y2) {
+    // finds the distance between to points on the grid
     var distance = Math.root((x1 - x2)^2 + (y1 - y1)^2);
     return distance;
 };
+
+function calculateGravityForce(m, d) {
+    // finds the acceleration on an object due to another, given its mass and distance away
+    var accel = (UNIVERSAL_GRAVITATIONAL_CONSTANT*m)/d*d;
+    return accel;
+}
 
 function main(){
     this.objects = [];
@@ -251,7 +262,7 @@ function main(){
     this.update = function(){
         for(var i = 0; i < this.object.length; i++){
 
-        };
+        }
 
     };
 
@@ -266,7 +277,7 @@ function main(){
         var distance = calculateDistance(x1, y1, x2, y2); // get the distance between planets
         if (distance >= COLLISION_THRESHOLD*(r1 + r2)){ // check if the planets are close enough for a collision
             hasHit = true;
-        };
+        }
         return hasHit;
     };
 
