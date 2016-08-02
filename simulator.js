@@ -165,62 +165,109 @@ var removeFollowObject = function() {
   obj.onclick = '';             // remove any on click functionality
 };
 
+function object (density, radius, color, x, y) { // Aidan
+    // constants on creation
+    this.x = x;
+    this.y = y;
+    this.radius = radius;
+    this.density = density;
+    this.volume = (4/3) * Math.PI * Math.pow(this.radius, 3);
+    this.mass = this.density * this.volume;
+    this.color = color;
 
+    // variables that change as the planet moves
+    this.vx = 0;
+    this.vy = 0;
 
-function Object(x, y, radius, colour, density) {
-  CANVAS_CONTEXT.beginPath();
-  CANVAS_CONTEXT.arc(x, y, radius, 0, 2 * Math.PI, false);
-  CANVAS_CONTEXT.fillStyle = colour;
-  CANVAS_CONTEXT.fill();
-}
+    this.drawObject = function(x,y) {
+        // given its position on the canvas, draws it centred to that location
+        canvasContext.beginPath();
+        canvasContext.arc(x, y, this.radius, 0, 2 * Math.PI, false);
+        canvasContext.fillStyle = this.colour;
+        canvasContext.fill();
+    };
 
+    this.updatePosition = function(accelX, accelY) {
+        // given the acceleration of the object for a frame, moves its position
+        // update the objects velocity
+        this.vx += accelX;
+        this.vy += accelY;
 
+        // update the objects position
+        this.x += vx;
+        this.y += vy;
+    };
 
+    // getters for all parts of the class needed elsewhere
+    this.getX = function() {
+        return this.x;
+    };
 
+    this.getY = function() {
+        return this.y;
+    };
 
+    this.getMass = function() {
+        return this.mass;
+    };
 
+    this.getVolume = function() {
+        return this.volume;
+    };
 
+    this.getDensity = function() {
+        return this.density
+    };
 
+    this.getX = function() {
+        return this.radius;
+    };
 
-// function planet (density, radius, color, x, y){
-//     this.density = density;
-//     this.radius = radius;
-//     this.color = color;
-//     this.x = x;
-//     this.y = y;
-//     this.volume = (4/3) * Math.PI * Math.pow(this.radius, 3);
-//
-// };
-//
-// function main(){
-//     this.objects = [];
-//     this.magnificationMultiplyer = 1.0;
-//     this.currentCoordinate = 1;
-//
-//     this.createObject = function(density, radius, color, x, y){
-//         this.objects.push(planet(density, radius, color, x, y));
-//     };
-//
-//     this.update = function(){
-//         for(var i = 0; i < this.object.length; i++){
-//
-//         }
-//
-//     };
-//
-//     this.hitDetect = function(object_1, object_2){
-//         var hasHit = false;
-//         var x1 = object_1.x;
-//         var y1 = object_1.y;
-//         var r1 = object_1.radius;
-//         var x2 = object_2.x;
-//         var y2 = object_2.y;
-//         var r2 = object_2.radius;
-//         var distance = Math.root((x1 - x2)^2 + (y1 - y1)^2);
-//         if (distance >= COLLISION_THRESHOLD*(r1 + r2)){
-//             hasHit = true;
-//         };
-//         return hasHit;
-//     };
-//
-// };
+    this.getColor = function() {
+        return this.color; // gets object color
+    };
+
+    this.setVelocity = function(vx, vy) {
+        // gives the object an instantaneous velocity on creation
+        return this.vx = vx;
+        return this.vy = vy;
+    }
+};
+
+function calculateDistance(x1, y1, x2, y2) {
+    var distance = Math.root((x1 - x2)^2 + (y1 - y1)^2);
+    return distance;
+};
+
+function main(){
+    this.objects = [];
+    this.magnificationMultiplyer = 1.0;
+    this.currentCoordinate = 1;
+
+    this.createObject = function(density, radius, color, x, y){
+        this.objects.push(planet(density, radius, color, x, y));
+    };
+
+    this.update = function(){
+        for(var i = 0; i < this.object.length; i++){
+
+        };
+
+    };
+
+    this.hitDetect = function(object1, object2){
+        var hasHit = false;
+        var x1 = object1.getX();
+        var y1 = object1.getY();
+        var r1 = object1.getRadius();
+        var x2 = object2.getX();
+        var y2 = object2.getY();
+        var r2 = object2.getRadius();
+        var distance = calculateDistance(x1, y1, x2, y2); // get the distance between planets
+        if (distance >= COLLISION_THRESHOLD*(r1 + r2)){ // check if the planets are close enough for a collision
+            hasHit = true;
+        };
+        return hasHit;
+    };
+
+};
