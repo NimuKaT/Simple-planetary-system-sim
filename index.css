@@ -122,6 +122,56 @@ body {
     #sidebar #object-creation section button:hover {
       background: #4ebb73;
       color: #000; }
+  #sidebar #load-state .load-item {
+    position: relative;
+    box-sizing: border-box;
+    width: 100%;
+    height: 110px;
+    background: #dcdcdc;
+    padding: 10px;
+    font-size: 11px;
+    transition: all 300ms ease-in-out;
+    margin-bottom: 10px; }
+    #sidebar #load-state .load-item img, #sidebar #load-state .load-item .load-information {
+      position: relative;
+      width: 90px;
+      height: 90px;
+      float: left; }
+    #sidebar #load-state .load-item .load-information {
+      display: flex;
+      justify-content: center;
+      flex-direction: column;
+      width: calc(100% - 90px);
+      padding: 0 0 0 10px;
+      box-sizing: border-box;
+      overflow: hidden; }
+      #sidebar #load-state .load-item .load-information h4, #sidebar #load-state .load-item .load-information p {
+        font-size: 11px;
+        margin: 0;
+        color: #333; }
+      #sidebar #load-state .load-item .load-information h4 {
+        color: #000;
+        line-height: 15px;
+        margin-bottom: 5px; }
+    #sidebar #load-state .load-item:hover {
+      background: #d7d7d7;
+      transform: scale(0.98);
+      box-shadow: 0px 2px 2px 1px rgba(0, 0, 0, 0.1);
+      cursor: pointer;
+      transition: all 300ms ease-in-out; }
+  #sidebar #load-state p {
+    margin-top: 25px; }
+  #sidebar #load-state form input {
+    display: none; }
+  #sidebar #load-state form label {
+    background: #73c990;
+    padding: 5px 10px;
+    color: #111;
+    font-size: 13px; }
+    #sidebar #load-state form label:hover {
+      background: #4ebb73;
+      color: #000;
+      cursor: pointer; }
   #sidebar #start, #sidebar #tutorial, #sidebar #object-creation, #sidebar #settings, #sidebar #load-state {
     display: none;
     position: relative;
@@ -178,7 +228,8 @@ body {
   display: block;
   border-radius: 50%;
   opacity: 0.8;
-  display: none; }
+  display: none;
+  border: 2px dashed white; }
 
 canvas {
   width: 75%;

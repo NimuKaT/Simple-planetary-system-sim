@@ -1,4 +1,3 @@
-
 const CANVAS = document.getElementById('simulation');
 const CANVAS_CONTEXT = CANVAS.getContext('2d');
 const UNIVERSAL_GRAVITATIONAL_CONSTANT = 6.67e-11;
@@ -84,7 +83,7 @@ var init = function() {
   // object creation material custom toggle
   document.getElementById('object-material').onchange = function () {
     var elem = document.getElementById('object-material');
-    if (elem.value === 0) { // select HTML object has custom selected (with a value of 0)
+    if (elem.value === "0") { // select HTML object has custom selected (with a value of 0)
       document.getElementById('object-material-custom').className = 'shown'; // show the custom text input
     } else {
       document.getElementById('object-material-custom').className = ''; // hide the custom text input
@@ -177,50 +176,24 @@ function Object(x, y, radius, colour, density) {
 
 
 
+function download(filename, text) {
+  var element = document.createElement('a');
+  element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+  element.setAttribute('download', filename);
+
+  element.style.display = 'none';
+  document.body.appendChild(element);
+
+  element.click();
+
+  document.body.removeChild(element);
+}
+
+// <form onsubmit="download(this['name'].value, this['text'].value)">
+//   <input type="text" name="name" value="test.txt">
+//   <textarea name="text"></textarea>
+//   <input type="submit" value="Download">
+// </form>
 
 
-
-
-
-// function planet (density, radius, color, x, y){
-//     this.density = density;
-//     this.radius = radius;
-//     this.color = color;
-//     this.x = x;
-//     this.y = y;
-//     this.volume = (4/3) * Math.PI * Math.pow(this.radius, 3);
-//
-// };
-//
-// function main(){
-//     this.objects = [];
-//     this.magnificationMultiplyer = 1.0;
-//     this.currentCoordinate = 1;
-//
-//     this.createObject = function(density, radius, color, x, y){
-//         this.objects.push(planet(density, radius, color, x, y));
-//     };
-//
-//     this.update = function(){
-//         for(var i = 0; i < this.object.length; i++){
-//
-//         }
-//
-//     };
-//
-//     this.hitDetect = function(object_1, object_2){
-//         var hasHit = false;
-//         var x1 = object_1.x;
-//         var y1 = object_1.y;
-//         var r1 = object_1.radius;
-//         var x2 = object_2.x;
-//         var y2 = object_2.y;
-//         var r2 = object_2.radius;
-//         var distance = Math.root((x1 - x2)^2 + (y1 - y1)^2);
-//         if (distance >= COLLISION_THRESHOLD*(r1 + r2)){
-//             hasHit = true;
-//         };
-//         return hasHit;
-//     };
-//
-// };
+//http://www.html5rocks.com/en/tutorials/file/dndfiles/
