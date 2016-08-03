@@ -241,6 +241,7 @@ function object (density, radius, color, x, y, id) { // Aidan
         return this.vx = vx;
         return this.vy = vy;
     }
+
 };
 
 function calculateDistance(x1, y1, x2, y2) {
@@ -261,7 +262,7 @@ function main(){
     this.currentCoordinate = 1;
 
     this.createObject = function(density, radius, color, x, y){
-        this.objects.push(planet(density, radius, color, x, y));
+        this.objects.push(new object(density, radius, color, x, y));
     };
 
     this.update = function(){
@@ -286,4 +287,10 @@ function main(){
         return hasHit;
     };
 
+    this.getObject = function(index){
+      return this.objects[index];
+    };
+
 };
+
+
