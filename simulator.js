@@ -3,6 +3,9 @@ const CANVAS_CONTEXT = CANVAS.getContext('2d');
 const UNIVERSAL_GRAVITATIONAL_CONSTANT = 6.67e-11;
 const KM_TO_PIXELS = 1/1e3; //subject to change
 const COLLISION_THRESHOLD = 0.85;
+const TICKS_PER_SECOND = 25;
+
+var testSession = new main;
 
 // open a window in the sidebar
 var openWindow = function(itemName) {
@@ -125,7 +128,7 @@ var createFollowObject = function(radius, colour, density) {
     // create the object on the canvas
     var x = event.pageX;
     var y = event.pageY;
-    var object = Object(x, y, radius, colour, density); // create the new object
+    var object = testSession.createObject(density, radius, colour, x, y); // create the new object
 
     removeFollowObject();   // remove the mouse follow object
   };
@@ -164,17 +167,188 @@ var removeFollowObject = function() {
   obj.onclick = '';             // remove any on click functionality
 };
 
+function object (density, radius, color, x, y, id) { // Aidan
+    // constants on creation
+    this.id = id
+    this.x = x;
+    this.y = y;
+    this.radius = radius;
+    this.density = density;
+    this.volume = (4/3) * Math.PI * Math.pow(this.radius, 3);
+    this.mass = this.density * this.volume;
+    this.color = color;
+
+    // variables that change as the planet moves
+    this.vx = 0;
+    this.vy = 0;
+
+    this.drawObject = function(xShift, yShift) {
+        // given its position on the canvas, draws it centred to that location
+        console.log("Drawing object");
+        CANVAS_CONTEXT.beginPath();
+        CANVAS_CONTEXT.arc(this.x + xShift, this.y + yShift, this.radius, 0, 2 * Math.PI, false);
+        CANVAS_CONTEXT.fillStyle = this.color;
+        CANVAS_CONTEXT.fill();
+    };
+
+    this.updatePosition = function(accelX, accelY, timeScale) {
+        // given the acceleration of the object for a frame, moves its position
+        // update the objects velocity
+        this.vx += accelX;
+        this.vy += accelY;
+
+        // update the objects position
+        this.x += this.vx*timeScale/TICKS_PER_SECOND;
+        this.y += this.vy*timeScale/TICKS_PER_SECOND;
+    };
+
+    // getters for all parts of the class needed elsewhere
+    this.getX = function() {
+        return this.x;
+    };
+
+    this.getY = function() {
+        return this.y;
+    };
+
+    this.getMass = function() {
+        return this.mass;
+    };
+
+    this.getVolume = function() {
+        return this.volume;
+    };
+
+    this.getDensity = function() {
+        return this.density
+    };
+
+    this.getRadius = function() {
+        return this.radius;
+    };
+
+    this.getColor = function() {
+        return this.color; // gets object color
+    };
+
+    this.getVelocity = function() {
+        return [this.vx, this.vy];
+    }
+
+    this.getID = function() {
+        return this.id;
+    }
+
+    this.setVelocity = function(vx, vy) {
+        // gives the object an instantaneous velocity on creation
+        return this.vx = vx;
+        return this.vy = vy;
+    }
+
+};
+
+function calculateDistance(x1, y1, x2, y2) {
+    // finds the distance between to points on the grid
+    var distance = Math.sqrt((x1 - x2)^2 + (y1 - y1)^2);
+    return distance;
+};
 
 
-function Object(x, y, radius, colour, density) {
-  CANVAS_CONTEXT.beginPath();
-  CANVAS_CONTEXT.arc(x, y, radius, 0, 2 * Math.PI, false);
-  CANVAS_CONTEXT.fillStyle = colour;
-  CANVAS_CONTEXT.fill();
+function calculateGravityForce(m, d) {
+    // finds the acceleration on an object due to another, given its mass and distance away
+    var accel = (UNIVERSAL_GRAVITATIONAL_CONSTANT*m)/d*d;
+    return accel;
 }
 
 
+function main(){
+    this.objects = []; // contains all the planet objects
+    this.magnificationMultiplyer = 1.0;
+    this.currentCoordinate = [0, 0];
+    this.idCounter = 0;
 
+    this.createObject = function(density, radius, color, x, y, velocityx=0, velocityy=0){
+        this.objects.push(new object(density, radius, color, x, y, this.idCounter));
+        console.log("Created object with\nDensity: " + density + "kg/m^3\nRadius: " + radius + "km\nColor: " + color + "\nCoordinates: " + x + ", " + y + "\nID: " + this.idCounter); // debug info
+        this.idCounter++;
+    };
+
+    this.update = function(){
+      if (typeof this.objects !== 'undefined'){
+        CANVAS_CONTEXT.clearRect(0, 0, CANVAS.width, CANVAS.height);  
+        for(var i = 0; i < this.objects.length; i++){
+          this.objects[i].updatePosition(1, 1, 5);
+          this.objects[i].drawObject(this.currentCoordinate[0], this.currentCoordinate[1]);
+        }
+      }
+    };
+
+    this.hitDetect = function(object1, object2){
+        var hasHit = false;
+        var x1 = object1.getX();
+        var y1 = object1.getY();
+        var r1 = object1.getRadius();
+        var x2 = object2.getX();
+        var y2 = object2.getY();
+        var r2 = object2.getRadius();
+        var distance = calculateDistance(x1, y1, x2, y2); // get the distance between planets
+        
+        if (distance <= COLLISION_THRESHOLD*(r1 + r2)){ // check if the planets are close enough for a collision
+            hasHit = true;
+        }
+        return hasHit;
+    };
+
+
+
+    this.mergeObject = function(mergeObjects){
+      this.totalMomentum = [0,0];
+      this.totalMass = 0;
+      this.totalVolume = 0;
+      for(i = 0; i > mergeObjects.length; i++){
+        var mass = mergeObjects[i].getMass();
+        var velocity = mergeObjects[i].getVelocity;
+        this.totalMomentum[0] = this.totalMomentum[0] + mass * velocity[0];
+        this.totalMomentum[1] = this.totalMomentum[1] + mass * velocity[1];
+        this.totalMass = this.totalMass + mass;
+        this.totalVolume = this.totalVolume + mergeObjects[i].getVolume();
+
+
+      }
+    };
+
+    this.getObject = function(index){
+      return this.objects[index];
+    };
+
+    this.getIndexFromID = function(objectID){
+      return objectID === this.value;
+
+    };
+
+};
+
+
+var test = function(ID1, ID2){ // Test session
+  var curSession = new main;
+  curSession.createObject(10, 20, "#000000", 0, 0);
+  curSession.createObject(5, 10, "#FFFFFF", 0, 0);
+  curSession.createObject(2, 5, "#FF3", 8, 8);
+  if (curSession.hitDetect(curSession.getObject(ID1), curSession.getObject(ID2))){
+    console.log("Hit detected");
+  }
+  else{
+    console.log("No hit detected")
+  }
+
+};
+
+testSession.createObject(100, 200, "#000000", 100, 100);
+testSession.createObject(500, 100, "#FFFFFF", 100, 100);
+testSession.createObject(20, 50, "#FF3", 800, 800);
+console.log(testSession.objects.length);
+
+var sessionInterval =  window.setInterval(function(){testSession.update()}, 1000/TICKS_PER_SECOND);
 
 function download(filename, text) {
   var element = document.createElement('a');
@@ -194,6 +368,4 @@ function download(filename, text) {
 //   <textarea name="text"></textarea>
 //   <input type="submit" value="Download">
 // </form>
-
-
 //http://www.html5rocks.com/en/tutorials/file/dndfiles/
