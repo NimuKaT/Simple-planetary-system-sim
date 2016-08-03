@@ -3,7 +3,9 @@ const CANVAS_CONTEXT = CANVAS.getContext('2d');
 const UNIVERSAL_GRAVITATIONAL_CONSTANT = 6.67e-11;
 const KM_TO_PIXELS = 1/1e3; //subject to change
 const COLLISION_THRESHOLD = 0.85;
-const TICKS_PER_SECOND = 25
+const TICKS_PER_SECOND = 25;
+
+var testSession = new main;
 
 // open a window in the sidebar
 var openWindow = function(itemName) {
@@ -126,7 +128,7 @@ var createFollowObject = function(radius, colour, density) {
     // create the object on the canvas
     var x = event.pageX;
     var y = event.pageY;
-    var object = Object(x, y, radius, colour, density); // create the new object
+    var object = testSession.createObject(density, radius, colour, x, y); // create the new object
 
     removeFollowObject();   // remove the mouse follow object
   };
@@ -182,10 +184,10 @@ function object (density, radius, color, x, y, id) { // Aidan
 
     this.drawObject = function(x,y) {
         // given its position on the canvas, draws it centred to that location
-        canvasContext.beginPath();
-        canvasContext.arc(x, y, this.radius, 0, 2 * Math.PI, false);
-        canvasContext.fillStyle = this.colour;
-        canvasContext.fill();
+        CANVAS_CONTEXT.beginPath();
+        CANVAS_CONTEXT.arc(x, y, this.radius, 0, 2 * Math.PI, false);
+        CANVAS_CONTEXT.fillStyle = this.colour;
+        CANVAS_CONTEXT.fill();
     };
 
     this.updatePosition = function(accelX, accelY, timeScale) {
@@ -259,16 +261,24 @@ function calculateGravityForce(m, d) {
 function main(){
     this.objects = []; // contains all the planet objects
     this.magnificationMultiplyer = 1.0;
-    this.currentCoordinate[0, 0];
+    this.currentCoordinate = [0, 0];
+    this.idCounter = 0;
 
-    this.createObject = function(density, radius, color, x, y){
-        this.objects.push(new object(density, radius, color, x, y));
+    this.createObject = function(density, radius, color, x, y, velocityx=0, velocityy=0){
+        this.objects.push(new object(density, radius, color, x, y, this.idCounter));
+        console.log("Created object with\nDensity: " + density + "kg/m^3\nRadius: " + radius + "km\nColor: " + color + "\nCoordinates: " + x + ", " + y + "\nID: " + this.idCounter); // debug info
+        this.idCounter++;
     };
 
     this.update = function(){
-        for(var i = 0; i < this.object.length; i++){
-
+      console.log("Updating") // debug info
+      if (! this.objects === []){
+        for(var i = 0; i < this.objects.length; i++){
+          this.objects[i].drawObject();
+          }
         }
+
+      console.log("Done updating") // debug info
 
     };
 
@@ -288,9 +298,20 @@ function main(){
         return hasHit;
     };
 
-    this.mergeObject = function(object1, object2){
-      this.index1 = this.objects.findIndex(this.getIndexFromID, object1.getID());
-      this.index2 = this.objects.findIndex(this.getIndexFromID, object2.getID());
+    this.mergeObject = function(mergeObjects){
+      this.totalMomentum = [0,0];
+      this.totalMass = 0;
+      this.totalVolume = 0;
+      for(i = 0; i > mergeObjects.length; i++){
+        var mass = mergeObjects[i].getMass();
+        var velocity = mergeObjects[i].getVelocity;
+        this.totalMomentum[0] = this.totalMomentum[0] + mass * velocity[0];
+        this.totalMomentum[1] = this.totalMomentum[1] + mass * velocity[1];
+        this.totalMass = this.totalMass + mass;
+        this.totalVolume = this.totalVolume + mergeObjects[i].getVolume();
+
+
+      }
     }
 
     this.getObject = function(index){
@@ -305,7 +326,7 @@ function main(){
 };
 
 
-var test = function(ID1, ID2){
+var test = function(ID1, ID2){ // Test session
   var curSession = new main;
   curSession.createObject(10, 20, "#000000", 0, 0);
   curSession.createObject(5, 10, "#ffffff", 0, 0);
@@ -318,3 +339,5 @@ var test = function(ID1, ID2){
   }
 
 };
+
+var sessionInterval = setInterval(testSession.update, 1000);
