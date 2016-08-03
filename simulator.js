@@ -299,30 +299,8 @@ function main(){
         return hasHit;
     };
 
-<<<<<<< HEAD
-};
 
 
-function download(filename, text) {
-  var element = document.createElement('a');
-  element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
-  element.setAttribute('download', filename);
-
-  element.style.display = 'none';
-  document.body.appendChild(element);
-
-  element.click();
-
-  document.body.removeChild(element);
-}
-
-// <form onsubmit="download(this['name'].value, this['text'].value)">
-//   <input type="text" name="name" value="test.txt">
-//   <textarea name="text"></textarea>
-//   <input type="submit" value="Download">
-// </form>
-//http://www.html5rocks.com/en/tutorials/file/dndfiles/
-=======
     this.mergeObject = function(mergeObjects){
       this.totalMomentum = [0,0];
       this.totalMass = 0;
@@ -371,4 +349,23 @@ testSession.createObject(20, 50, "#FF3", 800, 800);
 console.log(testSession.objects.length);
 
 var sessionInterval =  window.setInterval(function(){testSession.update()}, 1000/TICKS_PER_SECOND);
->>>>>>> 4040a89b7915f8c4ce00be69d89354aca3fcdbba
+
+function download(filename, text) {
+  var element = document.createElement('a');
+  element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+  element.setAttribute('download', filename);
+
+  element.style.display = 'none';
+  document.body.appendChild(element);
+
+  element.click();
+
+  document.body.removeChild(element);
+}
+
+// <form onsubmit="download(this['name'].value, this['text'].value)">
+//   <input type="text" name="name" value="test.txt">
+//   <textarea name="text"></textarea>
+//   <input type="submit" value="Download">
+// </form>
+//http://www.html5rocks.com/en/tutorials/file/dndfiles/
