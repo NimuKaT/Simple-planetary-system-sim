@@ -182,11 +182,12 @@ function object (density, radius, color, x, y, id) { // Aidan
     this.vx = 0;
     this.vy = 0;
 
-    this.drawObject = function(x,y) {
+    this.drawObject = function() {
         // given its position on the canvas, draws it centred to that location
+        console.log("Drawing object");
         CANVAS_CONTEXT.beginPath();
-        CANVAS_CONTEXT.arc(x, y, this.radius, 0, 2 * Math.PI, false);
-        CANVAS_CONTEXT.fillStyle = this.colour;
+        CANVAS_CONTEXT.arc(this.x, this.y, this.radius, 0, 2 * Math.PI, false);
+        CANVAS_CONTEXT.fillStyle = this.color;
         CANVAS_CONTEXT.fill();
     };
 
@@ -197,8 +198,8 @@ function object (density, radius, color, x, y, id) { // Aidan
         this.vy += accelY;
 
         // update the objects position
-        this.x += vx*timeScale/TICKS_PER_SECOND;
-        this.y += vy*timeScale/TICKS_PER_SECOND;
+        this.x += this.vx*timeScale/TICKS_PER_SECOND;
+        this.y += this.vy*timeScale/TICKS_PER_SECOND;
     };
 
     // getters for all parts of the class needed elsewhere
@@ -271,15 +272,13 @@ function main(){
     };
 
     this.update = function(){
-      console.log("Updating") // debug info
-      if (! this.objects === []){
+      if (typeof this.objects !== 'undefined'){
+        CANVAS_CONTEXT.clearRect(0, 0, CANVAS.width, CANVAS.height);  
         for(var i = 0; i < this.objects.length; i++){
+          this.objects[i].updatePosition(1, 1, 5);
           this.objects[i].drawObject();
-          }
         }
-
-      console.log("Done updating") // debug info
-
+      }
     };
 
     this.hitDetect = function(object1, object2){
@@ -312,7 +311,7 @@ function main(){
 
 
       }
-    }
+    };
 
     this.getObject = function(index){
       return this.objects[index];
@@ -329,8 +328,8 @@ function main(){
 var test = function(ID1, ID2){ // Test session
   var curSession = new main;
   curSession.createObject(10, 20, "#000000", 0, 0);
-  curSession.createObject(5, 10, "#ffffff", 0, 0);
-  curSession.createObject(2, 5, "#ff3", 8, 8);
+  curSession.createObject(5, 10, "#FFFFFF", 0, 0);
+  curSession.createObject(2, 5, "#FF3", 8, 8);
   if (curSession.hitDetect(curSession.getObject(ID1), curSession.getObject(ID2))){
     console.log("Hit detected");
   }
@@ -340,4 +339,9 @@ var test = function(ID1, ID2){ // Test session
 
 };
 
-var sessionInterval = setInterval(testSession.update, 1000);
+testSession.createObject(100, 200, "#000000", 100, 100);
+testSession.createObject(500, 100, "#FFFFFF", 100, 100);
+testSession.createObject(20, 50, "#FF3", 800, 800);
+console.log(testSession.objects.length);
+
+var sessionInterval =  window.setInterval(function(){testSession.update()}, 1000/TICKS_PER_SECOND);
