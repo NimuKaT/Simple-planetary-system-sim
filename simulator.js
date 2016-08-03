@@ -257,9 +257,9 @@ function calculateGravityForce(m, d) {
 }
 
 function main(){
-    this.objects = [];
+    this.objects = []; // contains all the planet objects
     this.magnificationMultiplyer = 1.0;
-    this.currentCoordinate = 1;
+    this.currentCoordinate[0, 0];
 
     this.createObject = function(density, radius, color, x, y){
         this.objects.push(new object(density, radius, color, x, y));
@@ -281,16 +281,40 @@ function main(){
         var y2 = object2.getY();
         var r2 = object2.getRadius();
         var distance = calculateDistance(x1, y1, x2, y2); // get the distance between planets
-        if (distance >= COLLISION_THRESHOLD*(r1 + r2)){ // check if the planets are close enough for a collision
+        
+        if (distance <= COLLISION_THRESHOLD*(r1 + r2)){ // check if the planets are close enough for a collision
             hasHit = true;
         }
         return hasHit;
     };
 
+    this.mergeObject = function(object1, object2){
+      this.index1 = this.objects.findIndex(this.getIndexFromID, object1.getID());
+      this.index2 = this.objects.findIndex(this.getIndexFromID, object2.getID());
+    }
+
     this.getObject = function(index){
       return this.objects[index];
+    };
+
+    this.getIndexFromID = function(objectID){
+      return objectID === this.value;
+
     };
 
 };
 
 
+var test = function(ID1, ID2){
+  var curSession = new main;
+  curSession.createObject(10, 20, "#000000", 0, 0);
+  curSession.createObject(5, 10, "#ffffff", 0, 0);
+  curSession.createObject(2, 5, "#ff3", 8, 8);
+  if (curSession.hitDetect(curSession.getObject(ID1), curSession.getObject(ID2))){
+    console.log("Hit detected");
+  }
+  else{
+    console.log("No hit detected")
+  }
+
+};
