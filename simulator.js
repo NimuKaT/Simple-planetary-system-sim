@@ -180,7 +180,7 @@ function object (density, radius, color, x, y, id) { // Aidan
     this.vx = 0;
     this.vy = 0;
 
-    this.drawObject = function(x,y) {
+    this.drawObject = function(x, y) {
         // given its position on the canvas, draws it centred to that location
         canvasContext.beginPath();
         canvasContext.arc(x, y, this.radius, 0, 2 * Math.PI, false);
