@@ -84,7 +84,7 @@ var init = function() {
   // object creation material custom toggle
   document.getElementById('object-material').onchange = function () {
     var elem = document.getElementById('object-material');
-    if (elem.value === 0) { // select HTML object has custom selected (with a value of 0)
+    if (elem.value === "0") { // select HTML object has custom selected (with a value of 0)
       document.getElementById('object-material-custom').className = 'shown'; // show the custom text input
     } else {
       document.getElementById('object-material-custom').className = ''; // hide the custom text input
@@ -249,11 +249,13 @@ function calculateDistance(x1, y1, x2, y2) {
     return distance;
 };
 
+
 function calculateGravityForce(m, d) {
     // finds the acceleration on an object due to another, given its mass and distance away
     var accel = (UNIVERSAL_GRAVITATIONAL_CONSTANT*m)/d*d;
     return accel;
 }
+
 
 function main(){
     this.objects = [];
@@ -287,3 +289,24 @@ function main(){
     };
 
 };
+
+
+function download(filename, text) {
+  var element = document.createElement('a');
+  element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+  element.setAttribute('download', filename);
+
+  element.style.display = 'none';
+  document.body.appendChild(element);
+
+  element.click();
+
+  document.body.removeChild(element);
+}
+
+// <form onsubmit="download(this['name'].value, this['text'].value)">
+//   <input type="text" name="name" value="test.txt">
+//   <textarea name="text"></textarea>
+//   <input type="submit" value="Download">
+// </form>
+//http://www.html5rocks.com/en/tutorials/file/dndfiles/

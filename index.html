@@ -62,7 +62,7 @@
         After placing the object give it a velocity by clicking again,
         where the distance from the object affects the speed and the direction chooses which way the object travels.
       </p>
-      
+
       <div class="input-group">
         <label>Colour</label>
         <input type="color" id="object-colour" />
@@ -111,11 +111,54 @@
 
     <section>
       <h3>Load State</h3>
+
+      <div class="load-item">
+        <img src="https://placehold.it/90/f1c40f" />
+        <div class="load-information">
+          <h4>Simple Orbit</h4>
+          <p>
+            A simple planet orbitting around a gas star.
+          </p>
+        </div>
+      </div>
+
+      <div class="load-item">
+        <img src="https://placehold.it/90/e67e22" />
+        <div class="load-information">
+          <h4>Our Solar System</h4>
+          <p>
+            A simple model of our solar system, fit with the Sun, 8 planets and Pluto.
+          </p>
+        </div>
+      </div>
+
+      <div class="load-item">
+        <img src="https://placehold.it/90/e74c3c" />
+        <div class="load-information">
+          <h4>Complex Planet Battle</h4>
+          <p>
+            We wanted to see who would win.
+          </p>
+        </div>
+      </div>
+
+      <p>To load your own schematic into the planet simulation, select a valid file below:</p>
+      <form>
+        <label for="loadstate-file">Load a file</label>
+        <input type="file" id="loadstate-file" />
+      </form>
+
     </section>
 
     <button id="sidebar-return-loadstate">Go Back</button>
   </div>
 </div>
+
+<!-- <form onsubmit="download(this['name'].value, this['text'].value)">
+  <input type="text" name="name" value="test.txt">
+  <textarea name="text"></textarea>
+  <input type="submit" value="Download">
+</form> -->
 
 <script src="simulator.js"></script>
 </body>

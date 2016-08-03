@@ -102,7 +102,7 @@ body
 
       &:nth-child(3)
         margin-top: 30px
-        
+
         input
           padding: 0
           width: 80px
@@ -149,6 +149,68 @@ body
       &:hover
         background: darken(#73c990, 10%)
         color: #000
+
+  #load-state
+    .load-item
+      position: relative
+      box-sizing: border-box
+      width: 100%
+      height: 110px
+      background: #dcdcdc
+      padding: 10px
+      font-size: 11px
+      transition: all 300ms ease-in-out
+      margin-bottom: 10px
+
+      img, .load-information
+        position: relative
+        width: 90px
+        height: 90px
+        float: left
+
+      .load-information
+        display: flex
+        justify-content: center
+        flex-direction: column
+        width: calc(100% - 90px)
+        padding: 0 0 0 10px
+        box-sizing: border-box
+        overflow: hidden
+
+        h4, p
+          font-size: 11px
+          margin: 0
+          color: #333
+
+        h4
+          color: #000
+          line-height: 15px
+          margin-bottom: 5px
+
+      &:hover
+        background: darken(#dcdcdc, 2%)
+        transform: scale(0.98)
+        box-shadow: 0px 2px 2px 1px rgba(0,0,0,0.1)
+        cursor: pointer
+        transition: all 300ms ease-in-out
+
+    p
+      margin-top: 25px
+
+    form
+      input
+        display: none
+
+      label
+        background: #73c990
+        padding: 5px 10px
+        color: #111
+        font-size: 13px
+
+        &:hover
+          background: darken(#73c990, 10%)
+          color: #000
+          cursor: pointer
 
   #start, #tutorial, #object-creation, #settings, #load-state
     display: none
@@ -221,6 +283,7 @@ body
   border-radius: 50%
   opacity: 0.8
   display: none
+  border: 2px dashed white
 
 canvas
   width: 75%
