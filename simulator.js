@@ -165,8 +165,9 @@ var removeFollowObject = function() {
   obj.onclick = '';             // remove any on click functionality
 };
 
-function object (density, radius, color, x, y) { // Aidan
+function object (density, radius, color, x, y, id) { // Aidan
     // constants on creation
+    this.id = id
     this.x = x;
     this.y = y;
     this.radius = radius;
@@ -219,7 +220,7 @@ function object (density, radius, color, x, y) { // Aidan
         return this.density
     };
 
-    this.getX = function() {
+    this.getRadius = function() {
         return this.radius;
     };
 
@@ -231,6 +232,10 @@ function object (density, radius, color, x, y) { // Aidan
         return [this.vx, this.vy];
     }
 
+    this.getID = function() {
+        return this.id;
+    }
+
     this.setVelocity = function(vx, vy) {
         // gives the object an instantaneous velocity on creation
         return this.vx = vx;
@@ -240,7 +245,7 @@ function object (density, radius, color, x, y) { // Aidan
 
 function calculateDistance(x1, y1, x2, y2) {
     // finds the distance between to points on the grid
-    var distance = Math.root((x1 - x2)^2 + (y1 - y1)^2);
+    var distance = Math.sqrt((x1 - x2)^2 + (y1 - y1)^2);
     return distance;
 };
 
