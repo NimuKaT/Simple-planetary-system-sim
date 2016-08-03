@@ -182,11 +182,11 @@ function object (density, radius, color, x, y, id) { // Aidan
     this.vx = 0;
     this.vy = 0;
 
-    this.drawObject = function() {
+    this.drawObject = function(xShift, yShift) {
         // given its position on the canvas, draws it centred to that location
         console.log("Drawing object");
         CANVAS_CONTEXT.beginPath();
-        CANVAS_CONTEXT.arc(this.x, this.y, this.radius, 0, 2 * Math.PI, false);
+        CANVAS_CONTEXT.arc(this.x + xShift, this.y + yShift, this.radius, 0, 2 * Math.PI, false);
         CANVAS_CONTEXT.fillStyle = this.color;
         CANVAS_CONTEXT.fill();
     };
@@ -276,7 +276,7 @@ function main(){
         CANVAS_CONTEXT.clearRect(0, 0, CANVAS.width, CANVAS.height);  
         for(var i = 0; i < this.objects.length; i++){
           this.objects[i].updatePosition(1, 1, 5);
-          this.objects[i].drawObject();
+          this.objects[i].drawObject(this.currentCoordinate[0], this.currentCoordinate[1]);
         }
       }
     };
