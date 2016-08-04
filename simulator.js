@@ -1,9 +1,9 @@
 const CANVAS = document.getElementById('simulation');
 const CANVAS_CONTEXT = CANVAS.getContext('2d');
-const UNIVERSAL_GRAVITATIONAL_CONSTANT = 6.67e-11;
+const UNIVERSAL_GRAVITATIONAL_CONSTANT = 6.67e-9;
 const KM_TO_PIXELS = 1/1e3; //subject to change
 const COLLISION_THRESHOLD = 0.85;
-const TICKS_PER_SECOND = 1;
+const TICKS_PER_SECOND = 25;
 
 var testSession = new main;
 
@@ -248,7 +248,7 @@ function object (density, radius, color, x, y, id) { // Aidan
 
 function calculateDistance(x1, y1, x2, y2) {
     // finds the distance between to points on the grid
-    var distance = Math.sqrt((x1 - x2)^2 + (y1 - y1)^2);
+    var distance = Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
     return distance;
 };
 
@@ -270,9 +270,8 @@ function calculateGravityAccel(x1, y1, x2, y2, m, d, angle) {
     if (d != 0) {
         var accel = (UNIVERSAL_GRAVITATIONAL_CONSTANT*m)/d*d;
         var output = getVectorOnAxises(x1, y1, x2, y2, accel, angle);
-        console.log(accel, d*d);
+
     } else {
-        console.log("No disance");
         var output = 0;
     }
     return output;
@@ -372,7 +371,6 @@ var test = function(ID1, ID2){ // Test session
   var curSession = new main;
   curSession.createObject(10, 20, "#000000", 0, 0);
   curSession.createObject(5, 10, "#FFFFFF", 0, 0);
-  curSession.createObject(2, 5, "#FF3", 8, 8);
   if (curSession.hitDetect(curSession.getObject(ID1), curSession.getObject(ID2))){
     console.log("Hit detected");
   }
