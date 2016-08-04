@@ -183,7 +183,7 @@ function object (density, radius, color, x, y, id) { // Aidan
     this.vy = 0;
 
     this.drawObject = function(xShift, yShift) {
-        // given its position on the canvas, draws it centred to that location
+        // given the required shift to draw on the canvas, draws centred to its location on canvas
         CANVAS_CONTEXT.beginPath();
         CANVAS_CONTEXT.arc(this.x + xShift, this.y + yShift, this.radius, 0, 2 * Math.PI, false);
         CANVAS_CONTEXT.fillStyle = this.color;
@@ -253,9 +253,10 @@ function calculateDistance(x1, y1, x2, y2) {
 };
 
 function getVectorOnAxises(x1, y1, x2, y2, magnitude, angle) {
+  // splits a single vector into its x and y components for translation
   var acuteAngle = angle%90;
   var xMag = magnitude*Math.cos(angle);
-  var yMag = magnitude*Math.cos(angle);
+  var yMag = magnitude*Math.sin(angle);
   if (x2 < x1) {
     xMag *= -1;
   }
@@ -267,11 +268,11 @@ function getVectorOnAxises(x1, y1, x2, y2, magnitude, angle) {
 
 function calculateGravityAccel(x1, y1, x2, y2, m, d, angle) {
     // finds the acceleration on an object due to another, given its mass and distance away
-    if (d != 0) {
-        var accel = (UNIVERSAL_GRAVITATIONAL_CONSTANT*m)/d*d;
-        var output = getVectorOnAxises(x1, y1, x2, y2, accel, angle);
+    if (d != 0) { // make sure it won't divide by zero
+        var accel = (UNIVERSAL_GRAVITATIONAL_CONSTANT*m)/d*d; // get the magnitude
+        var output = getVectorOnAxises(x1, y1, x2, y2, accel, angle); // then split it to x and y
 
-    } else {
+    } else { // don't try and move it if its ontop of the other
         var output = 0;
     }
     return output;
@@ -280,41 +281,50 @@ function calculateGravityAccel(x1, y1, x2, y2, m, d, angle) {
 
 function main(){
     this.objects = []; // contains all the planet objects
-    this.magnificationMultiplyer = 1.0;
+    this.magnificationMultiplyer = 1.0; // zoom level
     this.currentCoordinate = [0, 0];
-    this.idCounter = 0;
+    this.idCounter = 0; // maximum id made so far
 
-    this.createObject = function(density, radius, color, x, y, velocityx=0, velocityy=0){
+    this.createObject = function(density, radius, color, x, y, velocityx=0, velocityy=0) {
+        // makes a new object and logs its statistics to the log
         this.objects.push(new object(density, radius, color, x, y, this.idCounter));
         console.log("Created object with\nDensity: " + density + "kg/m^3\nRadius: " + radius + "km\nColor: " + color + "\nCoordinates: " + x + ", " + y + "\nID: " + this.idCounter); // debug info
-        this.idCounter++;
+        this.idCounter++; // make sure the next object will have a new id
     };
 
-    this.update = function(){
-      if (typeof this.objects !== 'undefined'){
+    this.update = function() {
+      if (typeof this.objects !== 'undefined') {
+
+        // variables required to update the position of each object on the canvas
         var currObject = null;
         var dist = 0;
         var force = 0;
         var angle = 0;
         var currAccelX = 0;
         var currAccelY = 0;
-        CANVAS_CONTEXT.clearRect(0, 0, CANVAS.width, CANVAS.height);  
-        for(var i = 0; i < this.objects.length; i++){
+
+        // clear the canvas to draw the next frame
+        CANVAS_CONTEXT.clearRect(0, 0, CANVAS.width, CANVAS.height);
+        for(var i = 0; i < this.objects.length; i++) { // go through each planet to update its position
           currObject = this.objects[i];
 
-          for (var p = 0; p < this.objects.length; p++) {
+          for (var p = 0; p < this.objects.length; p++) { // go through each other planet to get the
+            // acceleration it induces on the current one
             if (currObject.getID() != this.objects[p].getID()) { // check the planets are different
-              dist = calculateDistance(
+              dist = calculateDistance( // get the distance between objects
                 currObject.getX(), currObject.getY(),
                 this.objects[p].getX(), this.objects[p].getY());
-              accel = calculateGravityAccel(currObject.getX(), currObject.getY(),
+              accel = calculateGravityAccel(currObject.getX(), currObject.getY(), // get the acceleration caused
                 this.objects[p].getX(), this.objects[p].getY(), 
                 this.objects[p].getMass(), dist, angle);
+
+              // add acceleration from the second object to that of the first for the current frame
               currAccelX += accel[0];
               currAccelY += accel[0];
             }
           }
 
+          //once all vectors are added, move the object
           this.objects[i].updatePosition(currAccelX, currAccelY, 5);
           this.objects[i].drawObject(this.currentCoordinate[0], this.currentCoordinate[1]);
         }
