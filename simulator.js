@@ -184,7 +184,6 @@ function object (density, radius, color, x, y, id) { // Aidan
 
     this.drawObject = function(xShift, yShift) {
         // given its position on the canvas, draws it centred to that location
-        console.log("Drawing object");
         CANVAS_CONTEXT.beginPath();
         CANVAS_CONTEXT.arc(this.x + xShift, this.y + yShift, this.radius, 0, 2 * Math.PI, false);
         CANVAS_CONTEXT.fillStyle = this.color;
@@ -253,11 +252,24 @@ function calculateDistance(x1, y1, x2, y2) {
     return distance;
 };
 
+function getVectorOnAxises(x1, y1, x2, y2, magnitude, angle) {
+  var acuteAngle = angle%90;
+  var xMag = magnitude*Math.cos(angle);
+  var yMag = magnitude*Math.cos(angle);
+  if (x2 < x1) {
+    xMag *= -1;
+  }
+  if (y2 < y1) {
+    yMag *= -1;
+  }
+  return [xMag, yMag];
+}
 
-function calculateGravityForce(m, d) {
+function calculateGravityAccel(x1, y1, x2, y2, m, d, angle) {
     // finds the acceleration on an object due to another, given its mass and distance away
     var accel = (UNIVERSAL_GRAVITATIONAL_CONSTANT*m)/d*d;
-    return accel;
+    var output = getVectorOnAxises(x1, y1, x2, y2, accel, angle);
+    return output;
 }
 
 
@@ -275,9 +287,28 @@ function main(){
 
     this.update = function(){
       if (typeof this.objects !== 'undefined'){
+        var currObject = null;
+        var dist = 0;
+        var force = 0;
+        var angle = 0;
+        var currAccelX = 0;
+        var currAccelY = 0;
         CANVAS_CONTEXT.clearRect(0, 0, CANVAS.width, CANVAS.height);  
         for(var i = 0; i < this.objects.length; i++){
-          this.objects[i].updatePosition(1, 1, 5);
+          currObject = this.objects[i];
+
+          for (var p; p < this.objects.length; i++) {
+            if (currObject.getID() != this.objects[p].getID()) { // check the planets are different
+              dist = calculateDistance(
+                currObject.getX(), currObject.getY(),
+                this.objects[p].getX(), this.objects[p].getY());
+              accel = calculateGravityAccel(this.objects[p].getMass(), dist, angle);
+              currAccelX += accel[0];
+              currAccelY += accel[0];
+            }
+          }
+
+          this.objects[i].updatePosition(currAccelX, currAccelY, 5);
           this.objects[i].drawObject(this.currentCoordinate[0], this.currentCoordinate[1]);
         }
       }
@@ -343,10 +374,9 @@ var test = function(ID1, ID2){ // Test session
 
 };
 
-testSession.createObject(100, 200, "#000000", 100, 100);
+testSession.createObject(100, 200, "#000000", 500, 500);
 testSession.createObject(500, 100, "#FFFFFF", 100, 100);
 testSession.createObject(20, 50, "#FF3", 800, 800);
-console.log(testSession.objects.length);
 
 var sessionInterval =  window.setInterval(function(){testSession.update()}, 1000/TICKS_PER_SECOND);
 
