@@ -286,10 +286,10 @@ function main(){
     this.idCounter = 0; // maximum id made so far
 
     this.createObject = function(density, radius, color, x, y, velocityx=0, velocityy=0) {
-        // makes a new object and logs its statistics to the log
-        this.objects.push(new object(density, radius, color, x, y, this.idCounter));
-        console.log("Created object with\nDensity: " + density + "kg/m^3\nRadius: " + radius + "km\nColor: " + color + "\nCoordinates: " + x + ", " + y + "\nID: " + this.idCounter); // debug info
-        this.idCounter++; // make sure the next object will have a new id
+      // makes a new object and logs its statistics to the log
+      this.objects.push(new object(density, radius, color, x, y, this.idCounter));
+      console.log("Created object with\nDensity: " + density + "kg/m^3\nRadius: " + radius + "km\nColor: " + color + "\nCoordinates: " + x + ", " + y + "\nID: " + this.idCounter); // debug info
+      this.idCounter++; // make sure the next object will have a new id
     };
 
     this.update = function() {
@@ -332,19 +332,19 @@ function main(){
     };
 
     this.hitDetect = function(object1, object2){
-        var hasHit = false;
-        var x1 = object1.getX();
-        var y1 = object1.getY();
-        var r1 = object1.getRadius();
-        var x2 = object2.getX();
-        var y2 = object2.getY();
-        var r2 = object2.getRadius();
-        var distance = calculateDistance(x1, y1, x2, y2); // get the distance between planets
+      var hasHit = false;
+      var x1 = object1.getX();
+      var y1 = object1.getY();
+      var r1 = object1.getRadius();
+      var x2 = object2.getX();
+      var y2 = object2.getY();
+      var r2 = object2.getRadius();
+      var distance = calculateDistance(x1, y1, x2, y2); // get the distance between planets
         
-        if (distance <= COLLISION_THRESHOLD*(r1 + r2)){ // check if the planets are close enough for a collision
-            hasHit = true;
-        }
-        return hasHit;
+      if (distance <= COLLISION_THRESHOLD*(r1 + r2)){ // check if the planets are close enough for a collision
+        hasHit = true;
+      }
+      return hasHit;
     };
 
 
