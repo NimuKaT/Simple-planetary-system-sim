@@ -184,7 +184,6 @@ function object (density, radius, color, x, y, id) { // Aidan
 
     this.drawObject = function(xShift, yShift) {
         // given its position on the canvas, draws it centred to that location
-        console.log("Drawing object");
         CANVAS_CONTEXT.beginPath();
         CANVAS_CONTEXT.arc(this.x + xShift, this.y + yShift, this.radius, 0, 2 * Math.PI, false);
         CANVAS_CONTEXT.fillStyle = this.color;
