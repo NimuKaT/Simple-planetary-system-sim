@@ -304,6 +304,7 @@ function main(){
         CANVAS_CONTEXT.clearRect(0, 0, CANVAS.width, CANVAS.height); //clears canvas for re-drawing
         for(var i = 0; i < this.objects.length; i++){ // iterates through planets to have a force acted on it
           currObject = this.objects[i];
+
           currAccelX = 0;
           currAccelY = 0;
           
