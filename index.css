@@ -225,11 +225,23 @@ body {
 
 #object-undermouse {
   position: absolute;
-  display: block;
   border-radius: 50%;
   opacity: 0.8;
   display: none;
   border: 2px dashed white; }
+
+#object-placeholder {
+  position: absolute;
+  display: block;
+  border-radius: 50%; }
+
+#velocity-line {
+  position: absolute;
+  width: 100px;
+  height: 2px;
+  background: white;
+  display: none;
+  transform-origin: left top; }
 
 canvas {
   width: 75%;

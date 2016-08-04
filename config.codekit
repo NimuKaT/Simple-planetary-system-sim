@@ -59,8 +59,8 @@
 		},
 	"\/simulator.js": {
 		"fileType": 64,
-		"ignore": 1,
-		"ignoreWasSetByUser": 1,
+		"ignore": 0,
+		"ignoreWasSetByUser": 0,
 		"inputAbbreviatedPath": "\/simulator.js",
 		"outputAbbreviatedPath": "\/min\/simulator-min.js",
 		"outputPathIsOutsideProject": 0,

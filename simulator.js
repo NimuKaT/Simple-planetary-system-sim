@@ -17,12 +17,8 @@ var closeWindow = function(itemName) {
   document.getElementById(itemName).className = '';     // remove all classes from the chosen element
 };
 
-var init = function() {
-  // initialise the canvas
-  CANVAS.width = window.innerWidth * 0.75; // set the canvas width to 75% screen width
-  CANVAS.height = window.innerHeight;      // set the canvas height to 100%
-
-  // initialise the follow object
+// initialise the follow object
+var initFollowObject = function() {
   document.onmousemove = function(event) {
     event = event || window.event;                                // get the mouse move event
     var elem = document.getElementById('object-undermouse');      // get the mouse under element
@@ -31,6 +27,15 @@ var init = function() {
                                                                   // width (as to place in center)
     elem.style.top = event.pageY - (elem.offsetHeight/2) + 'px';  // set the absolute right position similarly
   };
+};
+
+var init = function() {
+  // initialise the canvas
+  CANVAS.width = window.innerWidth * 0.75; // set the canvas width to 75% screen width
+  CANVAS.height = window.innerHeight;      // set the canvas height to 100%
+
+  // initialise the follow object
+  initFollowObject();
 
   // open the starting window for the sidebar
   openWindow('start');
@@ -96,7 +101,7 @@ var init = function() {
   // 'create object' button
   document.getElementById('object-create').addEventListener('mouseup', function() {
     var radius = document.getElementById('object-radius').value;    // get the value for the radius
-    var colour = document.getElementById('object-colour').value;    // get the value for the colour
+    var color = document.getElementById('object-color').value;    // get the value for the colour
     var density = document.getElementById('object-material').value; // get the value for the material
 
     // check for the custom density selected
@@ -105,7 +110,7 @@ var init = function() {
     }
 
     // create the object
-    createFollowObject(radius, colour, density);
+    createFollowObject(radius, color, density);
   });
 };
 
@@ -115,10 +120,10 @@ init();
 
 // create an object to follow the mouse around when the user creates an object
 // and give this following object the correct properties
-var createFollowObject = function(radius, colour, density) {
+var createFollowObject = function(radius, color, density) {
   var obj = document.getElementById('object-undermouse'); // the mouse follow object
   obj.style.display = 'block';          // set the visiblilty to show
-  obj.style.background = colour;        // set the background colour
+  obj.style.background = color;        // set the background colour
   obj.style.width = radius*2 + 'px';    // set the width
   obj.style.height = radius*2 + 'px';   // set the height
 
@@ -128,37 +133,63 @@ var createFollowObject = function(radius, colour, density) {
     // create the object on the canvas
     var x = event.pageX;
     var y = event.pageY;
-    var object = testSession.createObject(density, radius, colour, x, y); // create the new object
 
-    removeFollowObject();   // remove the mouse follow object
+    // create the placeholder object
+    createPlaceholderObject(radius, color, x, y);
+
+    // create velocity line
+    createVelocityLine(x,y);
+
+    // remove the mouse follow object
+    clearFollowObject();
+    createObjectCancellation();
+
+    var cf = false; // a click flag to determine the second click (velocity click)
+
+    // get the next click event (for the velocity)
+    document.onclick = function(event) {
+      if (cf) {
+        var vx = event.pageX - x; // distance on the x axis
+        var vy = event.pageY - y; // distance on the y axis
+        var object = testSession.createObject(density, radius, color, x, y, vx, vy);
+        clearObjectCreation();
+      } else { cf = true; }
+    }
   };
 
-  var t = false; // the code should run on the next click if t is true
-             // this is needed because the browser calls the below code as it
-             // thinks the click of the 'Create Object' button is still going
+  createObjectCancellation(true);
+};
+
+// allows the user to cancel the object creation
+var createObjectCancellation = function(a = false) {
+  // 'a' is whether the object is in another click event
+  if (a) {
+    var clickFlag = false; // determines whether the user has clicked
+                           // needed because this code is still within another event
+                           // for a click so the following code would run straight
+                           // away rather than on the next click
+  } else {
+    var clickFlag = true;
+  }
 
   // get when the user doesnt place the object on the canvas
   document.getElementById('sidebar').onclick = function() {
-    if(t) {
-      removeFollowObject(); // remove the mouse follow object
+    if(clickFlag) {
+      clearObjectCreation(); // remove the mouse follow object
     }
-    t = true; // whenever the next time the sidebar is clicked the code in the
-              // if statement above should run
+    clickFlag = true;
   };
 
   // get when a keyboard button is clicked
   document.onkeydown = function(event) {
     if (event.which === 27) {  // if escape key pressed
-      removeFollowObject();   // remove the mouse follow object
+      clearObjectCreation();   // remove the mouse follow object
     }
   };
 };
 
-// remove the follow object and clear it's styles
-var removeFollowObject = function() {
-  document.getElementById('sidebar').onclick = '';   // remove the event listener for a click on the sidebar
-  document.onkeydown = '';// remove the event listening for key presses
-
+// clear the follow object's styles
+var clearFollowObject = function() {
   var obj = document.getElementById('object-undermouse');
   obj.style.display = 'none';   // set the visibility to none
   obj.style.width = '0px';      // set the width to 0
@@ -166,6 +197,78 @@ var removeFollowObject = function() {
   obj.style.background = 'none';// set the background to no background
   obj.onclick = '';             // remove any on click functionality
 };
+
+// remove the follow object and clear it's styles
+var clearObjectCreation = function() {
+  // remove the event listener for a click on the sidebar
+  document.getElementById('sidebar').onclick = '';
+
+  // remove the event listening for key presses
+  document.onkeydown = '';
+
+  // remove all on click effects
+  document.onclick = '';
+
+  clearFollowObject();
+  removePlaceholderObject();
+  removeVelocityLine();
+  initFollowObject();
+};
+
+// create placeholder object
+var createPlaceholderObject = function(radius, color, x, y) {
+  var obj = document.getElementById("object-placeholder");
+  obj.style.width = radius*2 + 'px';
+  obj.style.height = radius*2 + 'px';
+  obj.style.background = color;
+  obj.style.left = (x - radius) + 'px';
+  obj.style.top = (y - radius) + 'px';
+};
+
+// remove placeholder object
+var removePlaceholderObject = function(radius, color, x, y) {
+  var obj = document.getElementById("object-placeholder");
+  obj.style.width = '';
+  obj.style.height = '';
+  obj.style.background = 'none';
+  obj.style.left = '';
+  obj.style.top = '';
+};
+
+// create velocity line
+var createVelocityLine = function(x,y) {
+  var obj = document.getElementById("velocity-line");
+  obj.style.display = 'block';
+  obj.style.left = x + 'px';
+  obj.style.top = y + 'px';
+  obj.style.transform = '';
+
+  document.onmousemove = function(event) {
+    var mx = event.pageX;
+    var my = event.pageY;
+
+    var distance = Math.hypot(mx-x, my-y);
+    var angle = Math.atan2(my - y, mx - x) * 180 / Math.PI;
+
+    obj.style.width = distance + 'px';
+    obj.style.transform = 'rotate('+angle+'deg)';
+  }
+};
+
+// remove velocity line
+var removeVelocityLine = function() {
+  var obj = document.getElementById("velocity-line");
+  obj.style.display = 'none';
+  obj.style.left = '';
+  obj.style.top = '';
+  obj.style.width = '';
+  obj.style.transform = '';
+};
+
+
+
+
+
 
 function object (density, radius, color, x, y, id) { // Aidan
     // constants on creation
@@ -184,7 +287,7 @@ function object (density, radius, color, x, y, id) { // Aidan
 
     this.drawObject = function(xShift, yShift) {
         // given its position on the canvas, draws it centred to that location
-        console.log("Drawing object");
+        // console.log("Drawing object");
         CANVAS_CONTEXT.beginPath();
         CANVAS_CONTEXT.arc(this.x + xShift, this.y + yShift, this.radius, 0, 2 * Math.PI, false);
         CANVAS_CONTEXT.fillStyle = this.color;
@@ -228,7 +331,7 @@ function object (density, radius, color, x, y, id) { // Aidan
     };
 
     this.getColor = function() {
-        return this.color; // gets object color
+        return this.color;
     };
 
     this.getVelocity = function() {
@@ -247,6 +350,7 @@ function object (density, radius, color, x, y, id) { // Aidan
 
 };
 
+// GAB: not sure if this works, but i found an easier way (look up Math.hypot)
 function calculateDistance(x1, y1, x2, y2) {
     // finds the distance between to points on the grid
     var distance = Math.sqrt((x1 - x2)^2 + (y1 - y1)^2);
@@ -269,15 +373,15 @@ function main(){
 
     this.createObject = function(density, radius, color, x, y, velocityx=0, velocityy=0){
         this.objects.push(new object(density, radius, color, x, y, this.idCounter));
-        console.log("Created object with\nDensity: " + density + "kg/m^3\nRadius: " + radius + "km\nColor: " + color + "\nCoordinates: " + x + ", " + y + "\nID: " + this.idCounter); // debug info
+        console.log("Created object with\nDensity: " + density + "kg/m^3\nRadius: " + radius + "km\nColor: " + color + "\nCoordinates: " + x + ", " + y + "\nVelocity X: " + velocityx + "\nVelocity Y: " + velocityy + "\nID: " + this.idCounter); // debug info
         this.idCounter++;
     };
 
     this.update = function(){
       if (typeof this.objects !== 'undefined'){
-        CANVAS_CONTEXT.clearRect(0, 0, CANVAS.width, CANVAS.height);  
+        CANVAS_CONTEXT.clearRect(0, 0, CANVAS.width, CANVAS.height);
         for(var i = 0; i < this.objects.length; i++){
-          this.objects[i].updatePosition(1, 1, 5);
+          this.objects[i].updatePosition(0, 0, 5);
           this.objects[i].drawObject(this.currentCoordinate[0], this.currentCoordinate[1]);
         }
       }
@@ -292,7 +396,7 @@ function main(){
         var y2 = object2.getY();
         var r2 = object2.getRadius();
         var distance = calculateDistance(x1, y1, x2, y2); // get the distance between planets
-        
+
         if (distance <= COLLISION_THRESHOLD*(r1 + r2)){ // check if the planets are close enough for a collision
             hasHit = true;
         }
@@ -342,11 +446,6 @@ var test = function(ID1, ID2){ // Test session
   }
 
 };
-
-testSession.createObject(100, 200, "#000000", 100, 100);
-testSession.createObject(500, 100, "#FFFFFF", 100, 100);
-testSession.createObject(20, 50, "#FF3", 800, 800);
-console.log(testSession.objects.length);
 
 var sessionInterval =  window.setInterval(function(){testSession.update()}, 1000/TICKS_PER_SECOND);
 
