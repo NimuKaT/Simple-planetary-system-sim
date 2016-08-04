@@ -3,7 +3,7 @@ const CANVAS_CONTEXT = CANVAS.getContext('2d');
 const UNIVERSAL_GRAVITATIONAL_CONSTANT = 6.67e-11;
 const KM_TO_PIXELS = 1/1e3; //subject to change
 const COLLISION_THRESHOLD = 0.85;
-const TICKS_PER_SECOND = 25;
+const TICKS_PER_SECOND = 1;
 
 var testSession = new main;
 
@@ -267,8 +267,14 @@ function getVectorOnAxises(x1, y1, x2, y2, magnitude, angle) {
 
 function calculateGravityAccel(x1, y1, x2, y2, m, d, angle) {
     // finds the acceleration on an object due to another, given its mass and distance away
-    var accel = (UNIVERSAL_GRAVITATIONAL_CONSTANT*m)/d*d;
-    var output = getVectorOnAxises(x1, y1, x2, y2, accel, angle);
+    if (d != 0) {
+        var accel = (UNIVERSAL_GRAVITATIONAL_CONSTANT*m)/d*d;
+        var output = getVectorOnAxises(x1, y1, x2, y2, accel, angle);
+        console.log(accel, d*d);
+    } else {
+        console.log("No disance");
+        var output = 0;
+    }
     return output;
 }
 
@@ -297,12 +303,14 @@ function main(){
         for(var i = 0; i < this.objects.length; i++){
           currObject = this.objects[i];
 
-          for (var p; p < this.objects.length; i++) {
+          for (var p = 0; p < this.objects.length; p++) {
             if (currObject.getID() != this.objects[p].getID()) { // check the planets are different
               dist = calculateDistance(
                 currObject.getX(), currObject.getY(),
                 this.objects[p].getX(), this.objects[p].getY());
-              accel = calculateGravityAccel(this.objects[p].getMass(), dist, angle);
+              accel = calculateGravityAccel(currObject.getX(), currObject.getY(),
+                this.objects[p].getX(), this.objects[p].getY(), 
+                this.objects[p].getMass(), dist, angle);
               currAccelX += accel[0];
               currAccelY += accel[0];
             }
