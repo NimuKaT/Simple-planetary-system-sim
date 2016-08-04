@@ -1,6 +1,6 @@
 const CANVAS = document.getElementById('simulation');
 const CANVAS_CONTEXT = CANVAS.getContext('2d');
-const UNIVERSAL_GRAVITATIONAL_CONSTANT = 6.67e-9;
+const UNIVERSAL_GRAVITATIONAL_CONSTANT = 6.67e-11;
 const KM_TO_PIXELS = 1/1e3; //subject to change
 const COLLISION_THRESHOLD = 0.85;
 const TICKS_PER_SECOND = 25;
@@ -183,9 +183,9 @@ function object (density, radius, color, x, y, id) { // Aidan
     this.vy = 0;
 
     this.drawObject = function(xShift, yShift) {
-        // given the required shift to draw on the canvas, draws centred to its location on canvas
+        // given its position on the canvas, draws it centred to that location
         CANVAS_CONTEXT.beginPath();
-        CANVAS_CONTEXT.arc(this.x + xShift, this.y + yShift, this.radius, 0, 2 * Math.PI, false);
+        CANVAS_CONTEXT.arc(this.x - xShift, this.y - yShift, this.radius, 0, 2 * Math.PI, false);
         CANVAS_CONTEXT.fillStyle = this.color;
         CANVAS_CONTEXT.fill();
     };
@@ -253,7 +253,6 @@ function calculateDistance(x1, y1, x2, y2) {
 };
 
 function getVectorOnAxises(x1, y1, x2, y2, magnitude, angle) {
-  // splits a single vector into its x and y components for translation
   var acuteAngle = angle%90;
   var xMag = magnitude*Math.cos(angle);
   var yMag = magnitude*Math.sin(angle);
@@ -268,11 +267,11 @@ function getVectorOnAxises(x1, y1, x2, y2, magnitude, angle) {
 
 function calculateGravityAccel(x1, y1, x2, y2, m, d, angle) {
     // finds the acceleration on an object due to another, given its mass and distance away
-    if (d != 0) { // make sure it won't divide by zero
-        var accel = (UNIVERSAL_GRAVITATIONAL_CONSTANT*m)/d*d; // get the magnitude
-        var output = getVectorOnAxises(x1, y1, x2, y2, accel, angle); // then split it to x and y
+    if (d != 0) {
+        var accel = (UNIVERSAL_GRAVITATIONAL_CONSTANT*m)/d*d;
+        var output = getVectorOnAxises(x1, y1, x2, y2, accel, angle);
 
-    } else { // don't try and move it if its ontop of the other
+    } else {
         var output = 0;
     }
     return output;
@@ -281,70 +280,70 @@ function calculateGravityAccel(x1, y1, x2, y2, m, d, angle) {
 
 function main(){
     this.objects = []; // contains all the planet objects
-    this.magnificationMultiplyer = 1.0; // zoom level
+    this.magnificationMultiplyer = 1.0;
     this.currentCoordinate = [0, 0];
-    this.idCounter = 0; // maximum id made so far
+    this.idCounter = 0;
 
-    this.createObject = function(density, radius, color, x, y, velocityx=0, velocityy=0) {
-      // makes a new object and logs its statistics to the log
-      this.objects.push(new object(density, radius, color, x, y, this.idCounter));
-      console.log("Created object with\nDensity: " + density + "kg/m^3\nRadius: " + radius + "km\nColor: " + color + "\nCoordinates: " + x + ", " + y + "\nID: " + this.idCounter); // debug info
-      this.idCounter++; // make sure the next object will have a new id
+    this.createObject = function(density, radius, color, x, y, velocityx=0, velocityy=0){
+        this.objects.push(new object(density, radius, color, x, y, this.idCounter)); // adds values into new planet object
+        if (velocityx !== 0 || velocityy !== 0){ // sets velocity value if supplied (may use id to find added object when to prevent errors during clustered thread) ) 
+          this.objects[this.objects.length-1].setVelocity(velocityx, velocityy);
+        }
+        console.log("Created object with\nDensity: " + density + "kg/m^3\nRadius: " + radius + "km\nColor: " + color + "\nCoordinates: " + x + ", " + y + "\nID: " + this.idCounter); // debug info
+        this.idCounter++;
     };
 
-    this.update = function() {
-      if (typeof this.objects !== 'undefined') {
-
-        // variables required to update the position of each object on the canvas
+    this.update = function(){
+      if (typeof this.objects !== 'undefined'){ //prevents update when array is broken
         var currObject = null;
         var dist = 0;
         var force = 0;
         var angle = 0;
         var currAccelX = 0;
         var currAccelY = 0;
-
-        // clear the canvas to draw the next frame
-        CANVAS_CONTEXT.clearRect(0, 0, CANVAS.width, CANVAS.height);
-        for(var i = 0; i < this.objects.length; i++) { // go through each planet to update its position
+        CANVAS_CONTEXT.clearRect(0, 0, CANVAS.width, CANVAS.height); //clears canvas for re-drawing
+        for(var i = 0; i < this.objects.length; i++){ // iterates through planets to have a force acted on it
           currObject = this.objects[i];
+          currAccelX = 0;
+          currAccelY = 0;
+          
+          for (var p = 0; p < this.objects.length; p++) { // iterates through planet that applies force
 
-          for (var p = 0; p < this.objects.length; p++) { // go through each other planet to get the
-            // acceleration it induces on the current one
             if (currObject.getID() != this.objects[p].getID()) { // check the planets are different
-              dist = calculateDistance( // get the distance between objects
+              // calculates the x and y acceleration of the planet
+              dist = calculateDistance(
                 currObject.getX(), currObject.getY(),
                 this.objects[p].getX(), this.objects[p].getY());
-              accel = calculateGravityAccel(currObject.getX(), currObject.getY(), // get the acceleration caused
+              
+              accel = calculateGravityAccel(currObject.getX(), currObject.getY(),
                 this.objects[p].getX(), this.objects[p].getY(), 
-                this.objects[p].getMass(), dist, angle);
-
-              // add acceleration from the second object to that of the first for the current frame
+                this.objects[p].getMass(), dist, angle); 
+             
               currAccelX += accel[0];
               currAccelY += accel[0];
             }
           }
 
-          //once all vectors are added, move the object
-          this.objects[i].updatePosition(currAccelX, currAccelY, 5);
+          this.objects[i].updatePosition(currAccelX, currAccelY, 50); // calculates the change in position
           this.objects[i].drawObject(this.currentCoordinate[0], this.currentCoordinate[1]);
         }
       }
     };
 
     this.hitDetect = function(object1, object2){
-      var hasHit = false;
-      var x1 = object1.getX();
-      var y1 = object1.getY();
-      var r1 = object1.getRadius();
-      var x2 = object2.getX();
-      var y2 = object2.getY();
-      var r2 = object2.getRadius();
-      var distance = calculateDistance(x1, y1, x2, y2); // get the distance between planets
+        var hasHit = false;
+        var x1 = object1.getX();
+        var y1 = object1.getY();
+        var r1 = object1.getRadius();
+        var x2 = object2.getX();
+        var y2 = object2.getY();
+        var r2 = object2.getRadius();
+        var distance = calculateDistance(x1, y1, x2, y2); // get the distance between planets
         
-      if (distance <= COLLISION_THRESHOLD*(r1 + r2)){ // check if the planets are close enough for a collision
-        hasHit = true;
-      }
-      return hasHit;
+        if (distance <= COLLISION_THRESHOLD*(r1 + r2)){ // check if the planets are close enough for a collision
+            hasHit = true;
+        }
+        return hasHit;
     };
 
 
@@ -369,7 +368,7 @@ function main(){
       return this.objects[index];
     };
 
-    this.getIndexFromID = function(objectID){
+    this.getIndexFromID = function(objectID){ // for testing purposes ONLY
       return objectID === this.value;
 
     };
@@ -377,22 +376,10 @@ function main(){
 };
 
 
-var test = function(ID1, ID2){ // Test session
-  var curSession = new main;
-  curSession.createObject(10, 20, "#000000", 0, 0);
-  curSession.createObject(5, 10, "#FFFFFF", 0, 0);
-  if (curSession.hitDetect(curSession.getObject(ID1), curSession.getObject(ID2))){
-    console.log("Hit detected");
-  }
-  else{
-    console.log("No hit detected")
-  }
-
-};
-
 testSession.createObject(100, 200, "#000000", 500, 500);
 testSession.createObject(500, 100, "#FFFFFF", 100, 100);
 testSession.createObject(20, 50, "#FF3", 800, 800);
+
 
 var sessionInterval =  window.setInterval(function(){testSession.update()}, 1000/TICKS_PER_SECOND);
 
@@ -414,4 +401,4 @@ function download(filename, text) {
 //   <textarea name="text"></textarea>
 //   <input type="submit" value="Download">
 // </form>
-//http://www.html5rocks.com/en/tutorials/file/dndfiles/
+//http://www.html5rocks.com/en/tutorials/file/dndfiles/ata:text/plain;charset=utf-8,' + encodeURIComponent(text));
