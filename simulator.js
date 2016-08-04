@@ -185,7 +185,7 @@ function object (density, radius, color, x, y, id) { // Aidan
     this.drawObject = function(xShift, yShift) {
         // given its position on the canvas, draws it centred to that location
         CANVAS_CONTEXT.beginPath();
-        CANVAS_CONTEXT.arc(this.x + xShift, this.y + yShift, this.radius, 0, 2 * Math.PI, false);
+        CANVAS_CONTEXT.arc(this.x - xShift, this.y - yShift, this.radius, 0, 2 * Math.PI, false);
         CANVAS_CONTEXT.fillStyle = this.color;
         CANVAS_CONTEXT.fill();
     };
@@ -285,37 +285,44 @@ function main(){
     this.idCounter = 0;
 
     this.createObject = function(density, radius, color, x, y, velocityx=0, velocityy=0){
-        this.objects.push(new object(density, radius, color, x, y, this.idCounter));
+        this.objects.push(new object(density, radius, color, x, y, this.idCounter)); // adds values into new planet object
+        if (velocityx !== 0 || velocityy !== 0){ // sets velocity value if supplied (may use id to find added object when to prevent errors during clustered thread) ) 
+          this.objects[this.objects.length-1].setVelocity(velocityx, velocityy);
+        }
         console.log("Created object with\nDensity: " + density + "kg/m^3\nRadius: " + radius + "km\nColor: " + color + "\nCoordinates: " + x + ", " + y + "\nID: " + this.idCounter); // debug info
         this.idCounter++;
     };
 
     this.update = function(){
-      if (typeof this.objects !== 'undefined'){
+      if (typeof this.objects !== 'undefined'){ //prevents update when array is broken
         var currObject = null;
         var dist = 0;
         var force = 0;
         var angle = 0;
         var currAccelX = 0;
         var currAccelY = 0;
-        CANVAS_CONTEXT.clearRect(0, 0, CANVAS.width, CANVAS.height);  
-        for(var i = 0; i < this.objects.length; i++){
+        CANVAS_CONTEXT.clearRect(0, 0, CANVAS.width, CANVAS.height); //clears canvas for re-drawing
+        for(var i = 0; i < this.objects.length; i++){ // iterates through planets to have a force acted on it
           currObject = this.objects[i];
+          
+          for (var p = 0; p < this.objects.length; p++) { // iterates through planet that applies force
 
-          for (var p = 0; p < this.objects.length; p++) {
             if (currObject.getID() != this.objects[p].getID()) { // check the planets are different
+              // calculates the x and y acceleration of the planet
               dist = calculateDistance(
                 currObject.getX(), currObject.getY(),
                 this.objects[p].getX(), this.objects[p].getY());
+              
               accel = calculateGravityAccel(currObject.getX(), currObject.getY(),
                 this.objects[p].getX(), this.objects[p].getY(), 
-                this.objects[p].getMass(), dist, angle);
+                this.objects[p].getMass(), dist, angle); 
+             
               currAccelX += accel[0];
               currAccelY += accel[0];
             }
           }
 
-          this.objects[i].updatePosition(currAccelX, currAccelY, 5);
+          this.objects[i].updatePosition(currAccelX, currAccelY, 5); // calculates the change in position
           this.objects[i].drawObject(this.currentCoordinate[0], this.currentCoordinate[1]);
         }
       }
@@ -359,7 +366,7 @@ function main(){
       return this.objects[index];
     };
 
-    this.getIndexFromID = function(objectID){
+    this.getIndexFromID = function(objectID){ // for testing purposes ONLY
       return objectID === this.value;
 
     };
@@ -367,22 +374,10 @@ function main(){
 };
 
 
-var test = function(ID1, ID2){ // Test session
-  var curSession = new main;
-  curSession.createObject(10, 20, "#000000", 0, 0);
-  curSession.createObject(5, 10, "#FFFFFF", 0, 0);
-  if (curSession.hitDetect(curSession.getObject(ID1), curSession.getObject(ID2))){
-    console.log("Hit detected");
-  }
-  else{
-    console.log("No hit detected")
-  }
-
-};
-
 testSession.createObject(100, 200, "#000000", 500, 500);
 testSession.createObject(500, 100, "#FFFFFF", 100, 100);
 testSession.createObject(20, 50, "#FF3", 800, 800);
+
 
 var sessionInterval =  window.setInterval(function(){testSession.update()}, 1000/TICKS_PER_SECOND);
 
