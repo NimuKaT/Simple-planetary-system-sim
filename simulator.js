@@ -193,8 +193,8 @@ function object (density, radius, color, x, y, id) { // Aidan
     this.updatePosition = function(accelX, accelY, timeScale) {
         // given the acceleration of the object for a frame, moves its position
         // update the objects velocity
-        this.vx += accelX;
-        this.vy += accelY;
+        this.vx += (accelX*timeScale/TICKS_PER_SECOND + 0.5*accelX*Math.pow((timeScale/TICKS_PER_SECOND), 2));
+        this.vy += (accelY*timeScale/TICKS_PER_SECOND + 0.5*accelX*Math.pow((timeScale/TICKS_PER_SECOND), 2));
 
         // update the objects position
         this.x += this.vx*timeScale/TICKS_PER_SECOND;
@@ -247,15 +247,29 @@ function object (density, radius, color, x, y, id) { // Aidan
 };
 
 function calculateDistance(x1, y1, x2, y2) {
-    // finds the distance between to points on the grid
-    var distance = Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
-    return distance;
+  // finds the distance between to points on the grid
+  var distance = Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
+  return distance;
 };
+
+function getAngleBetweenPoints(x1, y1, x2, y2, d) {
+  // calculates the angle of point 2 relative to point 1
+  var angle = Math.atan((x2-x1)/(y2-y1))*180;
+  if (x2 > x1 && y2 > y1) {
+    angle += 180;
+  } else if (x2 > x1) {
+    console.log(angle);
+    angle = 180-angle;
+  } else if (y2 > y1) {
+    angle = 360-angle;
+  }
+  return angle%360;
+}
 
 function getVectorOnAxises(x1, y1, x2, y2, magnitude, angle) {
   var acuteAngle = angle%90;
-  var xMag = magnitude*Math.cos(angle);
-  var yMag = magnitude*Math.sin(angle);
+  var xMag = magnitude*Math.cos(acuteAngle/180);
+  var yMag = magnitude*Math.sin(acuteAngle/180);
   if (x2 < x1) {
     xMag *= -1;
   }
@@ -276,6 +290,22 @@ function calculateGravityAccel(x1, y1, x2, y2, m, d, angle) {
     }
     return output;
 }
+
+/*function calculateGravityAccel(x1, y1, x2, y2, m, d, angle) {
+    // finds the acceleration on an object due to another, given its mass and distance away
+    if (x2-x1 != 0) {
+        var accelX = (UNIVERSAL_GRAVITATIONAL_CONSTANT*m)/Math.pow(x2-x1, 2);
+    } else {
+        var accelX = 0;
+    }
+    if (y2-y1 != 0) {
+        var accelY = (UNIVERSAL_GRAVITATIONAL_CONSTANT*m)/Math.pow(x1-x2, 2);
+    } else {
+        var accelY = 0;
+    }
+    console.log(accelX, accelY)
+    return [accelX, accelY];
+}*/
 
 
 function main(){
@@ -315,13 +345,20 @@ function main(){
               dist = calculateDistance(
                 currObject.getX(), currObject.getY(),
                 this.objects[p].getX(), this.objects[p].getY());
-              
+
+              angle = getAngleBetweenPoints(
+                currObject.getX(), currObject.getY(),
+                this.objects[p].getX(), this.objects[p].getY(), dist);
+              if (i == 0) {
+                //console.log(angle);
+              }
+
               accel = calculateGravityAccel(currObject.getX(), currObject.getY(),
                 this.objects[p].getX(), this.objects[p].getY(), 
                 this.objects[p].getMass(), dist, angle); 
              
               currAccelX += accel[0];
-              currAccelY += accel[0];
+              currAccelY += accel[1];
             }
           }
 
@@ -377,9 +414,9 @@ function main(){
 };
 
 
-testSession.createObject(100, 200, "#000000", 500, 500);
+/*testSession.createObject(100, 200, "#000000", 500, 500);
 testSession.createObject(500, 100, "#FFFFFF", 100, 100);
-testSession.createObject(20, 50, "#FF3", 800, 800);
+testSession.createObject(20, 50, "#FF3", 800, 800);*/
 
 
 var sessionInterval =  window.setInterval(function(){testSession.update()}, 1000/TICKS_PER_SECOND);
