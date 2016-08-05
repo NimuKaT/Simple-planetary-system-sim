@@ -188,6 +188,14 @@ function object (density, radius, color, x, y, id) { // Aidan
         CANVAS_CONTEXT.arc(this.x - xShift, this.y - yShift, this.radius, 0, 2 * Math.PI, false);
         CANVAS_CONTEXT.fillStyle = this.color;
         CANVAS_CONTEXT.fill();
+        CANVAS_CONTEXT.closePath();
+
+        CANVAS_CONTEXT.beginPath();
+        CANVAS_CONTEXT.moveTo(this.x - xShift, this.y - yShift);
+        CANVAS_CONTEXT.lineTo(this.x - xShift + this.vx*200, this.y - yShift + this.vy*200);
+        CANVAS_CONTEXT.strokeStyle = "red";
+        CANVAS_CONTEXT.stroke();
+        CANVAS_CONTEXT.closePath();
     };
 
     this.updatePosition = function(accelX, accelY, timeScale) {
@@ -252,24 +260,30 @@ function calculateDistance(x1, y1, x2, y2) {
   return distance;
 };
 
-function getAngleBetweenPoints(x1, y1, x2, y2, d) {
+/*function getAngleBetweenPoints(x1, y1, x2, y2, d) {
   // calculates the angle of point 2 relative to point 1
-  var angle = Math.atan((x2-x1)/(y2-y1))*180;
+  var angle = Math.atan((x2-x1)/(y2-y1))*180/Math.PI;
   if (x2 > x1 && y2 > y1) {
     angle += 180;
   } else if (x2 > x1) {
-    console.log(angle);
+    //console.log(angle);
     angle = 180-angle;
   } else if (y2 > y1) {
     angle = 360-angle;
   }
   return angle%360;
+}*/
+
+function getAngleBetweenPoints(x1, y1, x2, y2) {
+  var angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+  angle *= -1;
+  return angle;
 }
 
 function getVectorOnAxises(x1, y1, x2, y2, magnitude, angle) {
   var acuteAngle = angle%90;
-  var xMag = magnitude*Math.cos(acuteAngle/180);
-  var yMag = magnitude*Math.sin(acuteAngle/180);
+  var xMag = magnitude*Math.cos(acuteAngle/180*Math.PI);
+  var yMag = magnitude*Math.sin(acuteAngle/180*Math.PI);
   if (x2 < x1) {
     xMag *= -1;
   }
@@ -324,46 +338,22 @@ function main(){
     };
 
     this.update = function(){
-      if (typeof this.objects !== 'undefined'){ //prevents update when array is broken
-        var currObject = null;
-        var dist = 0;
-        var force = 0;
+      if (typeof this.objects !== 'undefined') { //prevents update when array is broken
+        var distance = 0;
         var angle = 0;
-        var currAccelX = 0;
-        var currAccelY = 0;
-        CANVAS_CONTEXT.clearRect(0, 0, CANVAS.width, CANVAS.height); //clears canvas for re-drawing
-        for(var i = 0; i < this.objects.length; i++){ // iterates through planets to have a force acted on it
-          currObject = this.objects[i];
-
-          currAccelX = 0;
-          currAccelY = 0;
-          
-          for (var p = 0; p < this.objects.length; p++) { // iterates through planet that applies force
-
-            if (currObject.getID() != this.objects[p].getID()) { // check the planets are different
-              // calculates the x and y acceleration of the planet
-              dist = calculateDistance(
-                currObject.getX(), currObject.getY(),
+        for (var i = 0; i < this.objects.length; i++) {
+          for (var p = 0; p < this.objects.length; p++) {
+            if (this.objects[i].getID() != this.objects[p].getID()) {
+              // get angle
+              angle = getAngleBetweenPoints(this.objects[i].getX(), this.objects[i].getY(),
                 this.objects[p].getX(), this.objects[p].getY());
-
-              angle = getAngleBetweenPoints(
-                currObject.getX(), currObject.getY(),
-                this.objects[p].getX(), this.objects[p].getY(), dist);
-              if (i == 0) {
-                //console.log(angle);
-              }
-
-              accel = calculateGravityAccel(currObject.getX(), currObject.getY(),
-                this.objects[p].getX(), this.objects[p].getY(), 
-                this.objects[p].getMass(), dist, angle); 
-             
-              currAccelX += accel[0];
-              currAccelY += accel[1];
+              // get distance
+              distance = calculateDistance(this.objects[i].getX(), this.objects[i].getY(),
+                this.objects[p].getX(), this.objects[p].getY());
+              // get acceleration
             }
           }
-
-          this.objects[i].updatePosition(currAccelX, currAccelY, 50); // calculates the change in position
-          this.objects[i].drawObject(this.currentCoordinate[0], this.currentCoordinate[1]);
+          // update positions
         }
       }
     };
