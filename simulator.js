@@ -5,7 +5,14 @@ const KM_TO_PIXELS = 1/1e3; //subject to change
 const COLLISION_THRESHOLD = 0.85;
 const TICKS_PER_SECOND = 25;
 
-var testSession = new main;
+var testSession = new main();
+
+
+
+//  ###########################################
+//  #              INIT FUNCTION              #
+//  #            used to create UI            #
+//  ###########################################
 
 // open a window in the sidebar
 var openWindow = function(itemName) {
@@ -105,7 +112,7 @@ var init = function() {
     var density = document.getElementById('object-material').value; // get the value for the material
 
     // check for the custom density selected
-    if (density === 0) {
+    if (density === "0") {
       density = document.getElementById('object-material-custom').value;  // get the value for the density
     }
 
@@ -117,6 +124,11 @@ var init = function() {
 init();
 
 
+
+//  ###########################################
+//  #             OBJECT CREATION             #
+//  #    used in the object creation window   #
+//  ###########################################
 
 // create an object to follow the mouse around when the user creates an object
 // and give this following object the correct properties
@@ -151,10 +163,10 @@ var createFollowObject = function(radius, color, density) {
       if (cf) {
         var vx = event.pageX - x; // distance on the x axis
         var vy = event.pageY - y; // distance on the y axis
-        var object = testSession.createObject(density, radius, color, x, y, vx, vy);
+        testSession.createObject(density, radius, color, x, y, vx, vy);
         clearObjectCreation();
       } else { cf = true; }
-    }
+    };
   };
 
   createObjectCancellation(true);
@@ -163,13 +175,12 @@ var createFollowObject = function(radius, color, density) {
 // allows the user to cancel the object creation
 var createObjectCancellation = function(a = false) {
   // 'a' is whether the object is in another click event
+  var clickFlag = true;
   if (a) {
-    var clickFlag = false; // determines whether the user has clicked
-                           // needed because this code is still within another event
-                           // for a click so the following code would run straight
-                           // away rather than on the next click
-  } else {
-    var clickFlag = true;
+    clickFlag = false; // determines whether the user has clicked
+                       // needed because this code is still within another event
+                       // for a click so the following code would run straight
+                       // away rather than on the next click
   }
 
   // get when the user doesnt place the object on the canvas
@@ -209,10 +220,10 @@ var clearObjectCreation = function() {
   // remove all on click effects
   document.onclick = '';
 
-  clearFollowObject();
-  removePlaceholderObject();
-  removeVelocityLine();
-  initFollowObject();
+  clearFollowObject();        // clear the styles of follow object
+  removePlaceholderObject();  // remove the placeholder
+  removeVelocityLine();       // remove velocity line
+  initFollowObject();         // start follow object again (rather than velocity point)
 };
 
 // create placeholder object
@@ -226,7 +237,7 @@ var createPlaceholderObject = function(radius, color, x, y) {
 };
 
 // remove placeholder object
-var removePlaceholderObject = function(radius, color, x, y) {
+var removePlaceholderObject = function() {
   var obj = document.getElementById("object-placeholder");
   obj.style.width = '';
   obj.style.height = '';
@@ -238,10 +249,9 @@ var removePlaceholderObject = function(radius, color, x, y) {
 // create velocity line
 var createVelocityLine = function(x,y) {
   var obj = document.getElementById("velocity-line");
-  obj.style.display = 'block';
   obj.style.left = x + 'px';
   obj.style.top = y + 'px';
-  obj.style.transform = '';
+  obj.style.display = 'block';
 
   document.onmousemove = function(event) {
     var mx = event.pageX;
@@ -251,8 +261,8 @@ var createVelocityLine = function(x,y) {
     var angle = Math.atan2(my - y, mx - x) * 180 / Math.PI;
 
     obj.style.width = distance + 'px';
-    obj.style.transform = 'rotate('+angle+'deg)';
-  }
+    obj.style.transform = 'rotate(' + angle + 'deg)';
+  };
 };
 
 // remove velocity line
@@ -264,6 +274,18 @@ var removeVelocityLine = function() {
   obj.style.width = '';
   obj.style.transform = '';
 };
+
+
+
+//  ###########################################
+//  #               LOAD STATE                #
+//  #      used in the load state window      #
+//  ###########################################
+
+
+
+
+
 
 
 
