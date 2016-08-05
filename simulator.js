@@ -192,7 +192,7 @@ function object (density, radius, color, x, y, id) { // Aidan
 
         CANVAS_CONTEXT.beginPath();
         CANVAS_CONTEXT.moveTo(this.x - xShift, this.y - yShift);
-        CANVAS_CONTEXT.lineTo(this.x - xShift + this.vx*200, this.y - yShift + this.vy*200);
+        CANVAS_CONTEXT.lineTo(this.x - xShift + this.vx, this.y - yShift + this.vy);
         CANVAS_CONTEXT.strokeStyle = "red";
         CANVAS_CONTEXT.stroke();
         CANVAS_CONTEXT.closePath();
@@ -201,8 +201,10 @@ function object (density, radius, color, x, y, id) { // Aidan
     this.updatePosition = function(accelX, accelY, timeScale) {
         // given the acceleration of the object for a frame, moves its position
         // update the objects velocity
-        this.vx += (accelX*timeScale/TICKS_PER_SECOND + 0.5*accelX*Math.pow((timeScale/TICKS_PER_SECOND), 2));
+        //console.log(this.vx, accelX*timeScale/TICKS_PER_SECOND + 0.5*accelX*Math.pow((timeScale/TICKS_PER_SECOND), 2));
+        this.vx += (accelX*timeScale/TICKS_PER_SECOND);
         this.vy += (accelY*timeScale/TICKS_PER_SECOND + 0.5*accelX*Math.pow((timeScale/TICKS_PER_SECOND), 2));
+        // + 0.5*accelX*Math.pow((timeScale/TICKS_PER_SECOND), 2)
 
         // update the objects position
         this.x += this.vx*timeScale/TICKS_PER_SECOND;
@@ -251,7 +253,6 @@ function object (density, radius, color, x, y, id) { // Aidan
         return this.vx = vx;
         return this.vy = vy;
     }
-
 };
 
 function calculateDistance(x1, y1, x2, y2) {
@@ -266,7 +267,6 @@ function calculateDistance(x1, y1, x2, y2) {
   if (x2 > x1 && y2 > y1) {
     angle += 180;
   } else if (x2 > x1) {
-    //console.log(angle);
     angle = 180-angle;
   } else if (y2 > y1) {
     angle = 360-angle;
@@ -280,10 +280,10 @@ function getAngleBetweenPoints(x1, y1, x2, y2) {
   return angle;
 }
 
-function getVectorOnAxises(x1, y1, x2, y2, magnitude, angle) {
-  var acuteAngle = angle%90;
-  var xMag = magnitude*Math.cos(acuteAngle/180*Math.PI);
-  var yMag = magnitude*Math.sin(acuteAngle/180*Math.PI);
+/*function getVectorOnAxises(x1, y1, x2, y2, magnitude, angle) {
+  angle = Math.abs(angle%90);
+  var xMag = magnitude*Math.cos(angle*Math.PI/180);
+  var yMag = magnitude*Math.sin(angle*Math.PI/180);
   if (x2 < x1) {
     xMag *= -1;
   }
@@ -291,19 +291,19 @@ function getVectorOnAxises(x1, y1, x2, y2, magnitude, angle) {
     yMag *= -1;
   }
   return [xMag, yMag];
-}
+}*/
 
-function calculateGravityAccel(x1, y1, x2, y2, m, d, angle) {
+/*function calculateGravityAccel(x1, y1, x2, y2, m, d, angle) {
     // finds the acceleration on an object due to another, given its mass and distance away
     if (d != 0) {
-        var accel = (UNIVERSAL_GRAVITATIONAL_CONSTANT*m)/d*d;
+        var accel = (UNIVERSAL_GRAVITATIONAL_CONSTANT*m)/Math.pow(d, 2);
         var output = getVectorOnAxises(x1, y1, x2, y2, accel, angle);
 
     } else {
         var output = 0;
     }
     return output;
-}
+}*/
 
 /*function calculateGravityAccel(x1, y1, x2, y2, m, d, angle) {
     // finds the acceleration on an object due to another, given its mass and distance away
@@ -317,9 +317,15 @@ function calculateGravityAccel(x1, y1, x2, y2, m, d, angle) {
     } else {
         var accelY = 0;
     }
-    console.log(accelX, accelY)
     return [accelX, accelY];
 }*/
+
+function calculateGravityAccel(x1, y1, x2, y2, mass, dist, angle) {
+  var magnitude = (mass)/Math.pow(dist, 2);
+  var yMag = magnitude*Math.sin(angle*Math.PI/180);
+  var xMag = magnitude*Math.cos(angle*Math.PI/180);
+  return [xMag, yMag];
+}
 
 
 function main(){
@@ -339,9 +345,14 @@ function main(){
 
     this.update = function(){
       if (typeof this.objects !== 'undefined') { //prevents update when array is broken
+        CANVAS_CONTEXT.clearRect(0, 0, CANVAS.width, CANVAS.height); //clears canvas for re-drawing
         var distance = 0;
         var angle = 0;
+        var currAccelX = 0;
+        var currAccelY = 0;
         for (var i = 0; i < this.objects.length; i++) {
+          currAccelX = 0;
+          currAccelY = 0;
           for (var p = 0; p < this.objects.length; p++) {
             if (this.objects[i].getID() != this.objects[p].getID()) {
               // get angle
@@ -351,9 +362,19 @@ function main(){
               distance = calculateDistance(this.objects[i].getX(), this.objects[i].getY(),
                 this.objects[p].getX(), this.objects[p].getY());
               // get acceleration
+              accel = calculateGravityAccel(this.objects[i].getX(), this.objects[i].getY(),
+                this.objects[p].getX(), this.objects[p].getY(), this.objects[p].getMass(), distance, angle);
+              console.log(calculateGravityAccel(1, 1, 2, 2, 1, Math.sqrt(2), 45));
+              if (i == 0) {
+                //console.log(angle, this.objects[i].getColor());
+              }
+              currAccelX += accel[0];
+              currAccelY += accel[1];
             }
           }
           // update positions
+          this.objects[i].updatePosition(currAccelX, currAccelY, 10000); // calculates the change in position
+          this.objects[i].drawObject(this.currentCoordinate[0], this.currentCoordinate[1]);
         }
       }
     };
