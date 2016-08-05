@@ -201,9 +201,6 @@ function object (density, radius, color, x, y, id) { // Aidan
     this.updatePosition = function(accelX, accelY, timeScale) {
         // given the acceleration of the object for a frame, moves its position
         // update the objects velocity
-        if (this.id == 0) {
-          console.log(accelX, accelY);
-        }
         accelY *= -1;
         this.x += (this.vx*timeScale/TICKS_PER_SECOND + 0.5*accelX*Math.pow((timeScale/TICKS_PER_SECOND), 2));
         this.y += (this.vy*timeScale/TICKS_PER_SECOND + 0.5*accelY*Math.pow((timeScale/TICKS_PER_SECOND), 2));
