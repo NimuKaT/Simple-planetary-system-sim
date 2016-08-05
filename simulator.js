@@ -201,12 +201,12 @@ function object (density, radius, color, x, y, id) { // Aidan
     this.updatePosition = function(accelX, accelY, timeScale) {
         // given the acceleration of the object for a frame, moves its position
         // update the objects velocity
-        this.vx += (accelX*timeScale/TICKS_PER_SECOND + 0.5*accelX*Math.pow((timeScale/TICKS_PER_SECOND), 2));
-        this.vy += (accelY*timeScale/TICKS_PER_SECOND + 0.5*accelX*Math.pow((timeScale/TICKS_PER_SECOND), 2));
+        this.x += (this.vx*timeScale/TICKS_PER_SECOND + 0.5*accelX*Math.pow((timeScale/TICKS_PER_SECOND), 2));
+        this.y += (this.vy*timeScale/TICKS_PER_SECOND + 0.5*accelX*Math.pow((timeScale/TICKS_PER_SECOND), 2));
 
         // update the objects position
-        this.x += this.vx*timeScale/TICKS_PER_SECOND;
-        this.y += this.vy*timeScale/TICKS_PER_SECOND;
+        this.vx += accelX*timeScale/TICKS_PER_SECOND;
+        this.vy += accelY*timeScale/TICKS_PER_SECOND;
     };
 
     // getters for all parts of the class needed elsewhere
@@ -281,7 +281,13 @@ function getAngleBetweenPoints(x1, y1, x2, y2) {
 }
 
 function getVectorOnAxises(x1, y1, x2, y2, magnitude, angle) {
-  var acuteAngle = angle%90;
+  var acuteAngle = 0;
+  if (Math.abs(angle) < 90.0){
+    acuteAngle = Math.abs(angle%90);
+  } 
+  else{
+    acuteAngle = 180 - Math.abs(angle);
+  }
   var xMag = magnitude*Math.cos(acuteAngle/180*Math.PI);
   var yMag = magnitude*Math.sin(acuteAngle/180*Math.PI);
   if (x2 < x1) {
@@ -339,11 +345,16 @@ function main(){
 
     this.update = function(){
       if (typeof this.objects !== 'undefined') { //prevents update when array is broken
-        var distance = 0;
-        var angle = 0;
+        CANVAS_CONTEXT.clearRect(0, 0, CANVAS.width, CANVAS.height)
         for (var i = 0; i < this.objects.length; i++) {
+          var acceleration = [0, 0]
           for (var p = 0; p < this.objects.length; p++) {
             if (this.objects[i].getID() != this.objects[p].getID()) {
+              var distance = 0;
+              var angle = 0;
+              var acceleration = [0, 0];
+              var magnitude = 0;
+
               // get angle
               angle = getAngleBetweenPoints(this.objects[i].getX(), this.objects[i].getY(),
                 this.objects[p].getX(), this.objects[p].getY());
@@ -351,8 +362,15 @@ function main(){
               distance = calculateDistance(this.objects[i].getX(), this.objects[i].getY(),
                 this.objects[p].getX(), this.objects[p].getY());
               // get acceleration
+              acceleration = calculateGravityAccel(
+                this.objects[i].getX(), this.objects[i].getY(),
+                this.objects[p].getX(), this.objects[p].getY(),
+                this.objects[p].getMass(),
+                distance, angle);
             }
           }
+          this.objects[i].updatePosition(acceleration[0], acceleration[1], 25);
+          this.objects[i].drawObject(this.currentCoordinate[0], this.currentCoordinate[1]);
           // update positions
         }
       }
@@ -410,6 +428,8 @@ testSession.createObject(20, 50, "#FF3", 800, 800);*/
 
 
 var sessionInterval =  window.setInterval(function(){testSession.update()}, 1000/TICKS_PER_SECOND);
+testSession.createObject(1000, 100, "#0000", 400, 400, 0, 0);
+testSession.createObject(100, 100, "#ffff", 600, 600, 20, -10);
 
 function download(filename, text) {
   var element = document.createElement('a');
