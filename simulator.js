@@ -4,6 +4,10 @@ const UNIVERSAL_GRAVITATIONAL_CONSTANT = 6.67e-11;
 const KM_TO_PIXELS = 1/1e3; //subject to change
 const COLLISION_THRESHOLD = 0.85;
 const TICKS_PER_SECOND = 25;
+const ORBIT_PATH_LENGTH = 100;
+const ORBIT_PATH_WIDTH_INITIAL = 5;
+const ORBIT_PATH_WIDTH_DECREMENT = 0.1;
+const DEFAULT_LINE_WIDTH = 5;
 
 var testSession = new main();
 
@@ -13,6 +17,11 @@ var testSession = new main();
 //  #              INIT FUNCTION              #
 //  #            used to create UI            #
 //  ###########################################
+
+// flags for optional draw objects
+var showOrbitPath = true;
+var showVelocity = true;
+var showAcceleration = true;
 
 // open a window in the sidebar
 var openWindow = function(itemName) {
@@ -209,6 +218,7 @@ var clearFollowObject = function() {
   obj.onclick = '';             // remove any on click functionality
 };
 
+
 // remove the follow object and clear it's styles
 var clearObjectCreation = function() {
   // remove the event listener for a click on the sidebar
@@ -292,99 +302,173 @@ var removeVelocityLine = function() {
 
 
 
+
+function radiusToVolume(radius) {
+  return (4/3) * Math.PI * Math.pow(radius, 3);
+}
+
+function volumeToRadius(volume) {
+  return Math.cbrt(3*volume/4*Math.PI);
+}
+
 function object (density, radius, color, x, y, id) { // Aidan
-    // constants on creation
-    this.id = id
-    this.x = x;
-    this.y = y;
-    this.radius = radius;
-    this.density = density;
-    this.volume = (4/3) * Math.PI * Math.pow(this.radius, 3);
-    this.mass = this.density * this.volume;
-    this.color = color;
+  // constants on creation
+  this.id = id;
+  this.x = x;
+  this.y = y;
+  this.radius = radius;
+  this.density = density;
+  this.volume = radiusToVolume(radius);
+  this.mass = this.density * this.volume;
+  this.color = color;
 
-    // variables that change as the planet moves
-    this.vx = 0;
-    this.vy = 0;
+  // variables that change as the planet moves
+  this.vx = 0;
+  this.vy = 0;
+  this.ax = 0;
+  this.ay = 0;
+  this.orbitPath = [];
 
-    this.drawObject = function(xShift, yShift) {
-        // given its position on the canvas, draws it centred to that location
-        // console.log("Drawing object");
+  this.drawObject = function(xShift, yShift, accelX, accelY) {
+    // given its position on the canvas, draws it centred to that location
 
-        CANVAS_CONTEXT.beginPath();
-        CANVAS_CONTEXT.arc(this.x + xShift, this.y + yShift, this.radius, 0, 2 * Math.PI, false);
-        CANVAS_CONTEXT.fillStyle = this.color;
-        CANVAS_CONTEXT.fill();
-    };
+    // draw the planet's main body
+    CANVAS_CONTEXT.beginPath();
+    CANVAS_CONTEXT.arc(this.x - xShift, this.y - yShift, this.radius, 0, 2 * Math.PI, false);
+    CANVAS_CONTEXT.fillStyle = this.color;
+    CANVAS_CONTEXT.fill();
+    CANVAS_CONTEXT.closePath();
 
-    this.updatePosition = function(accelX, accelY, timeScale) {
-        // given the acceleration of the object for a frame, moves its position
-        // update the objects velocity
-        this.vx += accelX;
-        this.vy += accelY;
+    CANVAS_CONTEXT.lineWidth = DEFAULT_LINE_WIDTH;
 
-        // update the objects position
-        this.x += this.vx*timeScale/TICKS_PER_SECOND;
-        this.y += this.vy*timeScale/TICKS_PER_SECOND;
-    };
-
-    // getters for all parts of the class needed elsewhere
-    this.getX = function() {
-        return this.x;
-    };
-
-    this.getY = function() {
-        return this.y;
-    };
-
-    this.getMass = function() {
-        return this.mass;
-    };
-
-    this.getVolume = function() {
-        return this.volume;
-    };
-
-    this.getDensity = function() {
-        return this.density
-    };
-
-    this.getRadius = function() {
-        return this.radius;
-    };
-
-    this.getColor = function() {
-        return this.color;
-    };
-
-    this.getVelocity = function() {
-        return [this.vx, this.vy];
+    if (showVelocity == true) {
+      // draw line in the direction of velocity for the current frame
+      CANVAS_CONTEXT.beginPath();
+      CANVAS_CONTEXT.moveTo(this.x - xShift, this.y - yShift);
+      CANVAS_CONTEXT.lineTo(this.x - xShift + this.vx, this.y - yShift + this.vy);
+      CANVAS_CONTEXT.strokeStyle = "red";
+      CANVAS_CONTEXT.stroke();
+      CANVAS_CONTEXT.closePath();
     }
 
-    this.getID = function() {
-        return this.id;
+
+    if (showAcceleration == true) {
+      // draw line in the direction of acceleration for the current frame
+      CANVAS_CONTEXT.beginPath();
+      CANVAS_CONTEXT.moveTo(this.x - xShift, this.y - yShift);
+      CANVAS_CONTEXT.lineTo(this.x - xShift + this.ax, this.y - yShift + this.ay);
+      CANVAS_CONTEXT.strokeStyle = "blue";
+      CANVAS_CONTEXT.stroke();
+      CANVAS_CONTEXT.closePath();
     }
 
-    this.setVelocity = function(vx, vy) {
-        // gives the object an instantaneous velocity on creation
-        return this.vx = vx;
-        return this.vy = vy;
+    if (showOrbitPath == true) {
+      var pathWidth = ORBIT_PATH_WIDTH_INITIAL;
+      // draw line showing the orbit path for the past ORBIT_PATH_LENGTH frames
+      CANVAS_CONTEXT.beginPath();
+      CANVAS_CONTEXT.strokeStyle = "green";
+      CANVAS_CONTEXT.moveTo(this.x - xShift, this.y - yShift);
+      for (var i = 0; i < this.orbitPath.length; i++) {
+        CANVAS_CONTEXT.lineWidth = pathWidth;
+        CANVAS_CONTEXT.lineTo(this.orbitPath[i][0] - xShift, this.orbitPath[i][1] - yShift);
+        CANVAS_CONTEXT.stroke();
+        pathWidth -= ORBIT_PATH_WIDTH_DECREMENT;
+      }
+      CANVAS_CONTEXT.closePath();
     }
 
+    // reset acceleration for the next frame
+    this.ax = 0;
+    this.ay = 0;
+  };
+
+  this.updatePosition = function(timeScale) {
+    // given the acceleration of the object for a frame, moves its position
+    this.orbitPath.unshift([this.x, this.y]);
+    if (this.orbitPath.length > ORBIT_PATH_LENGTH) {
+      this.orbitPath.pop();
+    }
+
+    // update coordinates according to s = ut + 1/2at^2
+    this.x += (this.vx*timeScale/TICKS_PER_SECOND + 0.5*this.ax*Math.pow((timeScale/TICKS_PER_SECOND), 2));
+    this.y += (this.vy*timeScale/TICKS_PER_SECOND + 0.5*this.ay*Math.pow((timeScale/TICKS_PER_SECOND), 2));
+
+    // update the objects velocity according to v = u + at
+    this.vx += this.ax*timeScale/TICKS_PER_SECOND;
+    this.vy += this.ay*timeScale/TICKS_PER_SECOND;
+
+  };
+
+  // getters for all parts of the class needed elsewhere
+  this.getX = function() {
+    return this.x;
+  };
+
+  this.getY = function() {
+    return this.y;
+  };
+
+  this.getMass = function() {
+    return this.mass;
+  };
+
+  this.getVolume = function() {
+    return this.volume;
+  };
+
+  this.getDensity = function() {
+    return this.density
+  };
+
+  this.getRadius = function() {
+    return this.radius;
+  };
+
+  this.getColor = function() {
+    return this.color; 
+  };
+
+  this.getVelocity = function() {
+    return [this.vx, this.vy];
+  }
+
+  this.getID = function() {
+    return this.id;
+  }
+
+  this.setVelocity = function(vx, vy) {
+    // gives the object an instantaneous velocity
+    this.vx = vx;
+    this.vy = vy;
+  }
+
+  this.setAcceleration = function(ax, ay) {
+    // sets the objects acceleration for the next position update
+    this.ax = ax;
+    this.ay = -ay;
+  }
 };
 
 // GAB: not sure if this works, but i found an easier way (look up Math.hypot)
 function calculateDistance(x1, y1, x2, y2) {
-    // finds the distance between to points on the grid
-    var distance = Math.sqrt((x1 - x2)^2 + (y1 - y1)^2);
-    return distance;
+  // finds the distance between to points on the canvas
+  var distance = Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
+  return distance;
 };
 
+function getAngleBetweenPoints(x1, y1, x2, y2) {
+  // gets the angle of point 2 relative to point 1
+  var angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+  angle *= -1; // set the angle to be positive above axis, negative below
+  return angle;
+}
 
-function calculateGravityForce(m, d) {
-    // finds the acceleration on an object due to another, given its mass and distance away
-    var accel = (UNIVERSAL_GRAVITATIONAL_CONSTANT*m)/d*d;
-    return accel;
+function calculateGravityAccel(x1, y1, x2, y2, mass, dist, angle) {
+  // get the effective acceleration on object 1 due to object 2
+  var magnitude = (mass)/Math.pow(dist, 2);
+  var yMag = magnitude*Math.sin(angle*Math.PI/180);
+  var xMag = magnitude*Math.cos(angle*Math.PI/180);
+  return [xMag, yMag];
 }
 
 
@@ -395,16 +479,43 @@ function main(){
     this.idCounter = 0;
 
     this.createObject = function(density, radius, color, x, y, velocityx=0, velocityy=0){
-        this.objects.push(new object(density, radius, color, x, y, this.idCounter));
-        console.log("Created object with\nDensity: " + density + "kg/m^3\nRadius: " + radius + "km\nColor: " + color + "\nCoordinates: " + x + ", " + y + "\nVelocity X: " + velocityx + "\nVelocity Y: " + velocityy + "\nID: " + this.idCounter); // debug info
+        this.objects.push(new object(density, radius, color, x, y, this.idCounter)); // adds values into new planet object
+        if (velocityx !== 0 || velocityy !== 0){ // sets velocity value if supplied (may use id to find added object when to prevent errors during clustered thread) ) 
+          this.objects[this.objects.length-1].setVelocity(velocityx, velocityy);
+        }
+        console.log("Created object with\nDensity: " + density + "kg/m^3\nRadius: " + radius + "km\nColor: " + color + "\nCoordinates: " + x + ", " + y + "\nID: " + this.idCounter); // debug info
         this.idCounter++;
     };
 
     this.update = function(){
-      if (typeof this.objects !== 'undefined'){
-        CANVAS_CONTEXT.clearRect(0, 0, CANVAS.width, CANVAS.height);
-        for(var i = 0; i < this.objects.length; i++){
-          this.objects[i].updatePosition(0, 0, 5);
+      if (typeof this.objects !== 'undefined') { //prevents update when array is broken
+        var acceleration = [0, 0];
+        var angle = 0;
+        var distance = 0;
+        CANVAS_CONTEXT.clearRect(0, 0, CANVAS.width, CANVAS.height)
+        for (var i = 0; i < this.objects.length; i++) {
+          acceleration = [0, 0];
+          for (var p = 0; p < this.objects.length; p++) {
+            if (this.objects[i].getID() != this.objects[p].getID()) {
+              var magnitude = 0;
+              // get angle
+              angle = getAngleBetweenPoints(this.objects[i].getX(), this.objects[i].getY(),
+                this.objects[p].getX(), this.objects[p].getY());
+              // get distance
+              distance = calculateDistance(this.objects[i].getX(), this.objects[i].getY(),
+                this.objects[p].getX(), this.objects[p].getY());
+              // get acceleration
+              acceleration = calculateGravityAccel(
+                this.objects[i].getX(), this.objects[i].getY(),
+                this.objects[p].getX(), this.objects[p].getY(),
+                this.objects[p].getMass(),
+                distance, angle);
+            }
+          }
+          this.objects[i].setAcceleration(acceleration[0], acceleration[1]);
+        }
+        for (var i = 0; i < this.objects.length; i++) {
+          this.objects[i].updatePosition(1);
           this.objects[i].drawObject(this.currentCoordinate[0], this.currentCoordinate[1]);
         }
       }
@@ -448,7 +559,7 @@ function main(){
       return this.objects[index];
     };
 
-    this.getIndexFromID = function(objectID){
+    this.getIndexFromID = function(objectID){ // for testing purposes ONLY
       return objectID === this.value;
 
     };
@@ -456,21 +567,13 @@ function main(){
 };
 
 
-var test = function(ID1, ID2){ // Test session
-  var curSession = new main;
-  curSession.createObject(10, 20, "#000000", 0, 0);
-  curSession.createObject(5, 10, "#FFFFFF", 0, 0);
-  curSession.createObject(2, 5, "#FF3", 8, 8);
-  if (curSession.hitDetect(curSession.getObject(ID1), curSession.getObject(ID2))){
-    console.log("Hit detected");
-  }
-  else{
-    console.log("No hit detected")
-  }
-
-};
+/*testSession.createObject(100, 200, "#000000", 500, 500);
+testSession.createObject(500, 100, "#FFFFFF", 100, 100);
+testSession.createObject(20, 50, "#FF3", 800, 800);*/
 
 var sessionInterval =  window.setInterval(function(){testSession.update()}, 1000/TICKS_PER_SECOND);
+//testSession.createObject(1000, 100, "#000000", 400, 400, 0, 0);
+//testSession.createObject(100, 100, "#ffffff", 600, 600, 20, -10);
 
 function download(filename, text) {
   var element = document.createElement('a');
@@ -490,4 +593,4 @@ function download(filename, text) {
 //   <textarea name="text"></textarea>
 //   <input type="submit" value="Download">
 // </form>
-//http://www.html5rocks.com/en/tutorials/file/dndfiles/
+//http://www.html5rocks.com/en/tutorials/file/dndfiles/ata:text/plain;charset=utf-8,' + encodeURIComponent(text));
