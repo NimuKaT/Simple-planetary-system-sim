@@ -207,29 +207,36 @@ body {
           border-color: transparent transparent #5faee3 transparent; }
       #sidebar #settings .settings-input-wrap:hover .label-information {
         opacity: 1;
-        animation: labelinformation 0.3s; }
+        animation: labelinformation 3s; }
 @keyframes labelinformation {
   0% {
+    opacity: 0; }
+  80% {
     opacity: 0;
     transform: translate(0px, 10px); }
-  60% {
+  92% {
     transform: translate(0px, 0px); }
-  80% {
+  96% {
     transform: translate(0px, -3px); }
   100% {
     transform: translate(0px, 0px);
     opacity: 1; } }
       #sidebar #settings .settings-input-wrap:nth-child(3) {
         padding-top: 5px; }
-    #sidebar #settings button {
+    #sidebar #settings button:nth-child(12), #sidebar #settings button:nth-child(13), #sidebar #settings button:nth-child(17) {
       display: inline-block;
       background: #73c990;
       padding: 5px 10px;
       color: #111;
       border: none; }
-      #sidebar #settings button:hover {
+      #sidebar #settings button:nth-child(12):hover, #sidebar #settings button:nth-child(13):hover, #sidebar #settings button:nth-child(17):hover {
         background: #4ebb73;
         color: #000; }
+      #sidebar #settings button:nth-child(12).disabled, #sidebar #settings button:nth-child(13).disabled, #sidebar #settings button:nth-child(17).disabled {
+        background: #95a5a6;
+        color: #333; }
+        #sidebar #settings button:nth-child(12).disabled:hover, #sidebar #settings button:nth-child(13).disabled:hover, #sidebar #settings button:nth-child(17).disabled:hover {
+          cursor: default; }
     #sidebar #settings .settings-gap {
       display: block;
       height: 30px; }
@@ -237,7 +244,7 @@ body {
       position: relative;
       box-sizing: border-box;
       width: 100%;
-      height: 90px;
+      height: 110px;
       background: #dcdcdc;
       padding: 10px;
       font-size: 11px;
@@ -246,21 +253,33 @@ body {
       #sidebar #settings .settings-object-wrap .settings-o-color, #sidebar #settings .settings-object-wrap .settings-o-information {
         position: relative;
         float: left;
-        width: 70px;
-        height: 70px; }
+        width: 90px;
+        height: 90px; }
       #sidebar #settings .settings-object-wrap .settings-o-information {
         display: flex;
         justify-content: center;
         flex-direction: column;
-        width: calc(100% - 70px);
+        width: calc(100% - 90px);
         padding: 0 0 0 10px;
         box-sizing: border-box;
         overflow: hidden; }
         #sidebar #settings .settings-object-wrap .settings-o-information span {
+          display: block;
           font-style: italic; }
           #sidebar #settings .settings-object-wrap .settings-o-information span span {
+            display: inline;
             font-style: normal;
             font-weight: normal; }
+        #sidebar #settings .settings-object-wrap .settings-o-information button {
+          font-size: 11px;
+          display: inline;
+          float: left;
+          background: #bdc3c7;
+          float: left;
+          padding: 3px 5px;
+          margin: 5px auto 0 0;
+          color: #111;
+          border: none; }
   #sidebar #start, #sidebar #tutorial, #sidebar #object-creation, #sidebar #settings, #sidebar #load-state {
     display: none;
     position: relative;

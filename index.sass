@@ -254,17 +254,20 @@ body
       &:hover
         .label-information
           opacity: 1
-          animation: labelinformation 0.3s
+          animation: labelinformation 3s
 
         @keyframes labelinformation
           0%
             opacity: 0
-            transform: translate(0px, 10px)
-
-          60%
-            transform: translate(0px, 0px)
 
           80%
+            opacity: 0
+            transform: translate(0px, 10px)
+
+          92%
+            transform: translate(0px, 0px)
+
+          96%
             transform: translate(0px, -3px)
 
           100%
@@ -275,7 +278,7 @@ body
       &:nth-child(3)
         padding-top: 5px
 
-    button
+    button:nth-child(12), button:nth-child(13), button:nth-child(17)
       display: inline-block
       background: #73c990
       padding: 5px 10px
@@ -286,6 +289,13 @@ body
         background: darken(#73c990, 10%)
         color: #000
 
+      &.disabled
+        background: #95a5a6
+        color: #333
+
+        &:hover
+          cursor: default
+
     .settings-gap
       display: block
       height: 30px
@@ -294,7 +304,7 @@ body
       position: relative
       box-sizing: border-box
       width: 100%
-      height: 90px
+      height: 110px
       background: #dcdcdc
       padding: 10px
       font-size: 11px
@@ -304,24 +314,37 @@ body
       .settings-o-color, .settings-o-information
         position: relative
         float: left
-        width: 70px
-        height: 70px
+        width: 90px
+        height: 90px
 
       .settings-o-information
         display: flex
         justify-content: center
         flex-direction: column
-        width: calc(100% - 70px)
+        width: calc(100% - 90px)
         padding: 0 0 0 10px
         box-sizing: border-box
         overflow: hidden
 
         span
+          display: block
           font-style: italic
 
           span
+            display: inline
             font-style: normal
             font-weight: normal
+
+        button
+          font-size: 11px
+          display: inline
+          float: left
+          background: #bdc3c7
+          float: left
+          padding: 3px 5px
+          margin: 5px auto 0 0
+          color: #111
+          border: none
 
   #start, #tutorial, #object-creation, #settings, #load-state
     display: none

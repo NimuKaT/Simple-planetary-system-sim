@@ -291,6 +291,52 @@ var removeVelocityLine = function() {
 
 
 
+//  ###########################################
+//  #              MANAGE SPACE               #
+//  #     used in the manage space window     #
+//  ###########################################
+
+var updateObjManagement = function (objects) {
+  var output = '';
+  var colors = [];
+  for(var i = 0; i < objects.length; i++) {
+    var obj = objects[i];
+    colors.push(obj.getColor());
+
+    output += '<div class="settings-object-wrap">';
+    output += '<div class="settings-o-color" id="settings-color-'+i+'"></div>';
+    output += '<div class="settings-o-information">';
+    output += '<span>Density:&nbsp;&nbsp;<span>';
+    output +=  + obj.getDensity() + 'kg/m^3</span></span>';
+    output += '<span>Radius:&nbsp;&nbsp;<span>';
+    output +=  + obj.getRadius() + 'km</span></span>';
+    output += '<span>Coordinates:&nbsp;&nbsp;<span>';
+    output +=  + obj.getX() + ', ' + obj.getY() + '</span></span>';
+    output += '<span>Velocity X:&nbsp;&nbsp;<span>';
+    output +=  + obj.getVelocity()[0] + 'km</span></span>';
+    output += '<span>Velocity Y:&nbsp;&nbsp;<span>';
+    output +=  + obj.getVelocity()[1] + 'km</span></span>';
+    output += '<button id="settings-o-delete-'+i+'">Delete</button>';
+    output += '</div></div>';
+    console.log(output);
+  }
+  document.getElementById('object-management').innerHTML = output;
+
+  for(var i = 0; i < objects.length; i++) {
+    document.getElementById('settings-color-' + i).style.background = colors[i];
+  }
+
+  if (objects.length === 0) {
+    document.getElementById('object-management').innerHTML = 'No objects created.';
+    document.getElementById('download-objects').className = 'disabled';
+  } else {
+    document.getElementById('download-objects').className = '';
+  }
+}
+
+
+
+
 
 
 
@@ -408,6 +454,7 @@ function main(){
           this.objects[i].updatePosition(0, 0, 5);
           this.objects[i].drawObject(this.currentCoordinate[0], this.currentCoordinate[1]);
         }
+        updateObjManagement(this.objects);
       }
     };
 
