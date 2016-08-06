@@ -170,8 +170,10 @@ var createFollowObject = function(radius, color, density) {
     // get the next click event (for the velocity)
     document.onclick = function(event) {
       if (cf) {
-        var vx = event.pageX - x; // distance on the x axis
-        var vy = event.pageY - y; // distance on the y axis
+        var vx = event.pageX - x; // x-axis length of the velocity
+        var vy = event.pageY - y; // y-axis length of the velocity
+        vx = vx / 50; // make the velocity not as large
+        vy = vy / 50;
         testSession.createObject(density, radius, color, x, y, vx, vy);
         clearObjectCreation();
       } else { cf = true; }

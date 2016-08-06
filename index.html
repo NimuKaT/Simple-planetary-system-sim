@@ -99,6 +99,84 @@
 
     <section>
       <h3>Manage Space</h3>
+
+      <h4>Settings</h4>
+      <div class="settings-input-wrap">
+        <input type="checkbox" name="velocity-line" id="settings-velocity-line" />
+        <label for="velocity-line">Velocity Line</label>
+        <div class="label-information">Line showing current object velocity.</div>
+      </div><br>
+
+      <div class="settings-input-wrap">
+        <input type="checkbox" name="acceleration-line" id="settings-acceleration-line" />
+        <label for="acceleration-line">Acceleration Line</label>
+        <div class="label-information">Line showing the resultant acceleration.</div>
+      </div><br>
+
+      <div class="settings-input-wrap">
+        <input type="checkbox" name="orbit-path" id="settings-orbit-path" />
+        <label for="orbit-path">Orbit Path</label>
+        <div class="label-information">Shows where the object has been previously.</div>
+      </div><br>
+
+      <div class="settings-input-wrap">
+        <div class="input-title">Zoom:</div>
+        <input type="range" name="settings-zoom" value="1" min="1" max="100">
+      </div>
+
+      <div class="settings-input-wrap">
+        <div class="input-title">Time Scale:</div>
+        <input type="range" name="settings-time" value="1" min="1" max="100">
+      </div>
+
+      <br>
+      <button id="settings-play">Play</button>
+      <button id="settings-play">Stop</button>
+
+      <div class="settings-gap"></div>
+
+      <h4>Object Management</h4>
+      <div class="settings-object-wrap">
+        <div class="settings-o-color"></div>
+        <div class="settings-o-information">
+          <div class="settings-o-density">
+            <span>Density:&nbsp;&nbsp;<span></span></span>
+          </div>
+          <div class="settings-o-radius">
+            <span>Radius:&nbsp;&nbsp;<span></span></span>
+          </div>
+          <div class="settings-o-coordinates">
+            <span>Coordinates:&nbsp;&nbsp;<span></span></span>
+          </div>
+          <div class="settings-o-velocityx">
+            <span>Velocity X:&nbsp;&nbsp;<span></span></span>
+          </div>
+          <div class="settings-o-velocityy">
+            <span>Velocity Y:&nbsp;&nbsp;<span></span></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-object-wrap">
+        <div class="settings-o-color"></div>
+        <div class="settings-o-information">
+          <div class="settings-o-density">
+            <span>Density:&nbsp;&nbsp;<span></span></span>
+          </div>
+          <div class="settings-o-radius">
+            <span>Radius:&nbsp;&nbsp;<span></span></span>
+          </div>
+          <div class="settings-o-coordinates">
+            <span>Coordinates:&nbsp;&nbsp;<span></span></span>
+          </div>
+          <div class="settings-o-velocityx">
+            <span>Velocity X:&nbsp;&nbsp;<span></span></span>
+          </div>
+          <div class="settings-o-velocityy">
+            <span>Velocity Y:&nbsp;&nbsp;<span></span></span>
+          </div>
+        </div>
+      </div>
     </section>
 
     <button id="sidebar-return-settings">Go Back</button>
