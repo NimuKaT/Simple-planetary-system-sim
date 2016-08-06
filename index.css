@@ -223,19 +223,19 @@ body {
     opacity: 1; } }
       #sidebar #settings .settings-input-wrap:nth-child(3) {
         padding-top: 5px; }
-    #sidebar #settings button:nth-child(12), #sidebar #settings button:nth-child(13), #sidebar #settings button:nth-child(17) {
+    #sidebar #settings button:nth-child(12), #sidebar #settings button:nth-child(13), #sidebar #settings button:nth-child(17), #sidebar #settings button:nth-child(18) {
       display: inline-block;
       background: #73c990;
       padding: 5px 10px;
       color: #111;
       border: none; }
-      #sidebar #settings button:nth-child(12):hover, #sidebar #settings button:nth-child(13):hover, #sidebar #settings button:nth-child(17):hover {
+      #sidebar #settings button:nth-child(12):hover, #sidebar #settings button:nth-child(13):hover, #sidebar #settings button:nth-child(17):hover, #sidebar #settings button:nth-child(18):hover {
         background: #4ebb73;
         color: #000; }
-      #sidebar #settings button:nth-child(12).disabled, #sidebar #settings button:nth-child(13).disabled, #sidebar #settings button:nth-child(17).disabled {
+      #sidebar #settings button:nth-child(12).disabled, #sidebar #settings button:nth-child(13).disabled, #sidebar #settings button:nth-child(17).disabled, #sidebar #settings button:nth-child(18).disabled {
         background: #95a5a6;
         color: #333; }
-        #sidebar #settings button:nth-child(12).disabled:hover, #sidebar #settings button:nth-child(13).disabled:hover, #sidebar #settings button:nth-child(17).disabled:hover {
+        #sidebar #settings button:nth-child(12).disabled:hover, #sidebar #settings button:nth-child(13).disabled:hover, #sidebar #settings button:nth-child(17).disabled:hover, #sidebar #settings button:nth-child(18).disabled:hover {
           cursor: default; }
     #sidebar #settings .settings-gap {
       display: block;

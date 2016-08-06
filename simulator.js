@@ -36,6 +36,13 @@ var initFollowObject = function() {
   };
 };
 
+window.onresize = function() {
+  CANVAS.width = window.innerWidth * 0.75;
+  CANVAS.height = window.innerHeight;
+
+  // need to add something so that it keeps what is in the middle in the same place
+};
+
 var init = function() {
   // initialise the canvas
   CANVAS.width = window.innerWidth * 0.75; // set the canvas width to 75% screen width
@@ -253,14 +260,15 @@ var createVelocityLine = function(x,y) {
   var obj = document.getElementById("velocity-line");
   obj.style.left = x + 'px';
   obj.style.top = y + 'px';
-  obj.style.display = 'block';
+  var a = 0; // flag needed for below
 
   document.onmousemove = function(event) {
+    if (a === 0) { obj.style.display = 'block'; a++; } // show the velocity line on the first movement
     var mx = event.pageX;
     var my = event.pageY;
 
     var distance = Math.hypot(mx-x, my-y);
-    var angle = Math.atan2(my - y, mx - x) * 180 / Math.PI;
+    var angle = Math.atan2(my-y, mx-x) * 180 / Math.PI;
 
     obj.style.width = distance + 'px';
     obj.style.transform = 'rotate(' + angle + 'deg)';
@@ -316,25 +324,43 @@ var updateObjManagement = function (objects) {
     output +=  + obj.getVelocity()[0] + 'km</span></span>';
     output += '<span>Velocity Y:&nbsp;&nbsp;<span>';
     output +=  + obj.getVelocity()[1] + 'km</span></span>';
-    output += '<button id="settings-o-delete-'+i+'">Delete</button>';
+    output += '<button class="settings-o-delete" id="settings-o-delete-'+i+'">Delete</button>';
     output += '</div></div>';
-    console.log(output);
   }
   document.getElementById('object-management').innerHTML = output;
 
-  for(var i = 0; i < objects.length; i++) {
+  for(i = 0; i < objects.length; i++) {
     document.getElementById('settings-color-' + i).style.background = colors[i];
   }
 
   if (objects.length === 0) {
     document.getElementById('object-management').innerHTML = 'No objects created.';
     document.getElementById('download-objects').className = 'disabled';
+    document.getElementById('clear-objects').className = 'disabled';
   } else {
     document.getElementById('download-objects').className = '';
+    document.getElementById('clear-objects').className = '';
   }
-}
+};
 
+document.getElementById('download-objects').onclick = function() {
+  if (document.getElementById('download-objects').className != 'disabled') {
+    var text = JSON.stringify(testSession.objects,null,2);
+    var element = document.createElement('a');
+    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+    element.setAttribute('download', 'objects.json');
+    element.style.display = 'none';
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+  }
+};
 
+document.getElementById('clear-objects').onclick = function() {
+  if (document.getElementById('download-objects').className != 'disabled') {
+    testSession.objects = [];
+  }
+};
 
 
 
@@ -519,23 +545,3 @@ var test = function(ID1, ID2){ // Test session
 };
 
 var sessionInterval =  window.setInterval(function(){testSession.update()}, 1000/TICKS_PER_SECOND);
-
-function download(filename, text) {
-  var element = document.createElement('a');
-  element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
-  element.setAttribute('download', filename);
-
-  element.style.display = 'none';
-  document.body.appendChild(element);
-
-  element.click();
-
-  document.body.removeChild(element);
-}
-
-// <form onsubmit="download(this['name'].value, this['text'].value)">
-//   <input type="text" name="name" value="test.txt">
-//   <textarea name="text"></textarea>
-//   <input type="submit" value="Download">
-// </form>
-//http://www.html5rocks.com/en/tutorials/file/dndfiles/
