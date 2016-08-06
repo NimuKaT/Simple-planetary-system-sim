@@ -4,8 +4,14 @@ const UNIVERSAL_GRAVITATIONAL_CONSTANT = 6.67e-11;
 const KM_TO_PIXELS = 1/1e3; //subject to change
 const COLLISION_THRESHOLD = 0.85;
 const TICKS_PER_SECOND = 25;
+const ORBIT_PATH_LENGTH = 100;
 
 var testSession = new main;
+
+// flags for optional draw objects
+var showOrbitPath = true;
+var showVelocity = true;
+var showAcceleration = true;
 
 // open a window in the sidebar
 var openWindow = function(itemName) {
@@ -167,140 +173,161 @@ var removeFollowObject = function() {
   obj.onclick = '';             // remove any on click functionality
 };
 
+function radiusToVolume(radius) {
+  return (4/3) * Math.PI * Math.pow(radius, 3);
+}
+
+function volumeToRadius(volume) {
+  return Math.cbrt(3*volume/4*Math.PI);
+}
+
 function object (density, radius, color, x, y, id) { // Aidan
-    // constants on creation
-    this.id = id
-    this.x = x;
-    this.y = y;
-    this.radius = radius;
-    this.density = density;
-    this.volume = (4/3) * Math.PI * Math.pow(this.radius, 3);
-    this.mass = this.density * this.volume;
-    this.color = color;
+  // constants on creation
+  this.id = id;
+  this.x = x;
+  this.y = y;
+  this.radius = radius;
+  this.density = density;
+  this.volume = radiusToVolume(radius);
+  this.mass = this.density * this.volume;
+  this.color = color;
 
-    // variables that change as the planet moves
-    this.vx = 0;
-    this.vy = 0;
+  // variables that change as the planet moves
+  this.vx = 0;
+  this.vy = 0;
+  this.ax = 0;
+  this.ay = 0;
+  this.orbitPath = [];
 
-    this.drawObject = function(xShift, yShift) {
-      // given its position on the canvas, draws it centred to that location
-      CANVAS_CONTEXT.beginPath();
-      CANVAS_CONTEXT.arc(this.x - xShift, this.y - yShift, this.radius, 0, 2 * Math.PI, false);
-      CANVAS_CONTEXT.fillStyle = this.color;
-      CANVAS_CONTEXT.fill();
-      CANVAS_CONTEXT.closePath();
+  this.drawObject = function(xShift, yShift, accelX, accelY) {
+    // given its position on the canvas, draws it centred to that location
 
+    // draw the planet's main body
+    CANVAS_CONTEXT.beginPath();
+    CANVAS_CONTEXT.arc(this.x - xShift, this.y - yShift, this.radius, 0, 2 * Math.PI, false);
+    CANVAS_CONTEXT.fillStyle = this.color;
+    CANVAS_CONTEXT.fill();
+    CANVAS_CONTEXT.closePath();
+
+    if (showVelocity == true) {
+      // draw line in the direction of velocity for the current frame
       CANVAS_CONTEXT.beginPath();
       CANVAS_CONTEXT.moveTo(this.x - xShift, this.y - yShift);
       CANVAS_CONTEXT.lineTo(this.x - xShift + this.vx, this.y - yShift + this.vy);
       CANVAS_CONTEXT.strokeStyle = "red";
       CANVAS_CONTEXT.stroke();
       CANVAS_CONTEXT.closePath();
-    };
-
-    this.updatePosition = function(accelX, accelY, timeScale) {
-        // given the acceleration of the object for a frame, moves its position
-        // update the objects velocity
-        accelY *= -1;
-        this.x += (this.vx*timeScale/TICKS_PER_SECOND + 0.5*accelX*Math.pow((timeScale/TICKS_PER_SECOND), 2));
-        this.y += (this.vy*timeScale/TICKS_PER_SECOND + 0.5*accelY*Math.pow((timeScale/TICKS_PER_SECOND), 2));
-
-        // update the objects position
-        this.vx += accelX*timeScale/TICKS_PER_SECOND;
-        this.vy += accelY*timeScale/TICKS_PER_SECOND;
-    };
-
-    // getters for all parts of the class needed elsewhere
-    this.getX = function() {
-        return this.x;
-    };
-
-    this.getY = function() {
-        return this.y;
-    };
-
-    this.getMass = function() {
-        return this.mass;
-    };
-
-    this.getVolume = function() {
-        return this.volume;
-    };
-
-    this.getDensity = function() {
-        return this.density
-    };
-
-    this.getRadius = function() {
-        return this.radius;
-    };
-
-    this.getColor = function() {
-        return this.color; // gets object color
-    };
-
-    this.getVelocity = function() {
-        return [this.vx, this.vy];
     }
 
-    this.getID = function() {
-        return this.id;
+    if (showAcceleration == true) {
+      // draw line in the direction of acceleration for the current frame
+      CANVAS_CONTEXT.beginPath();
+      CANVAS_CONTEXT.moveTo(this.x - xShift, this.y - yShift);
+      CANVAS_CONTEXT.lineTo(this.x - xShift + this.ax, this.y - yShift + this.ay);
+      CANVAS_CONTEXT.strokeStyle = "blue";
+      CANVAS_CONTEXT.stroke();
+      CANVAS_CONTEXT.closePath();
     }
 
-    this.setVelocity = function(vx, vy) {
-        // gives the object an instantaneous velocity on creation
-        this.vx = vx;
-        this.vy = vy;
+    if (showOrbitPath == true) {
+      // draw line showing the orbit path for the past ORBIT_PATH_LENGTH frames
+      CANVAS_CONTEXT.beginPath();
+      CANVAS_CONTEXT.strokeStyle = "green";
+      CANVAS_CONTEXT.moveTo(this.x - xShift, this.y - yShift);
+      for (var i = 0; i < this.orbitPath.length; i++) {
+        CANVAS_CONTEXT.lineTo(this.orbitPath[i][0] - xShift, this.orbitPath[i][1] - yShift);
+        CANVAS_CONTEXT.stroke();
+      }
+      CANVAS_CONTEXT.closePath();
     }
+
+    // reset acceleration for the next frame
+    this.ax = 0;
+    this.ay = 0;
+  };
+
+  this.updatePosition = function(timeScale) {
+    // given the acceleration of the object for a frame, moves its position
+    this.orbitPath.unshift([this.x, this.y]);
+    if (this.orbitPath.length > ORBIT_PATH_LENGTH) {
+      this.orbitPath.pop();
+    }
+
+    // update coordinates according to s = ut + 1/2at^2
+    this.x += (this.vx*timeScale/TICKS_PER_SECOND + 0.5*this.ax*Math.pow((timeScale/TICKS_PER_SECOND), 2));
+    this.y += (this.vy*timeScale/TICKS_PER_SECOND + 0.5*this.ay*Math.pow((timeScale/TICKS_PER_SECOND), 2));
+
+    // update the objects velocity according to v = u + at
+    this.vx += this.ax*timeScale/TICKS_PER_SECOND;
+    this.vy += this.ay*timeScale/TICKS_PER_SECOND;
+
+  };
+
+  // getters for all parts of the class needed elsewhere
+  this.getX = function() {
+    return this.x;
+  };
+
+  this.getY = function() {
+    return this.y;
+  };
+
+  this.getMass = function() {
+    return this.mass;
+  };
+
+  this.getVolume = function() {
+    return this.volume;
+  };
+
+  this.getDensity = function() {
+    return this.density
+  };
+
+  this.getRadius = function() {
+    return this.radius;
+  };
+
+  this.getColor = function() {
+    return this.color; // gets object color
+  };
+
+  this.getVelocity = function() {
+    return [this.vx, this.vy];
+  }
+
+  this.getID = function() {
+    return this.id;
+  }
+
+  this.setVelocity = function(vx, vy) {
+    // gives the object an instantaneous velocity
+    this.vx = vx;
+    this.vy = vy;
+  }
+
+  this.setAcceleration = function(ax, ay) {
+    // sets the objects acceleration for the next position update
+    this.ax = ax;
+    this.ay = -ay;
+  }
 };
 
 function calculateDistance(x1, y1, x2, y2) {
-  // finds the distance between to points on the grid
+  // finds the distance between to points on the canvas
   var distance = Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
   return distance;
 };
 
-/*function getAngleBetweenPoints(x1, y1, x2, y2, d) {
-  // calculates the angle of point 2 relative to point 1
-  var angle = Math.atan((x2-x1)/(y2-y1))*180/Math.PI;
-  if (x2 > x1 && y2 > y1) {
-    angle += 180;
-  } else if (x2 > x1) {
-    angle = 180-angle;
-  } else if (y2 > y1) {
-    angle = 360-angle;
-  }
-  return angle%360;
-}*/
-
 function getAngleBetweenPoints(x1, y1, x2, y2) {
+  // gets the angle of point 2 relative to point 1
   var angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
-  angle *= -1;
+  angle *= -1; // set the angle to be positive above axis, negative below
   return angle;
 }
 
-function getVectorOnAxises(x1, y1, x2, y2, magnitude, angle) {
-  var acuteAngle = 0;
-  if (Math.abs(angle) < 90.0){
-    acuteAngle = Math.abs(angle%90);
-  } 
-  else{
-    acuteAngle = 180 - Math.abs(angle);
-  }
-  var xMag = magnitude*Math.cos(acuteAngle/180*Math.PI);
-  var yMag = magnitude*Math.sin(acuteAngle/180*Math.PI);
-  if (x2 < x1) {
-    xMag *= -1;
-  }
-  if (y2 < y1) {
-    yMag *= -1;
-  }
-  return [xMag, yMag];
-}
-
-
-
 function calculateGravityAccel(x1, y1, x2, y2, mass, dist, angle) {
+  // get the effective acceleration on object 1 due to object 2
   var magnitude = (mass)/Math.pow(dist, 2);
   var yMag = magnitude*Math.sin(angle*Math.PI/180);
   var xMag = magnitude*Math.cos(angle*Math.PI/180);
@@ -326,15 +353,14 @@ function main(){
     this.update = function(){
       if (typeof this.objects !== 'undefined') { //prevents update when array is broken
         var acceleration = [0, 0];
+        var angle = 0;
+        var distance = 0;
         CANVAS_CONTEXT.clearRect(0, 0, CANVAS.width, CANVAS.height)
         for (var i = 0; i < this.objects.length; i++) {
+          acceleration = [0, 0];
           for (var p = 0; p < this.objects.length; p++) {
             if (this.objects[i].getID() != this.objects[p].getID()) {
-              var distance = 0;
-              var angle = 0;
-              acceleration = [0, 0];
               var magnitude = 0;
-
               // get angle
               angle = getAngleBetweenPoints(this.objects[i].getX(), this.objects[i].getY(),
                 this.objects[p].getX(), this.objects[p].getY());
@@ -349,9 +375,11 @@ function main(){
                 distance, angle);
             }
           }
-          this.objects[i].updatePosition(acceleration[0], acceleration[1], 1);
+          this.objects[i].setAcceleration(acceleration[0], acceleration[1]);
+        }
+        for (var i = 0; i < this.objects.length; i++) {
+          this.objects[i].updatePosition(1);
           this.objects[i].drawObject(this.currentCoordinate[0], this.currentCoordinate[1]);
-          // update positions
         }
       }
     };
