@@ -5,6 +5,9 @@ const KM_TO_PIXELS = 1/1e3; //subject to change
 const COLLISION_THRESHOLD = 0.85;
 const TICKS_PER_SECOND = 25;
 const ORBIT_PATH_LENGTH = 100;
+const ORBIT_PATH_WIDTH_INITIAL = 5;
+const ORBIT_PATH_WIDTH_DECREMENT = 0.1;
+const DEFAULT_LINE_WIDTH = 5;
 
 var testSession = new main;
 
@@ -209,6 +212,8 @@ function object (density, radius, color, x, y, id) { // Aidan
     CANVAS_CONTEXT.fill();
     CANVAS_CONTEXT.closePath();
 
+    CANVAS_CONTEXT.lineWidth = DEFAULT_LINE_WIDTH;
+
     if (showVelocity == true) {
       // draw line in the direction of velocity for the current frame
       CANVAS_CONTEXT.beginPath();
@@ -230,13 +235,16 @@ function object (density, radius, color, x, y, id) { // Aidan
     }
 
     if (showOrbitPath == true) {
+      var pathWidth = ORBIT_PATH_WIDTH_INITIAL;
       // draw line showing the orbit path for the past ORBIT_PATH_LENGTH frames
       CANVAS_CONTEXT.beginPath();
       CANVAS_CONTEXT.strokeStyle = "green";
       CANVAS_CONTEXT.moveTo(this.x - xShift, this.y - yShift);
       for (var i = 0; i < this.orbitPath.length; i++) {
+        CANVAS_CONTEXT.lineWidth = pathWidth;
         CANVAS_CONTEXT.lineTo(this.orbitPath[i][0] - xShift, this.orbitPath[i][1] - yShift);
         CANVAS_CONTEXT.stroke();
+        pathWidth -= ORBIT_PATH_WIDTH_DECREMENT;
       }
       CANVAS_CONTEXT.closePath();
     }
