@@ -647,7 +647,6 @@ testSession.createObject(500, 100, "#FFFFFF", 100, 100);
 testSession.createObject(20, 50, "#FF3", 800, 800);*/
 
 var sessionInterval =  window.setInterval(function(){testSession.update()}, 1000/TICKS_PER_SECOND);
-<<<<<<< HEAD
 //testSession.createObject(1000, 100, "#000000", 400, 400, 0, 0);
 //testSession.createObject(100, 100, "#ffffff", 600, 600, 20, -10);
 
@@ -670,5 +669,3 @@ function download(filename, text) {
 //   <input type="submit" value="Download">
 // </form>
 //http://www.html5rocks.com/en/tutorials/file/dndfiles/ata:text/plain;charset=utf-8,' + encodeURIComponent(text));
-=======
->>>>>>> planetSimGab
