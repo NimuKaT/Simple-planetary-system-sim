@@ -45,6 +45,13 @@ var initFollowObject = function() {
   };
 };
 
+window.onresize = function() {
+  CANVAS.width = window.innerWidth * 0.75;
+  CANVAS.height = window.innerHeight;
+
+  // need to add something so that it keeps what is in the middle in the same place
+};
+
 var init = function() {
   // initialise the canvas
   CANVAS.width = window.innerWidth * 0.75; // set the canvas width to 75% screen width
@@ -263,14 +270,15 @@ var createVelocityLine = function(x,y) {
   var obj = document.getElementById("velocity-line");
   obj.style.left = x + 'px';
   obj.style.top = y + 'px';
-  obj.style.display = 'block';
+  var a = 0; // flag needed for below
 
   document.onmousemove = function(event) {
+    if (a === 0) { obj.style.display = 'block'; a++; } // show the velocity line on the first movement
     var mx = event.pageX;
     var my = event.pageY;
 
     var distance = Math.hypot(mx-x, my-y);
-    var angle = Math.atan2(my - y, mx - x) * 180 / Math.PI;
+    var angle = Math.atan2(my-y, mx-x) * 180 / Math.PI;
 
     obj.style.width = distance + 'px';
     obj.style.transform = 'rotate(' + angle + 'deg)';
@@ -299,6 +307,70 @@ var removeVelocityLine = function() {
 
 
 
+
+
+//  ###########################################
+//  #              MANAGE SPACE               #
+//  #     used in the manage space window     #
+//  ###########################################
+
+var updateObjManagement = function (objects) {
+  var output = '';
+  var colors = [];
+  for(var i = 0; i < objects.length; i++) {
+    var obj = objects[i];
+    colors.push(obj.getColor());
+
+    output += '<div class="settings-object-wrap">';
+    output += '<div class="settings-o-color" id="settings-color-'+i+'"></div>';
+    output += '<div class="settings-o-information">';
+    output += '<span>Density:&nbsp;&nbsp;<span>';
+    output +=  + obj.getDensity() + 'kg/m^3</span></span>';
+    output += '<span>Radius:&nbsp;&nbsp;<span>';
+    output +=  + obj.getRadius() + 'km</span></span>';
+    output += '<span>Coordinates:&nbsp;&nbsp;<span>';
+    output +=  + obj.getX() + ', ' + obj.getY() + '</span></span>';
+    output += '<span>Velocity X:&nbsp;&nbsp;<span>';
+    output +=  + obj.getVelocity()[0] + 'km</span></span>';
+    output += '<span>Velocity Y:&nbsp;&nbsp;<span>';
+    output +=  + obj.getVelocity()[1] + 'km</span></span>';
+    output += '<button class="settings-o-delete" id="settings-o-delete-'+i+'">Delete</button>';
+    output += '</div></div>';
+  }
+  document.getElementById('object-management').innerHTML = output;
+
+  for(i = 0; i < objects.length; i++) {
+    document.getElementById('settings-color-' + i).style.background = colors[i];
+  }
+
+  if (objects.length === 0) {
+    document.getElementById('object-management').innerHTML = 'No objects created.';
+    document.getElementById('download-objects').className = 'disabled';
+    document.getElementById('clear-objects').className = 'disabled';
+  } else {
+    document.getElementById('download-objects').className = '';
+    document.getElementById('clear-objects').className = '';
+  }
+};
+
+document.getElementById('download-objects').onclick = function() {
+  if (document.getElementById('download-objects').className != 'disabled') {
+    var text = JSON.stringify(testSession.objects,null,2);
+    var element = document.createElement('a');
+    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+    element.setAttribute('download', 'objects.json');
+    element.style.display = 'none';
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+  }
+};
+
+document.getElementById('clear-objects').onclick = function() {
+  if (document.getElementById('download-objects').className != 'disabled') {
+    testSession.objects = [];
+  }
+};
 
 
 
@@ -520,6 +592,7 @@ function main(){
           this.objects[i].updatePosition(1);
           this.objects[i].drawObject(this.currentCoordinate[0], this.currentCoordinate[1]);
         }
+        updateObjManagement(this.objects);
       }
     };
 
@@ -574,6 +647,7 @@ testSession.createObject(500, 100, "#FFFFFF", 100, 100);
 testSession.createObject(20, 50, "#FF3", 800, 800);*/
 
 var sessionInterval =  window.setInterval(function(){testSession.update()}, 1000/TICKS_PER_SECOND);
+<<<<<<< HEAD
 //testSession.createObject(1000, 100, "#000000", 400, 400, 0, 0);
 //testSession.createObject(100, 100, "#ffffff", 600, 600, 20, -10);
 
@@ -596,3 +670,5 @@ function download(filename, text) {
 //   <input type="submit" value="Download">
 // </form>
 //http://www.html5rocks.com/en/tutorials/file/dndfiles/ata:text/plain;charset=utf-8,' + encodeURIComponent(text));
+=======
+>>>>>>> planetSimGab
