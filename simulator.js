@@ -20,8 +20,8 @@ var session = new Main();
 
 // flags for optional draw objects
 var showOrbitPath = true;
-var showVelocity = true;
-var showAcceleration = true;
+var showVelocity = false;
+var showAcceleration = false;
 
 // open a window in the sidebar
 var openWindow = function(itemName) {
@@ -110,31 +110,6 @@ var init = function() {
     openWindow('start');
     closeWindow('load-state');
   });
-
-  // object creation material custom toggle
-  document.getElementById('object-material').onchange = function () {
-    var elem = document.getElementById('object-material');
-    if (elem.value === "0") { // select HTML object has custom selected (with a value of 0)
-      document.getElementById('object-material-custom').className = 'shown'; // show the custom text input
-    } else {
-      document.getElementById('object-material-custom').className = ''; // hide the custom text input
-    }
-  };
-
-  // 'create object' button
-  document.getElementById('object-create').addEventListener('mouseup', function() {
-    var radius = document.getElementById('object-radius').value;    // get the value for the radius
-    var color = document.getElementById('object-color').value;    // get the value for the colour
-    var density = document.getElementById('object-material').value; // get the value for the material
-
-    // check for the custom density selected
-    if (density === "0") {
-      density = document.getElementById('object-material-custom').value;  // get the value for the density
-    }
-
-    // create the object
-    createFollowObject(radius, color, density);
-  });
 };
 
 init();
@@ -145,6 +120,31 @@ init();
 //  #             OBJECT CREATION             #
 //  #    used in the object creation window   #
 //  ###########################################
+
+// object creation material custom toggle
+document.getElementById('object-material').onchange = function () {
+  var elem = document.getElementById('object-material');
+  if (elem.value === "0") { // select HTML object has custom selected (with a value of 0)
+    document.getElementById('object-material-custom').className = 'shown'; // show the custom text input
+  } else {
+    document.getElementById('object-material-custom').className = ''; // hide the custom text input
+  }
+};
+
+// 'create object' button
+document.getElementById('object-create').addEventListener('mouseup', function() {
+  var radius = document.getElementById('object-radius').value;    // get the value for the radius
+  var color = document.getElementById('object-color').value;    // get the value for the colour
+  var density = document.getElementById('object-material').value; // get the value for the material
+
+  // check for the custom density selected
+  if (density === "0") {
+    density = document.getElementById('object-material-custom').value;  // get the value for the density
+  }
+
+  // create the object
+  createFollowObject(radius, color, density);
+});
 
 // create an object to follow the mouse around when the user creates an object
 // and give this following object the correct properties
@@ -179,8 +179,8 @@ var createFollowObject = function(radius, color, density) {
       if (cf) {
         var vx = event.pageX - x; // x-axis length of the velocity
         var vy = event.pageY - y; // y-axis length of the velocity
-        vx = vx / 50; // make the velocity not as large
-        vy = vy / 50;
+        vx = vx; // make the velocity not as large
+        vy = vy;
         session.createObject(density, radius, color, x, y, vx, vy);
         clearObjectCreation();
       } else { cf = true; }
@@ -191,7 +191,8 @@ var createFollowObject = function(radius, color, density) {
 };
 
 // allows the user to cancel the object creation
-var createObjectCancellation = function(a = false) {
+var createObjectCancellation = function(a) {
+  a = a || false; // set the default value to false
   // 'a' is whether the object is in another click event
   var clickFlag = true;
   if (a) {
@@ -314,6 +315,18 @@ var removeVelocityLine = function() {
 //  #     used in the manage space window     #
 //  ###########################################
 
+document.getElementById('settings-velocity-line').onchange = function () {
+  showVelocity = document.getElementById('settings-velocity-line').checked;
+};
+
+document.getElementById('settings-acceleration-line').onchange = function () {
+  showAcceleration = document.getElementById('settings-acceleration-line').checked;
+};
+
+document.getElementById('settings-orbit-path').onchange = function () {
+  showOrbitPath = document.getElementById('settings-orbit-path').checked;
+};
+
 var updateObjManagement = function (objects) {
   var output = '';
   var colors = [];
@@ -329,11 +342,11 @@ var updateObjManagement = function (objects) {
     output += '<span>Radius:&nbsp;&nbsp;<span>';
     output +=  + obj.getRadius() + 'km</span></span>';
     output += '<span>Coordinates:&nbsp;&nbsp;<span>';
-    output +=  + obj.getX() + ', ' + obj.getY() + '</span></span>';
+    output +=  + Math.floor(obj.getX()) + ', ' + Math.floor(obj.getY()) + '</span></span>';
     output += '<span>Velocity X:&nbsp;&nbsp;<span>';
-    output +=  + obj.getVelocity()[0] + 'km</span></span>';
+    output +=  + Math.floor(obj.getVelocity()[0]) + 'km</span></span>';
     output += '<span>Velocity Y:&nbsp;&nbsp;<span>';
-    output +=  + obj.getVelocity()[1] + 'km</span></span>';
+    output +=  + Math.floor(obj.getVelocity()[1]) + 'km</span></span>';
     output += '<button class="settings-o-delete" id="settings-o-delete-'+i+'">Delete</button>';
     output += '</div></div>';
   }
@@ -374,8 +387,10 @@ document.getElementById('clear-objects').onclick = function() {
 
 
 
-
-
+//  ###########################################
+//  #                OBJECTS                  #
+//  #    planets that fly around on screen    #
+//  ###########################################
 
 function radiusToVolume(radius) {
   return (4/3) * Math.PI * Math.pow(radius, 3);
@@ -499,7 +514,7 @@ function object (density, radius, color, x, y, id) { // Aidan
   };
 
   this.getColor = function() {
-    return this.color; 
+    return this.color;
   };
 
   this.getVelocity = function() {
@@ -546,6 +561,12 @@ function calculateGravityAccel(x1, y1, x2, y2, mass, dist, angle) {
 }
 
 
+
+//  ###########################################
+//  #              MAIN FUNCTION              #
+//  #             run the canvas              #
+//  ###########################################
+
 function Main(){
     this.objects = []; // contains all the planet objects
     this.magnificationMultiplyer = 1.0;
@@ -554,7 +575,7 @@ function Main(){
 
     this.createObject = function(density, radius, color, x, y, velocityx=0, velocityy=0){
         this.objects.push(new object(density, radius, color, x, y, this.idCounter)); // adds values into new planet object
-        if (velocityx !== 0 || velocityy !== 0){ // sets velocity value if supplied (may use id to find added object when to prevent errors during clustered thread) ) 
+        if (velocityx !== 0 || velocityy !== 0){ // sets velocity value if supplied (may use id to find added object when to prevent errors during clustered thread) )
           this.objects[this.objects.length-1].setVelocity(velocityx, velocityy);
         }
         console.log("Created object with\nDensity: " + density + "kg/m^3\nRadius: " + radius + "km\nColor: " + color + "\nCoordinates: " + x + ", " + y + "\nID: " + this.idCounter); // debug info
@@ -641,31 +662,4 @@ function Main(){
 
 };
 
-
-/*session.createObject(100, 200, "#000000", 500, 500);
-session.createObject(500, 100, "#FFFFFF", 100, 100);
-session.createObject(20, 50, "#FF3", 800, 800);*/
-
 var sessionInterval =  window.setInterval(function(){session.update()}, 1000/TICKS_PER_SECOND);
-//session.createObject(1000, 100, "#000000", 400, 400, 0, 0);
-//session.createObject(100, 100, "#ffffff", 600, 600, 20, -10);
-
-function download(filename, text) {
-  var element = document.createElement('a');
-  element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
-  element.setAttribute('download', filename);
-
-  element.style.display = 'none';
-  document.body.appendChild(element);
-
-  element.click();
-
-  document.body.removeChild(element);
-}
-
-// <form onsubmit="download(this['name'].value, this['text'].value)">
-//   <input type="text" name="name" value="test.txt">
-//   <textarea name="text"></textarea>
-//   <input type="submit" value="Download">
-// </form>
-//http://www.html5rocks.com/en/tutorials/file/dndfiles/ata:text/plain;charset=utf-8,' + encodeURIComponent(text));
