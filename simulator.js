@@ -9,7 +9,7 @@ const ORBIT_PATH_WIDTH_INITIAL = 5;
 const ORBIT_PATH_WIDTH_DECREMENT = 0.1;
 const DEFAULT_LINE_WIDTH = 5;
 
-var testSession = new main();
+var session = new Main();
 
 
 
@@ -181,7 +181,7 @@ var createFollowObject = function(radius, color, density) {
         var vy = event.pageY - y; // y-axis length of the velocity
         vx = vx / 50; // make the velocity not as large
         vy = vy / 50;
-        testSession.createObject(density, radius, color, x, y, vx, vy);
+        session.createObject(density, radius, color, x, y, vx, vy);
         clearObjectCreation();
       } else { cf = true; }
     };
@@ -355,7 +355,7 @@ var updateObjManagement = function (objects) {
 
 document.getElementById('download-objects').onclick = function() {
   if (document.getElementById('download-objects').className != 'disabled') {
-    var text = JSON.stringify(testSession.objects,null,2);
+    var text = JSON.stringify(session.objects,null,2);
     var element = document.createElement('a');
     element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
     element.setAttribute('download', 'objects.json');
@@ -368,7 +368,7 @@ document.getElementById('download-objects').onclick = function() {
 
 document.getElementById('clear-objects').onclick = function() {
   if (document.getElementById('download-objects').className != 'disabled') {
-    testSession.objects = [];
+    session.objects = [];
   }
 };
 
@@ -546,7 +546,7 @@ function calculateGravityAccel(x1, y1, x2, y2, mass, dist, angle) {
 }
 
 
-function main(){
+function Main(){
     this.objects = []; // contains all the planet objects
     this.magnificationMultiplyer = 1.0;
     this.currentCoordinate = [0, 0];
@@ -642,13 +642,13 @@ function main(){
 };
 
 
-/*testSession.createObject(100, 200, "#000000", 500, 500);
-testSession.createObject(500, 100, "#FFFFFF", 100, 100);
-testSession.createObject(20, 50, "#FF3", 800, 800);*/
+/*session.createObject(100, 200, "#000000", 500, 500);
+session.createObject(500, 100, "#FFFFFF", 100, 100);
+session.createObject(20, 50, "#FF3", 800, 800);*/
 
-var sessionInterval =  window.setInterval(function(){testSession.update()}, 1000/TICKS_PER_SECOND);
-//testSession.createObject(1000, 100, "#000000", 400, 400, 0, 0);
-//testSession.createObject(100, 100, "#ffffff", 600, 600, 20, -10);
+var sessionInterval =  window.setInterval(function(){session.update()}, 1000/TICKS_PER_SECOND);
+//session.createObject(1000, 100, "#000000", 400, 400, 0, 0);
+//session.createObject(100, 100, "#ffffff", 600, 600, 20, -10);
 
 function download(filename, text) {
   var element = document.createElement('a');
