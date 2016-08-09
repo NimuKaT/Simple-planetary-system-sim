@@ -18,10 +18,11 @@ var session = new Main();
 //  #            used to create UI            #
 //  ###########################################
 
-// flags for optional draw objects
+// flags and variables for optional draw objects
 var showOrbitPath = true;
 var showVelocity = false;
 var showAcceleration = false;
+var currTimeScale = 1;
 
 // open a window in the sidebar
 var openWindow = function(itemName) {
@@ -362,6 +363,11 @@ document.getElementById('settings-orbit-path').onchange = function () {
   showOrbitPath = document.getElementById('settings-orbit-path').checked;
 };
 
+// change time scale
+document.getElementById('settings-time').onchange = function () {
+  currTimeScale = document.getElementById('settings-time').value;
+}
+
 // update the 'object management' section of the manage space window
 var updateObjManagement = function (objects) {
   // var output = ''; // create the output variable
@@ -663,7 +669,7 @@ function Main(){
           this.objects[i].setAcceleration(acceleration[0], acceleration[1]);
         }
         for (var i = 0; i < this.objects.length; i++) {
-          this.objects[i].updatePosition(1);
+          this.objects[i].updatePosition(currTimeScale);
           this.objects[i].drawObject(this.currentCoordinate[0], this.currentCoordinate[1]);
         }
         updateObjManagement(this.objects);
