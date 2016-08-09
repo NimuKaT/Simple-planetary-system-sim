@@ -20,8 +20,8 @@ var session = new Main();
 
 // flags for optional draw objects
 var showOrbitPath = true;
-var showVelocity = true;
-var showAcceleration = true;
+var showVelocity = false;
+var showAcceleration = false;
 
 // open a window in the sidebar
 var openWindow = function(itemName) {
@@ -110,31 +110,6 @@ var init = function() {
     openWindow('start');
     closeWindow('load-state');
   });
-
-  // object creation material custom toggle
-  document.getElementById('object-material').onchange = function () {
-    var elem = document.getElementById('object-material');
-    if (elem.value === "0") { // select HTML object has custom selected (with a value of 0)
-      document.getElementById('object-material-custom').className = 'shown'; // show the custom text input
-    } else {
-      document.getElementById('object-material-custom').className = ''; // hide the custom text input
-    }
-  };
-
-  // 'create object' button
-  document.getElementById('object-create').addEventListener('mouseup', function() {
-    var radius = document.getElementById('object-radius').value;    // get the value for the radius
-    var color = document.getElementById('object-color').value;    // get the value for the colour
-    var density = document.getElementById('object-material').value; // get the value for the material
-
-    // check for the custom density selected
-    if (density === "0") {
-      density = document.getElementById('object-material-custom').value;  // get the value for the density
-    }
-
-    // create the object
-    createFollowObject(radius, color, density);
-  });
 };
 
 init();
@@ -146,14 +121,69 @@ init();
 //  #    used in the object creation window   #
 //  ###########################################
 
+// object creation material custom toggle
+document.getElementById('object-material').onchange = function () {
+  var elem = document.getElementById('object-material');
+  if (elem.value === "0") { // select HTML object has custom selected (with a value of 0)
+    document.getElementById('object-material-custom').className = 'shown'; // show the custom text input
+  } else {
+    document.getElementById('object-material-custom').className = ''; // hide the custom text input
+  }
+};
+
+// 'create object' button
+document.getElementById('object-create').addEventListener('mouseup', function() {
+  var radius = document.getElementById('object-radius').value;    // get the value for the radius
+  var color = document.getElementById('object-color').value;    // get the value for the colour
+  var density = document.getElementById('object-material').value; // get the value for the material
+
+  // check for the custom density selected
+  if (density === "0") {
+    density = document.getElementById('object-material-custom').value;  // get the value for the density
+  }
+
+  // create the object
+  createFollowObject(radius, color, density);
+});
+
+// convert number to hexadecimal representation (2 digits e.g. 0 --> 00 and 255 --> ff)
+function numberToHex(n) {
+  var hex = n.toString(16);
+  return hex.length == 1 ? "0" + hex : hex;
+}
+
+// generate a random object
+document.getElementById('object-generate-random').addEventListener('mouseup', function() {
+  var radius = Math.floor((Math.random() * 190) + 10); // 10 - 200
+  var r = Math.floor((Math.random() * 255)); // 0 - 254
+  var g = Math.floor((Math.random() * 255)); // 0 - 254
+  var b = Math.floor((Math.random() * 255)); // 0 - 254
+  var color = '#' + numberToHex(r) + numberToHex(g) + numberToHex(b); // convert them to hex colour
+  var density = Math.floor((Math.random() * 100) + 1); // 1 - 100
+
+  // create the object
+  createFollowObject(radius, color, density);
+});
+
+
 // create an object to follow the mouse around when the user creates an object
 // and give this following object the correct properties
 var createFollowObject = function(radius, color, density) {
   var obj = document.getElementById('object-undermouse'); // the mouse follow object
   obj.style.display = 'block';          // set the visiblilty to show
-  obj.style.background = color;        // set the background colour
+  obj.style.background = color;         // set the background colour
   obj.style.width = radius*2 + 'px';    // set the width
   obj.style.height = radius*2 + 'px';   // set the height
+
+  // create alert
+  document.getElementById('object-alert').className = 'shown';
+
+  // create alert removal
+  document.getElementById('object-alert').onmouseover = function() {
+    var objAlert = document.getElementById('object-alert');
+    objAlert.className = '';
+    objAlert.mouseover = '';
+  }
 
   // get when the user places the object on the canvas (only place where the
   // user is able to click the object, without something else being above)
@@ -179,8 +209,6 @@ var createFollowObject = function(radius, color, density) {
       if (cf) {
         var vx = event.pageX - x; // x-axis length of the velocity
         var vy = event.pageY - y; // y-axis length of the velocity
-        vx = vx / 50; // make the velocity not as large
-        vy = vy / 50;
         session.createObject(density, radius, color, x, y, vx, vy);
         clearObjectCreation();
       } else { cf = true; }
@@ -191,7 +219,8 @@ var createFollowObject = function(radius, color, density) {
 };
 
 // allows the user to cancel the object creation
-var createObjectCancellation = function(a = false) {
+var createObjectCancellation = function(a) {
+  a = a || false; // set the default value to false
   // 'a' is whether the object is in another click event
   var clickFlag = true;
   if (a) {
@@ -206,7 +235,7 @@ var createObjectCancellation = function(a = false) {
     if(clickFlag) {
       clearObjectCreation(); // remove the mouse follow object
     }
-    clickFlag = true;
+    clickFlag = true; // get the second click
   };
 
   // get when a keyboard button is clicked
@@ -238,6 +267,9 @@ var clearObjectCreation = function() {
 
   // remove all on click effects
   document.onclick = '';
+
+  // clear alert
+  document.getElementById('object-alert').className = '';
 
   clearFollowObject();        // clear the styles of follow object
   removePlaceholderObject();  // remove the placeholder
@@ -272,16 +304,17 @@ var createVelocityLine = function(x,y) {
   obj.style.top = y + 'px';
   var a = 0; // flag needed for below
 
+  // when the mouse is moved
   document.onmousemove = function(event) {
     if (a === 0) { obj.style.display = 'block'; a++; } // show the velocity line on the first movement
-    var mx = event.pageX;
-    var my = event.pageY;
+    var mx = event.pageX; // get the x position of the mouse
+    var my = event.pageY; // get the y position of the mouse
 
-    var distance = Math.hypot(mx-x, my-y);
-    var angle = Math.atan2(my-y, mx-x) * 180 / Math.PI;
+    var distance = Math.hypot(mx-x, my-y); // get the length of the velocity line (hypotenuse of an immaginary right angle triangle)
+    var angle = Math.atan2(my-y, mx-x) * 180 / Math.PI; // get the angle of incline/decline from right (0)
 
-    obj.style.width = distance + 'px';
-    obj.style.transform = 'rotate(' + angle + 'deg)';
+    obj.style.width = distance + 'px'; // set the width of the object to the distance of the hypotenuse
+    obj.style.transform = 'rotate(' + angle + 'deg)'; // rotate the object so that it is at the correct angle
   };
 };
 
@@ -314,68 +347,103 @@ var removeVelocityLine = function() {
 //  #     used in the manage space window     #
 //  ###########################################
 
+// velocity line toggle
+document.getElementById('settings-velocity-line').onchange = function () {
+  showVelocity = document.getElementById('settings-velocity-line').checked;
+};
+
+// acceleration line toggle
+document.getElementById('settings-acceleration-line').onchange = function () {
+  showAcceleration = document.getElementById('settings-acceleration-line').checked;
+};
+
+// orbit path toggle
+document.getElementById('settings-orbit-path').onchange = function () {
+  showOrbitPath = document.getElementById('settings-orbit-path').checked;
+};
+
+// update the 'object management' section of the manage space window
 var updateObjManagement = function (objects) {
-  var output = '';
-  var colors = [];
-  for(var i = 0; i < objects.length; i++) {
-    var obj = objects[i];
-    colors.push(obj.getColor());
+  // var output = ''; // create the output variable
+  for(var i = 0; i < objects.length; i++) { // run through each object on the screen
+    var obj = objects[i]; // get the specific object on screen
+    var id = obj.getID();
+    if(document.getElementById('settings-o-'+id)) {
+      var vel = obj.getVelocity()
+      var output = '<span>Coordinates:&nbsp;&nbsp;<span>'+Math.floor(obj.getX())+', '+Math.floor(obj.getY())+'</span></span>';   // object coordinates (x,y)
+      output += '<span>Velocity X:&nbsp;&nbsp;<span>'+Math.floor(vel[0])+'km/hr</span></span>';     // object X Velocity
+      output += '<span>Velocity Y:&nbsp;&nbsp;<span>'+Math.floor(vel[1])+'km/hr</span></span>';     // object Y Velocity
+      document.getElementById('settings-o-changinginfo-'+id).innerHTML = output;
+    } else {
+      // append to the output the specific information for each object
+      var output = '<div class="settings-object-wrap" id="settings-o-'+id+'">';
+      output += '<div class="settings-o-color" style="background: '+obj.getColor()+'"></div>';
+      output += '<div class="settings-o-information">';
+      output += '<span>Density:&nbsp;&nbsp;<span>';
+      output +=  + obj.getDensity() + 'kg/m^3</span></span>';                                       // object density
+      output += '<span>Radius:&nbsp;&nbsp;<span>';
+      output +=  + obj.getRadius() + 'km</span></span>';                                            // object radius
+      output += '<div id="settings-o-changinginfo-'+id+'"></div>'
+      output += '<button class="settings-o-delete" id="settings-o-delete-'+id+'" onclick="deleteObjectNum('+id+')">Delete</button>';   // object delete button
+      output += '</div></div>';
 
-    output += '<div class="settings-object-wrap">';
-    output += '<div class="settings-o-color" id="settings-color-'+i+'"></div>';
-    output += '<div class="settings-o-information">';
-    output += '<span>Density:&nbsp;&nbsp;<span>';
-    output +=  + obj.getDensity() + 'kg/m^3</span></span>';
-    output += '<span>Radius:&nbsp;&nbsp;<span>';
-    output +=  + obj.getRadius() + 'km</span></span>';
-    output += '<span>Coordinates:&nbsp;&nbsp;<span>';
-    output +=  + obj.getX() + ', ' + obj.getY() + '</span></span>';
-    output += '<span>Velocity X:&nbsp;&nbsp;<span>';
-    output +=  + obj.getVelocity()[0] + 'km</span></span>';
-    output += '<span>Velocity Y:&nbsp;&nbsp;<span>';
-    output +=  + obj.getVelocity()[1] + 'km</span></span>';
-    output += '<button class="settings-o-delete" id="settings-o-delete-'+i+'">Delete</button>';
-    output += '</div></div>';
+      document.getElementById('object-management').innerHTML += output; // add the output to the window
+    }
   }
-  document.getElementById('object-management').innerHTML = output;
 
-  for(i = 0; i < objects.length; i++) {
-    document.getElementById('settings-color-' + i).style.background = colors[i];
-  }
-
-  if (objects.length === 0) {
-    document.getElementById('object-management').innerHTML = 'No objects created.';
-    document.getElementById('download-objects').className = 'disabled';
-    document.getElementById('clear-objects').className = 'disabled';
-  } else {
-    document.getElementById('download-objects').className = '';
-    document.getElementById('clear-objects').className = '';
+  if (objects.length === 0) { // if there are no objects on screen
+    document.getElementById('object-management').innerHTML = 'No objects created.'; // add text to the window
+    document.getElementById('download-objects').className = 'disabled'; // disable the download objects button
+    document.getElementById('clear-objects').className = 'disabled';    // disable the delete all objects button
+  } else { // there are objects
+    document.getElementById('download-objects').className = ''; // enable the download objects button
+    document.getElementById('clear-objects').className = '';    // enable the delete all objects button
   }
 };
 
+// delete object num
+var deleteObjectNum = function(a) {
+  if (confirm('Are you sure you wish to delete this object?\nObjects are not recoverable.')) {
+    for(var i = 0; i < session.objects.length; i++) { // run through each object on the screen
+      var obj = session.objects[i];
+      if(obj.getID() === a) {
+        session.objects.splice(i, 1);
+        var elem = document.getElementById('settings-o-'+a);
+        document.getElementById('object-management').removeChild(elem);
+      }
+    }
+  }
+}
+
+// download objects as .json
 document.getElementById('download-objects').onclick = function() {
-  if (document.getElementById('download-objects').className != 'disabled') {
-    var text = JSON.stringify(session.objects,null,2);
-    var element = document.createElement('a');
-    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
-    element.setAttribute('download', 'objects.json');
-    element.style.display = 'none';
-    document.body.appendChild(element);
-    element.click();
-    document.body.removeChild(element);
+  if (document.getElementById('download-objects').className != 'disabled') { // make sure the button is enabled
+    var text = JSON.stringify(session.objects,null,2);  // convert the objects array into json
+    var element = document.createElement('a'); // create an ancor element (link)
+    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text)); // give the link a location (a text file)
+    element.setAttribute('download', 'objects.json'); // turn the anchor into a download link
+    element.style.display = 'none'; // hide the anchor element
+    document.body.appendChild(element); // add the element to the body
+    element.click(); // force the user to click the element (thus activating the download)
+    document.body.removeChild(element); // remove the element from the DOM
   }
 };
 
+// clear objects button
 document.getElementById('clear-objects').onclick = function() {
-  if (document.getElementById('download-objects').className != 'disabled') {
-    session.objects = [];
+  if (document.getElementById('download-objects').className != 'disabled') { // make sure the button is enabled
+    if (confirm('Are you sure you want to delete all objects?\nObjects are not recoverable.')) { // prompt the user to make sure they are sure
+      session.objects = []; // clear the object array thus deleting all the objects
+    }
   }
 };
 
 
 
-
-
+//  ###########################################
+//  #                OBJECTS                  #
+//  #    planets that fly around on screen    #
+//  ###########################################
 
 function radiusToVolume(radius) {
   return (4/3) * Math.PI * Math.pow(radius, 3);
@@ -499,7 +567,7 @@ function object (density, radius, color, x, y, id) { // Aidan
   };
 
   this.getColor = function() {
-    return this.color; 
+    return this.color;
   };
 
   this.getVelocity = function() {
@@ -546,15 +614,21 @@ function calculateGravityAccel(x1, y1, x2, y2, mass, dist, angle) {
 }
 
 
+
+//  ###########################################
+//  #              MAIN FUNCTION              #
+//  #             run the canvas              #
+//  ###########################################
+
 function Main(){
     this.objects = []; // contains all the planet objects
     this.magnificationMultiplyer = 1.0;
     this.currentCoordinate = [0, 0];
     this.idCounter = 0;
 
-    this.createObject = function(density, radius, color, x, y, velocityx=0, velocityy=0){
+    this.createObject = function(density, radius, color, x, y, velocityx, velocityy){
         this.objects.push(new object(density, radius, color, x, y, this.idCounter)); // adds values into new planet object
-        if (velocityx !== 0 || velocityy !== 0){ // sets velocity value if supplied (may use id to find added object when to prevent errors during clustered thread) ) 
+        if (velocityx !== 0 || velocityy !== 0){ // sets velocity value if supplied (may use id to find added object when to prevent errors during clustered thread) )
           this.objects[this.objects.length-1].setVelocity(velocityx, velocityy);
         }
         console.log("Created object with\nDensity: " + density + "kg/m^3\nRadius: " + radius + "km\nColor: " + color + "\nCoordinates: " + x + ", " + y + "\nID: " + this.idCounter); // debug info
@@ -641,31 +715,4 @@ function Main(){
 
 };
 
-
-/*session.createObject(100, 200, "#000000", 500, 500);
-session.createObject(500, 100, "#FFFFFF", 100, 100);
-session.createObject(20, 50, "#FF3", 800, 800);*/
-
 var sessionInterval =  window.setInterval(function(){session.update()}, 1000/TICKS_PER_SECOND);
-//session.createObject(1000, 100, "#000000", 400, 400, 0, 0);
-//session.createObject(100, 100, "#ffffff", 600, 600, 20, -10);
-
-function download(filename, text) {
-  var element = document.createElement('a');
-  element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
-  element.setAttribute('download', filename);
-
-  element.style.display = 'none';
-  document.body.appendChild(element);
-
-  element.click();
-
-  document.body.removeChild(element);
-}
-
-// <form onsubmit="download(this['name'].value, this['text'].value)">
-//   <input type="text" name="name" value="test.txt">
-//   <textarea name="text"></textarea>
-//   <input type="submit" value="Download">
-// </form>
-//http://www.html5rocks.com/en/tutorials/file/dndfiles/ata:text/plain;charset=utf-8,' + encodeURIComponent(text));

@@ -11,6 +11,7 @@ body
   box-sizing: border-box
   font-family: Helvetica, Arial, sans-serif
   font-weight: 300
+  overflow: hidden
 
 #sidebar, canvas
   position: relative
@@ -441,6 +442,27 @@ body
     margin-top: -5px
     border-top: 2px solid white
     border-right: 2px solid white
+
+#object-alert
+  position: absolute
+  bottom: 20px
+  left: -200px
+  display: block
+  box-sizing: border-box
+  width: 200px
+  height: 65px
+  padding: 15px
+  font-size: 14px
+  line-height: 1.4
+  background: #E4E6E9
+  box-shadow: 0 0 20px 5px rgba(0,0,0,0.3)
+  border-left: 5px solid #73c990
+  padding-left: 12px
+  transition: all 0.2s linear
+
+  &.shown
+    left: 20px
+    transition: all 0.3s cubic-bezier(0.42, 0, 0.52, 1.3)
 
 canvas
   width: 75%
