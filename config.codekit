@@ -36,17 +36,6 @@
 		"shouldRunBless": 0,
 		"useLibsass": false
 		},
-	"\/min\/simulator-min.js": {
-		"fileType": 64,
-		"ignore": 1,
-		"ignoreWasSetByUser": 0,
-		"inputAbbreviatedPath": "\/min\/simulator-min.js",
-		"outputAbbreviatedPath": "\/min\/min\/simulator-min-min.js",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"outputStyle": 1,
-		"syntaxCheckerStyle": 1
-		},
 	"\/README.md": {
 		"criticStyle": 0,
 		"enableFootnotes": 1,
@@ -70,8 +59,8 @@
 		},
 	"\/simulator.js": {
 		"fileType": 64,
-		"ignore": 0,
-		"ignoreWasSetByUser": 0,
+		"ignore": 1,
+		"ignoreWasSetByUser": 1,
 		"inputAbbreviatedPath": "\/simulator.js",
 		"outputAbbreviatedPath": "\/min\/simulator-min.js",
 		"outputPathIsOutsideProject": 0,
