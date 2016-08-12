@@ -23,6 +23,9 @@ var showOrbitPath = true;
 var showVelocity = false;
 var showAcceleration = false;
 
+var canvasXmid = 0;
+var canvasYmid = 0;
+
 // open a window in the sidebar
 var openWindow = function(itemName) {
   document.getElementById(itemName).className = 'open'; // add class open to the chosen element
@@ -45,17 +48,23 @@ var initFollowObject = function() {
   };
 };
 
-window.onresize = function() {
+var windowResize = function() {
   CANVAS.width = window.innerWidth * 0.75;
   CANVAS.height = window.innerHeight;
 
+  canvasXmid = CANVAS.width / 2;
+  canvasYmid = CANVAS.height / 2;
+
   // need to add something so that it keeps what is in the middle in the same place
+  document.getElementById('up-line').style.left = (canvasXmid - 1) + 'px';
+  document.getElementById('down-line').style.top = (canvasYmid - 1) + 'px';
 };
+
+window.onresize = function() { windowResize() };
 
 var init = function() {
   // initialise the canvas
-  CANVAS.width = window.innerWidth * 0.75; // set the canvas width to 75% screen width
-  CANVAS.height = window.innerHeight;      // set the canvas height to 100%
+  windowResize();
 
   // initialise the follow object
   initFollowObject();
@@ -207,8 +216,10 @@ var createFollowObject = function(radius, color, density) {
     // get the next click event (for the velocity)
     document.onclick = function(event) {
       if (cf) {
-        var vx = event.pageX - x; // x-axis length of the velocity
-        var vy = event.pageY - y; // y-axis length of the velocity
+        x = x - canvasXmid;
+        y = y - canvasYmid;
+        var vx = event.pageX - x - canvasXmid; // x-axis length of the velocity
+        var vy = event.pageY - y - canvasYmid; // y-axis length of the velocity
         session.createObject(density, radius, color, x, y, vx, vy);
         clearObjectCreation();
       } else { cf = true; }
@@ -364,40 +375,43 @@ document.getElementById('settings-orbit-path').onchange = function () {
 
 // update the 'object management' section of the manage space window
 var updateObjManagement = function (objects) {
-  // var output = ''; // create the output variable
-  for(var i = 0; i < objects.length; i++) { // run through each object on the screen
-    var obj = objects[i]; // get the specific object on screen
-    var id = obj.getID();
-    if(document.getElementById('settings-o-'+id)) {
-      var vel = obj.getVelocity()
-      var output = '<span>Coordinates:&nbsp;&nbsp;<span>'+Math.floor(obj.getX())+', '+Math.floor(obj.getY())+'</span></span>';   // object coordinates (x,y)
-      output += '<span>Velocity X:&nbsp;&nbsp;<span>'+Math.floor(vel[0])+'km/hr</span></span>';     // object X Velocity
-      output += '<span>Velocity Y:&nbsp;&nbsp;<span>'+Math.floor(vel[1])+'km/hr</span></span>';     // object Y Velocity
-      document.getElementById('settings-o-changinginfo-'+id).innerHTML = output;
-    } else {
-      // append to the output the specific information for each object
-      var output = '<div class="settings-object-wrap" id="settings-o-'+id+'">';
-      output += '<div class="settings-o-color" style="background: '+obj.getColor()+'"></div>';
-      output += '<div class="settings-o-information">';
-      output += '<span>Density:&nbsp;&nbsp;<span>';
-      output +=  + obj.getDensity() + 'kg/m^3</span></span>';                                       // object density
-      output += '<span>Radius:&nbsp;&nbsp;<span>';
-      output +=  + obj.getRadius() + 'km</span></span>';                                            // object radius
-      output += '<div id="settings-o-changinginfo-'+id+'"></div>'
-      output += '<button class="settings-o-delete" id="settings-o-delete-'+id+'" onclick="deleteObjectNum('+id+')">Delete</button>';   // object delete button
-      output += '</div></div>';
-
-      document.getElementById('object-management').innerHTML += output; // add the output to the window
-    }
-  }
+  var objManagement = document.getElementById('object-management');
 
   if (objects.length === 0) { // if there are no objects on screen
-    document.getElementById('object-management').innerHTML = 'No objects created.'; // add text to the window
+    objManagement.innerHTML = 'No objects created.'; // add text to the window
     document.getElementById('download-objects').className = 'disabled'; // disable the download objects button
     document.getElementById('clear-objects').className = 'disabled';    // disable the delete all objects button
   } else { // there are objects
     document.getElementById('download-objects').className = ''; // enable the download objects button
     document.getElementById('clear-objects').className = '';    // enable the delete all objects button
+    if (objManagement.innerHTML == 'No objects created.') { objManagement.innerHTML = '';}
+
+    for(var i = 0; i < objects.length; i++) { // run through each object on the screen
+      var obj = objects[i]; // get the specific object on screen
+      var id = obj.getID();
+      if(document.getElementById('settings-o-'+id)) {
+        var vel = obj.getVelocity()
+        var output = '<span>Coordinates:&nbsp;&nbsp;<span>('+Math.floor(obj.getX())+', '+Math.floor(obj.getY())+')</span></span>';   // object coordinates (x,y)
+        output += '<span>Velocity X:&nbsp;&nbsp;<span>'+Math.floor(vel[0])+'km/hr</span></span>';     // object X Velocity
+        output += '<span>Velocity Y:&nbsp;&nbsp;<span>'+Math.floor(vel[1])+'km/hr</span></span>';     // object Y Velocity
+        document.getElementById('settings-o-changinginfo-'+id).innerHTML = output; // set the changing info section of the correct object to the information above
+      } else {
+        // append to the output the specific information for each object
+        var output = '<div class="settings-object-wrap" id="settings-o-'+id+'">';
+        output += '<div class="settings-o-color" style="background: '+obj.getColor()+'"></div>'; // object colour
+        output += '<div class="settings-o-information">';
+        output += '<span>Density:&nbsp;&nbsp;<span>';
+        output +=  + obj.getDensity() + 'kg/m^3</span></span>';                                  // object density
+        output += '<span>Radius:&nbsp;&nbsp;<span>';
+        output +=  + obj.getRadius() + 'km</span></span>';                                       // object radius
+        output += '<div id="settings-o-changinginfo-'+id+'"></div>'
+        output += '<button class="settings-o-delete" id="settings-o-delete-'+id+'"'
+        output += ' onclick="deleteObjectNum('+id+')">Delete</button>';                          // object delete button
+        output += '</div></div>';
+
+        objManagement.innerHTML += output; // add the output to the window
+      }
+    }
   }
 };
 
@@ -471,7 +485,7 @@ function object (density, radius, color, x, y, id) { // Aidan
   this.ay = 0;
   this.orbitPath = [];
 
-  this.drawObject = function(xShift, yShift, accelX, accelY) {
+  this.drawObject = function(xShift, yShift) {
     // given its position on the canvas, draws it centred to that location
 
     // draw the planet's main body
@@ -631,7 +645,7 @@ function Main(){
         if (velocityx !== 0 || velocityy !== 0){ // sets velocity value if supplied (may use id to find added object when to prevent errors during clustered thread) )
           this.objects[this.objects.length-1].setVelocity(velocityx, velocityy);
         }
-        console.log("Created object with\nDensity: " + density + "kg/m^3\nRadius: " + radius + "km\nColor: " + color + "\nCoordinates: " + x + ", " + y + "\nID: " + this.idCounter); // debug info
+        console.log("Created object with\nDensity: " + density + "kg/m^3\nRadius: " + radius + "km\nColor: " + color + "\nCoordinates: " + x + ", " + y + "\nVelocity: " + velocityx + ", " + velocityy + "\nID: " + this.idCounter); // debug info
         this.idCounter++;
     };
 
@@ -664,7 +678,7 @@ function Main(){
         }
         for (var i = 0; i < this.objects.length; i++) {
           this.objects[i].updatePosition(1);
-          this.objects[i].drawObject(this.currentCoordinate[0], this.currentCoordinate[1]);
+          this.objects[i].drawObject(this.currentCoordinate[0] - canvasXmid, this.currentCoordinate[1] - canvasYmid);
         }
         updateObjManagement(this.objects);
       }
