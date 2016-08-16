@@ -1,8 +1,7 @@
 const CANVAS = document.getElementById('simulation');
 const CANVAS_CONTEXT = CANVAS.getContext('2d');
 const UNIVERSAL_GRAVITATIONAL_CONSTANT = 6.67e-11;
-const KM_TO_PIXELS = 1/1e3; //subject to change
-const COLLISION_THRESHOLD = 0.85;
+const KM_TO_PIXELS = 1/1e3;
 const TICKS_PER_SECOND = 25;
 const ORBIT_PATH_LENGTH = 100;
 const ORBIT_PATH_WIDTH_INITIAL = 5;
@@ -10,8 +9,6 @@ const ORBIT_PATH_WIDTH_DECREMENT = 0.1;
 const DEFAULT_LINE_WIDTH = 5;
 
 var session = new Main();
-
-
 
 //  ###########################################
 //  #              INIT FUNCTION              #
@@ -22,8 +19,6 @@ var session = new Main();
 var showOrbitPath = true;
 var showVelocity = false;
 var showAcceleration = false;
-var currTimeScale = 1;
-
 var canvasXmid = 0;
 var canvasYmid = 0;
 
@@ -61,7 +56,7 @@ var windowResize = function() {
   document.getElementById('down-line').style.top = (canvasYmid - 1) + 'px';
 };
 
-window.onresize = function() { windowResize() };
+window.onresize = function() { windowResize(); };
 
 var init = function() {
   // initialise the canvas
@@ -159,7 +154,7 @@ document.getElementById('object-create').addEventListener('mouseup', function() 
 // convert number to hexadecimal representation (2 digits e.g. 0 --> 00 and 255 --> ff)
 function numberToHex(n) {
   var hex = n.toString(16);
-  return hex.length == 1 ? "0" + hex : hex;
+  return hex.length === 1 ? "0" + hex : hex;
 }
 
 // generate a random object
@@ -174,7 +169,6 @@ document.getElementById('object-generate-random').addEventListener('mouseup', fu
   // create the object
   createFollowObject(radius, color, density);
 });
-
 
 // create an object to follow the mouse around when the user creates an object
 // and give this following object the correct properties
@@ -193,7 +187,7 @@ var createFollowObject = function(radius, color, density) {
     var objAlert = document.getElementById('object-alert');
     objAlert.className = '';
     objAlert.mouseover = '';
-  }
+  };
 
   // get when the user places the object on the canvas (only place where the
   // user is able to click the object, without something else being above)
@@ -223,6 +217,12 @@ var createFollowObject = function(radius, color, density) {
         var vy = event.pageY - y - canvasYmid; // y-axis length of the velocity
         session.createObject(density, radius, color, x, y, vx, vy);
         clearObjectCreation();
+
+        // if space is paused
+        if(document.getElementById('settings-pause').className === 'disabled') {
+          session.refreshScreen();
+        }
+
       } else { cf = true; }
     };
   };
@@ -347,9 +347,46 @@ var removeVelocityLine = function() {
 //  #      used in the load state window      #
 //  ###########################################
 
+document.getElementById('loadstate-file').onchange = function() {
+  loadFile();
+}
 
+var loadFile = function() {
+  var files = document.getElementById('loadstate-file').files;
+  if (!files.length) {
+    alert('A file was not selected.\nPlease select a file to continue.');
+    return;
+  }
 
+  var file = files[0];
+  var reader = new FileReader();
 
+  reader.onloadend = function(evt) {
+    if (evt.target.readyState == FileReader.DONE) {
+      var parsed = JSON.parse(evt.target.result);
+      var arr = [];
+      for(var x in parsed){
+        arr.push(parsed[x]);
+      }
+      session.objects = [];
+      var settings = arr.pop();
+      session.magnificationMultiplier = settings[0];
+      session.currTimeScale = settings[1];
+      session.currentCoordinate = settings[2];
+      session.idCounter = settings[3];
+
+      for (var i = 0; i <= arr.length-1; i++) {
+        var obj = arr[i];
+        session.objects.push(new object(obj.density, obj.radius, obj.color, obj.x, obj.y, obj.id));
+        session.objects[session.objects.length-1].setVelocity(obj.vx, obj.vy);
+      }
+      updateObjManagement(session.objects);
+    }
+  };
+
+  var blob = file.slice(0, file.size);
+  reader.readAsBinaryString(blob);
+}
 
 
 
@@ -362,22 +399,55 @@ var removeVelocityLine = function() {
 // velocity line toggle
 document.getElementById('settings-velocity-line').onchange = function () {
   showVelocity = document.getElementById('settings-velocity-line').checked;
+
+  // if space is paused
+  if(document.getElementById('settings-pause').className === 'disabled') {
+    session.refreshScreen();
+  }
 };
 
 // acceleration line toggle
 document.getElementById('settings-acceleration-line').onchange = function () {
   showAcceleration = document.getElementById('settings-acceleration-line').checked;
+
+  // if space is paused
+  if(document.getElementById('settings-pause').className === 'disabled') {
+    session.refreshScreen();
+  }
 };
 
 // orbit path toggle
 document.getElementById('settings-orbit-path').onchange = function () {
   showOrbitPath = document.getElementById('settings-orbit-path').checked;
+
+  // if space is paused
+  if(document.getElementById('settings-pause').className === 'disabled') {
+    session.refreshScreen();
+  }
 };
 
 // change time scale
 document.getElementById('settings-time').onchange = function () {
-  currTimeScale = document.getElementById('settings-time').value;
-}
+  session.currTimeScale = document.getElementById('settings-time').value;
+};
+
+document.getElementById('settings-play').onclick = function() {
+  if(this.className === '') {
+    session.interval = window.setInterval(function(){session.update();}, 1000/TICKS_PER_SECOND);
+    this.className = 'disabled';
+    document.getElementById('settings-pause').className = '';
+    document.getElementById('space-paused-alert').className = '';
+  }
+};
+
+document.getElementById('settings-pause').onclick = function() {
+  if(this.className === '') {
+    clearInterval(session.interval);
+    this.className = 'disabled';
+    document.getElementById('settings-play').className = '';
+    document.getElementById('space-paused-alert').className = 'shown';
+  }
+};
 
 // update the 'object management' section of the manage space window
 var updateObjManagement = function (objects) {
@@ -390,13 +460,13 @@ var updateObjManagement = function (objects) {
   } else { // there are objects
     document.getElementById('download-objects').className = ''; // enable the download objects button
     document.getElementById('clear-objects').className = '';    // enable the delete all objects button
-    if (objManagement.innerHTML == 'No objects created.') { objManagement.innerHTML = '';}
+    if (objManagement.innerHTML === 'No objects created.') { objManagement.innerHTML = '';}
 
     for(var i = 0; i < objects.length; i++) { // run through each object on the screen
       var obj = objects[i]; // get the specific object on screen
       var id = obj.getID();
       if(document.getElementById('settings-o-'+id)) {
-        var vel = obj.getVelocity()
+        var vel = obj.getVelocity();
         var output = '<span>Coordinates:&nbsp;&nbsp;<span>('+Math.floor(obj.getX())+', '+Math.floor(obj.getY())+')</span></span>';   // object coordinates (x,y)
         output += '<span>Velocity X:&nbsp;&nbsp;<span>'+Math.floor(vel[0])+'km/hr</span></span>';     // object X Velocity
         output += '<span>Velocity Y:&nbsp;&nbsp;<span>'+Math.floor(vel[1])+'km/hr</span></span>';     // object Y Velocity
@@ -410,8 +480,8 @@ var updateObjManagement = function (objects) {
         output +=  + obj.getDensity() + 'kg/m^3</span></span>';                                  // object density
         output += '<span>Radius:&nbsp;&nbsp;<span>';
         output +=  + obj.getRadius() + 'km</span></span>';                                       // object radius
-        output += '<div id="settings-o-changinginfo-'+id+'"></div>'
-        output += '<button class="settings-o-delete" id="settings-o-delete-'+id+'"'
+        output += '<div id="settings-o-changinginfo-'+id+'"></div>';
+        output += '<button class="settings-o-delete" id="settings-o-delete-'+id+'"';
         output += ' onclick="deleteObjectNum('+id+')">Delete</button>';                          // object delete button
         output += '</div></div>';
 
@@ -430,15 +500,22 @@ var deleteObjectNum = function(a) {
         session.objects.splice(i, 1);
         var elem = document.getElementById('settings-o-'+a);
         document.getElementById('object-management').removeChild(elem);
+
+        // if space is paused
+        if(document.getElementById('settings-pause').className === 'disabled') {
+          session.refreshScreen();
+        }
       }
     }
   }
-}
+};
 
 // download objects as .json
 document.getElementById('download-objects').onclick = function() {
-  if (document.getElementById('download-objects').className != 'disabled') { // make sure the button is enabled
-    var text = JSON.stringify(session.objects,null,2);  // convert the objects array into json
+  if (document.getElementById('download-objects').className !== 'disabled') { // make sure the button is enabled
+    var array = session.objects;
+    array.push([session.magnificationMultiplier, session.currTimeScale, session.currentCoordinate, session.idCounter]);
+    var text = JSON.stringify(array,null,2);  // convert the objects array into json
     var element = document.createElement('a'); // create an ancor element (link)
     element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text)); // give the link a location (a text file)
     element.setAttribute('download', 'objects.json'); // turn the anchor into a download link
@@ -451,9 +528,14 @@ document.getElementById('download-objects').onclick = function() {
 
 // clear objects button
 document.getElementById('clear-objects').onclick = function() {
-  if (document.getElementById('download-objects').className != 'disabled') { // make sure the button is enabled
+  if (document.getElementById('download-objects').className !== 'disabled') { // make sure the button is enabled
     if (confirm('Are you sure you want to delete all objects?\nObjects are not recoverable.')) { // prompt the user to make sure they are sure
       session.objects = []; // clear the object array thus deleting all the objects
+
+      // if space is paused
+      if(document.getElementById('settings-pause').className === 'disabled') {
+        session.refreshScreen();
+      }
     }
   }
 };
@@ -466,11 +548,11 @@ document.getElementById('clear-objects').onclick = function() {
 //  ###########################################
 
 function radiusToVolume(radius) {
-  return (4/3) * Math.PI * Math.pow(radius, 3);
+  return (4/3) * Math.PI * Math.pow(radius, 3); // find the volume given the radius: volume = 4/3 * pi * r^3
 }
 
 function volumeToRadius(volume) {
-  return Math.cbrt(3*volume/4*Math.PI);
+  return Math.cbrt(volume/((4/3)*Math.PI)); // find the radius given the volume: radius^3 = volume / (4/3 * pi)
 }
 
 function object (density, radius, color, x, y, id) { // Aidan
@@ -503,7 +585,7 @@ function object (density, radius, color, x, y, id) { // Aidan
 
     CANVAS_CONTEXT.lineWidth = DEFAULT_LINE_WIDTH;
 
-    if (showVelocity == true) {
+    if (showVelocity === true) {
       // draw line in the direction of velocity for the current frame
       CANVAS_CONTEXT.beginPath();
       CANVAS_CONTEXT.moveTo(this.x - xShift, this.y - yShift);
@@ -514,7 +596,7 @@ function object (density, radius, color, x, y, id) { // Aidan
     }
 
 
-    if (showAcceleration == true) {
+    if (showAcceleration === true) {
       // draw line in the direction of acceleration for the current frame
       CANVAS_CONTEXT.beginPath();
       CANVAS_CONTEXT.moveTo(this.x - xShift, this.y - yShift);
@@ -524,7 +606,7 @@ function object (density, radius, color, x, y, id) { // Aidan
       CANVAS_CONTEXT.closePath();
     }
 
-    if (showOrbitPath == true) {
+    if (showOrbitPath === true) {
       var pathWidth = ORBIT_PATH_WIDTH_INITIAL;
       // draw line showing the orbit path for the past ORBIT_PATH_LENGTH frames
       CANVAS_CONTEXT.beginPath();
@@ -579,7 +661,7 @@ function object (density, radius, color, x, y, id) { // Aidan
   };
 
   this.getDensity = function() {
-    return this.density
+    return this.density;
   };
 
   this.getRadius = function() {
@@ -592,31 +674,24 @@ function object (density, radius, color, x, y, id) { // Aidan
 
   this.getVelocity = function() {
     return [this.vx, this.vy];
-  }
+  };
 
   this.getID = function() {
     return this.id;
-  }
+  };
 
   this.setVelocity = function(vx, vy) {
     // gives the object an instantaneous velocity
     this.vx = vx;
     this.vy = vy;
-  }
+  };
 
   this.setAcceleration = function(ax, ay) {
     // sets the objects acceleration for the next position update
     this.ax = ax;
     this.ay = -ay;
-  }
-};
-
-// GAB: not sure if this works, but i found an easier way (look up Math.hypot)
-function calculateDistance(x1, y1, x2, y2) {
-  // finds the distance between to points on the canvas
-  var distance = Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
-  return distance;
-};
+  };
+}
 
 function getAngleBetweenPoints(x1, y1, x2, y2) {
   // gets the angle of point 2 relative to point 1
@@ -642,7 +717,9 @@ function calculateGravityAccel(x1, y1, x2, y2, mass, dist, angle) {
 
 function Main(){
     this.objects = []; // contains all the planet objects
-    this.magnificationMultiplyer = 1.0;
+    this.objectsHitList = [];
+    this.magnificationMultiplier = 1.0;
+    this.currTimeScale = 1;
     this.currentCoordinate = [0, 0];
     this.idCounter = 0;
 
@@ -653,6 +730,7 @@ function Main(){
         }
         console.log("Created object with\nDensity: " + density + "kg/m^3\nRadius: " + radius + "km\nColor: " + color + "\nCoordinates: " + x + ", " + y + "\nVelocity: " + velocityx + ", " + velocityy + "\nID: " + this.idCounter); // debug info
         this.idCounter++;
+        updateObjManagement(this.objects);
     };
 
     this.update = function(){
@@ -660,18 +738,17 @@ function Main(){
         var acceleration = [0, 0];
         var angle = 0;
         var distance = 0;
-        CANVAS_CONTEXT.clearRect(0, 0, CANVAS.width, CANVAS.height)
-        for (var i = 0; i < this.objects.length; i++) {
+        var i;
+        CANVAS_CONTEXT.clearRect(0, 0, CANVAS.width, CANVAS.height);
+        for (i = 0; i < this.objects.length; i++) {
           acceleration = [0, 0];
           for (var p = 0; p < this.objects.length; p++) {
-            if (this.objects[i].getID() != this.objects[p].getID()) {
-              var magnitude = 0;
+            if (this.objects[i].getID() !== this.objects[p].getID()) {
               // get angle
               angle = getAngleBetweenPoints(this.objects[i].getX(), this.objects[i].getY(),
                 this.objects[p].getX(), this.objects[p].getY());
               // get distance
-              distance = calculateDistance(this.objects[i].getX(), this.objects[i].getY(),
-                this.objects[p].getX(), this.objects[p].getY());
+              distance = Math.hypot(this.objects[i].getX() - this.objects[p].getX(), this.objects[i].getY() - this.objects[p].getY());
               // get acceleration
               acceleration = calculateGravityAccel(
                 this.objects[i].getX(), this.objects[i].getY(),
@@ -682,62 +759,122 @@ function Main(){
           }
           this.objects[i].setAcceleration(acceleration[0], acceleration[1]);
         }
-        for (var i = 0; i < this.objects.length; i++) {
-<<<<<<< HEAD
-          this.objects[i].updatePosition(currTimeScale);
-          this.objects[i].drawObject(this.currentCoordinate[0], this.currentCoordinate[1]);
-=======
-          this.objects[i].updatePosition(1);
-          this.objects[i].drawObject(this.currentCoordinate[0] - canvasXmid, this.currentCoordinate[1] - canvasYmid);
->>>>>>> Gab
+
+        // for each possible pair in this.objects
+        for (i = 0; i < this.objects.length - 1; i++) {
+          for (var j = i; j < this.objects.length - 1; j++) {
+            this.hitDetect(this.objects[i], this.objects[j+1]); // check whether this pair has hit
+          }
         }
+
+        // for each pair in the hit list
+        for (i = 0; i < this.objectsHitList.length - 1; i) {
+          var obj1 = this.objectsHitList[i];   // get the first object
+          var obj2 = this.objectsHitList[i+1]; // get the next object (object colliding)
+
+          // new volume and radius
+          var vol1 = obj1.getVolume(); // volume of object 1
+          var vol2 = obj2.getVolume(); // volume of object 2
+          var newVolume = vol1 + vol2; // combine the two volumes to make the new volume
+          var newRadius = Math.floor(volumeToRadius(newVolume)); // turn the volume into a radius
+
+          // new object percentage
+          var p1 = vol1 / newVolume; // volume of the object divided by the new objects volume gives a ratio of old to new
+          var p2 = vol2 / newVolume; // this is used to calculate the percentage of the new object that belongs to the old object
+
+          // new colour
+          var c1 = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(obj1.getColor()); // turn the colours into arrays of values [r,g,b]
+          var c2 = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(obj2.getColor());
+          var r1 = parseInt(c1[1], 16) * p1; // convert each value into hex: parseInt(num, 16)
+          var r2 = parseInt(c2[1], 16) * p2; // times that number by the percentage of the new object
+          var g1 = parseInt(c1[2], 16) * p1;
+          var g2 = parseInt(c2[2], 16) * p2;
+          var b1 = parseInt(c1[3], 16) * p1;
+          var b2 = parseInt(c2[3], 16) * p2;
+          var r = numberToHex(Math.floor(r1 + r2)); // floor the combined rgb: Math.floor(num)
+          var g = numberToHex(Math.floor(g1 + g2)); // turn that number back into a hexadecimal: numberToHex(num)
+          var b = numberToHex(Math.floor(b1 + b2));
+          var newColor = "#" + r + g + b; // combine the rgb hexadecimal values into one hexadecimal colour
+
+          // new density
+          var d1 = obj1.getDensity() * p1; // percentage of object 1's density being passed on to the new object
+          var d2 = obj2.getDensity() * p2; // likewise for obejct 2
+          var newDensity = Math.floor(d1 + d2); // combine the two density amounts to form the new density.
+
+          // new velocity
+          var vel1 = obj1.getVelocity(); // returns an array [x, y] of the velocity
+          var vel2 = obj2.getVelocity();
+          var newVelocityX = vel1[0] * p1 + vel2[0] * p2; // add the percentage of velocitys of each object
+          var newVelocityY = vel1[1] * p1 + vel2[1] * p2; // do this for both object's x and y velocity
+
+          var x,y;
+          if (p1 >= p2) { // if the first object is bigger
+            x = obj1.getX(); // set the x and y of the new object to the x,y of the first object
+            y = obj1.getY();
+          } else { // the second object is bigger
+            x = obj2.getX(); // likewise with the second object
+            y = obj2.getY();
+          }
+
+          // remove the 'object management' elements for the objects merging
+          var elem1 = document.getElementById('settings-o-'+ obj1.getID());
+          var elem2 = document.getElementById('settings-o-'+ obj2.getID());
+          document.getElementById('object-management').removeChild(elem1);
+          document.getElementById('object-management').removeChild(elem2);
+
+          // remove the objects for the object list
+          this.objects.splice(this.objects.indexOf(obj1), 1); // remove objects in array using array.splice(index, numToRemove)
+          this.objects.splice(this.objects.indexOf(obj2), 1); // get the index of the obejects using this.objects.indexOf(itemInArray)
+
+          // remove the objects from the hit list
+          this.objectsHitList.splice(i+1, 1); // remove objects in array using array.splice(index, numToRemove)
+          this.objectsHitList.splice(i, 1); // first remove the second object than the first
+
+          // create the new object to replace the merging ones
+          this.createObject(newDensity, newRadius, newColor, x, y, newVelocityX, newVelocityY); // pass all the required information
+        }
+
+        // clear the hit list
+        this.objectsHitList = [];
+
+        // redraw all the objects
+        for (i = 0; i < this.objects.length; i++) {
+          this.objects[i].updatePosition(this.currTimeScale);
+          this.objects[i].drawObject(this.currentCoordinate[0] - canvasXmid, this.currentCoordinate[1] - canvasYmid);
+        }
+
+        // update the object management tab
         updateObjManagement(this.objects);
       }
     };
 
-    this.hitDetect = function(object1, object2){
-        var hasHit = false;
-        var x1 = object1.getX();
-        var y1 = object1.getY();
-        var r1 = object1.getRadius();
-        var x2 = object2.getX();
-        var y2 = object2.getY();
-        var r2 = object2.getRadius();
-        var distance = calculateDistance(x1, y1, x2, y2); // get the distance between planets
+    // update the session every tick
+    this.interval = window.setInterval(function(){session.update();}, 1000/TICKS_PER_SECOND);
 
-        if (distance <= COLLISION_THRESHOLD*(r1 + r2)){ // check if the planets are close enough for a collision
-            hasHit = true;
-        }
-        return hasHit;
+    // used to update the screen without moving objects (e.g. when paused)
+    this.refreshScreen = function() {
+      CANVAS_CONTEXT.clearRect(0, 0, CANVAS.width, CANVAS.height); // clear the screen
+      for (var i = 0; i < this.objects.length; i++) { // go through each object that should be on the screen
+        this.objects[i].drawObject(this.currentCoordinate[0] - canvasXmid, this.currentCoordinate[1] - canvasYmid); // draw the object to the screen
+      }
+      updateObjManagement(this.objects); // update the 'object management' window
     };
 
+    // determine whether two given objects have collided (overlap)
+    this.hitDetect = function(object1, object2){
+      var x1 = object1.getX(); // x position of object 1
+      var y1 = object1.getY(); // y posiiton of object 1
+      var x2 = object2.getX(); // x position of object 2
+      var y2 = object2.getY(); // y posiiton of object 2
+      var d =  Math.hypot(x2-x1, y2-y1); // get the distance between the two center points
 
-
-    this.mergeObject = function(mergeObjects){
-      this.totalMomentum = [0,0];
-      this.totalMass = 0;
-      this.totalVolume = 0;
-      for(i = 0; i > mergeObjects.length; i++){
-        var mass = mergeObjects[i].getMass();
-        var velocity = mergeObjects[i].getVelocity;
-        this.totalMomentum[0] = this.totalMomentum[0] + mass * velocity[0];
-        this.totalMomentum[1] = this.totalMomentum[1] + mass * velocity[1];
-        this.totalMass = this.totalMass + mass;
-        this.totalVolume = this.totalVolume + mergeObjects[i].getVolume();
-
-
+      // NOTE: if the distance is smaller than the two circles radius combined then the objects are overlapped
+      if (d <= parseInt(object1.getRadius()) + parseInt(object2.getRadius())) { // check whether they overlap
+         // check if the objects are already on the hit list
+        if(this.objectsHitList.indexOf(object1) > -1 || this.objectsHitList.indexOf(object2) > -1) {
+          return false; // if the objects are already in the list do not add them again but instead return
+        }
+        this.objectsHitList.push(object1, object2); // add the obejects to the hit list
       }
     };
-
-    this.getObject = function(index){
-      return this.objects[index];
-    };
-
-    this.getIndexFromID = function(objectID){ // for testing purposes ONLY
-      return objectID === this.value;
-
-    };
-
-};
-
-var sessionInterval =  window.setInterval(function(){session.update()}, 1000/TICKS_PER_SECOND);
+}
