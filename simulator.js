@@ -688,13 +688,8 @@ function Main(){
           this.objects[i].setAcceleration(acceleration[0], acceleration[1]);
         }
         for (var i = 0; i < this.objects.length; i++) {
-<<<<<<< HEAD
-          this.objects[i].updatePosition(currTimeScale);
-          this.objects[i].drawObject(this.currentCoordinate[0], this.currentCoordinate[1]);
-=======
           this.objects[i].updatePosition(1);
           this.objects[i].drawObject(this.currentCoordinate[0] - canvasXmid, this.currentCoordinate[1] - canvasYmid);
->>>>>>> Gab
         }
         updateObjManagement(this.objects);
       }
