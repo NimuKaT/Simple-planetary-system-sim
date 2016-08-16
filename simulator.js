@@ -537,13 +537,13 @@ function object (density, radius, color, x, y, id) { // Aidan
       this.orbitPath.pop();
     }
 
-    // update coordinates according to s = ut + 1/2at^2
-    this.x += (this.vx*timeScale/TICKS_PER_SECOND + 0.5*this.ax*Math.pow((timeScale/TICKS_PER_SECOND), 2));
-    this.y += (this.vy*timeScale/TICKS_PER_SECOND + 0.5*this.ay*Math.pow((timeScale/TICKS_PER_SECOND), 2));
-
     // update the objects velocity according to v = u + at
     this.vx += this.ax*timeScale/TICKS_PER_SECOND;
     this.vy += this.ay*timeScale/TICKS_PER_SECOND;
+
+    // update coordinates according to s = ut + 1/2at^2
+    this.x += (this.vx*timeScale/TICKS_PER_SECOND + 0.5*this.ax*Math.pow((timeScale/TICKS_PER_SECOND), 2));
+    this.y += (this.vy*timeScale/TICKS_PER_SECOND + 0.5*this.ay*Math.pow((timeScale/TICKS_PER_SECOND), 2));
 
   };
 
@@ -640,12 +640,15 @@ function Main(){
         console.log("Created object with\nDensity: " + density + "kg/m^3\nRadius: " + radius + "km\nColor: " + color + "\nCoordinates: " + x + ", " + y + "\nID: " + this.idCounter); // debug info
         this.idCounter++;
     };
+    //this.createObject(10, 70, 'red', 500, 350, 0, 0);
+    //this.createObject(1, 10, 'blue', 800, 350, 0, 240);
 
     this.update = function(){
       if (typeof this.objects !== 'undefined') { //prevents update when array is broken
         var acceleration = [0, 0];
         var angle = 0;
         var distance = 0;
+        var newAcceleration = [0, 0]
         CANVAS_CONTEXT.clearRect(0, 0, CANVAS.width, CANVAS.height)
         for (var i = 0; i < this.objects.length; i++) {
           acceleration = [0, 0];
@@ -659,11 +662,13 @@ function Main(){
               distance = calculateDistance(this.objects[i].getX(), this.objects[i].getY(),
                 this.objects[p].getX(), this.objects[p].getY());
               // get acceleration
-              acceleration = calculateGravityAccel(
+              newAcceleration = calculateGravityAccel(
                 this.objects[i].getX(), this.objects[i].getY(),
                 this.objects[p].getX(), this.objects[p].getY(),
                 this.objects[p].getMass(),
                 distance, angle);
+              acceleration[0] += newAcceleration[0];
+              acceleration[1] += newAcceleration[1];
             }
           }
           this.objects[i].setAcceleration(acceleration[0], acceleration[1]);
