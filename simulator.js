@@ -349,7 +349,7 @@ var removeVelocityLine = function() {
 
 document.getElementById('loadstate-file').onchange = function() {
   loadFile();
-}
+};
 
 var loadFile = function() {
   var files = document.getElementById('loadstate-file').files;
@@ -362,7 +362,7 @@ var loadFile = function() {
   var reader = new FileReader();
 
   reader.onloadend = function(evt) {
-    if (evt.target.readyState == FileReader.DONE) {
+    if (evt.target.readyState === FileReader.DONE) {
       var parsed = JSON.parse(evt.target.result);
       var arr = [];
       for(var x in parsed){
@@ -386,7 +386,7 @@ var loadFile = function() {
 
   var blob = file.slice(0, file.size);
   reader.readAsBinaryString(blob);
-}
+};
 
 
 
@@ -740,7 +740,8 @@ function Main(){
         var acceleration = [0, 0];
         var angle = 0;
         var distance = 0;
-        var newAcceleration = [0, 0]
+        var newAcceleration = [0, 0];
+
         var i;
         CANVAS_CONTEXT.clearRect(0, 0, CANVAS.width, CANVAS.height);
         for (i = 0; i < this.objects.length; i++) {
@@ -764,13 +765,14 @@ function Main(){
           }
           this.objects[i].setAcceleration(acceleration[0], acceleration[1]);
         }
-        for (var i = 0; i < this.objects.length; i++) {
+
+        for (i = 0; i < this.objects.length; i++) {
           this.objects[i].updatePosition(1);
           this.objects[i].drawObject(this.currentCoordinate[0] - canvasXmid, this.currentCoordinate[1] - canvasYmid);
         }
+
         updateObjManagement(this.objects);
-      }
-    };
+
         // for each possible pair in this.objects
         for (i = 0; i < this.objects.length - 1; i++) {
           for (var j = i; j < this.objects.length - 1; j++) {
