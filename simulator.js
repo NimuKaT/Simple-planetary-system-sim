@@ -2,7 +2,7 @@ const CANVAS = document.getElementById('simulation');
 const CANVAS_CONTEXT = CANVAS.getContext('2d');
 const UNIVERSAL_GRAVITATIONAL_CONSTANT = 6.67e-11;
 const KM_TO_PIXELS = 1/1e3;
-const TICKS_PER_SECOND = 25;
+const TICKS_PER_SECOND = 120;
 const ORBIT_PATH_LENGTH = 100;
 const ORBIT_PATH_WIDTH_INITIAL = 5;
 const ORBIT_PATH_WIDTH_DECREMENT = 0.1;
@@ -561,8 +561,8 @@ function object (density, radius, color, x, y, id) { // Aidan
   this.x = x;
   this.y = y;
   this.radius = radius;
-  this.density = density;
-  this.volume = radiusToVolume(radius);
+  this.density = density*(1e3/1e5);
+  this.volume = radiusToVolume(radius*1e9);
   this.mass = this.density * this.volume;
   this.color = color;
 
@@ -702,9 +702,9 @@ function getAngleBetweenPoints(x1, y1, x2, y2) {
 
 function calculateGravityAccel(x1, y1, x2, y2, mass, dist, angle) {
   // get the effective acceleration on object 1 due to object 2
-  var magnitude = (mass)/Math.pow(dist, 2);
-  var yMag = magnitude*Math.sin(angle*Math.PI/180);
-  var xMag = magnitude*Math.cos(angle*Math.PI/180);
+  var magnitude = UNIVERSAL_GRAVITATIONAL_CONSTANT*(mass)/Math.pow(dist*1e3, 2);
+  var yMag = magnitude*Math.sin(angle*Math.PI/180)*1e-3;
+  var xMag = magnitude*Math.cos(angle*Math.PI/180)*1e-3;
   return [xMag, yMag];
 }
 
@@ -752,7 +752,7 @@ function Main(){
               angle = getAngleBetweenPoints(this.objects[i].getX(), this.objects[i].getY(),
                 this.objects[p].getX(), this.objects[p].getY());
               // get distance
-              distance = Math.hypot(this.objects[i].getX() - this.objects[p].getX(), this.objects[i].getY() - this.objects[p].getY());
+              distance = Math.hypot(this.objects[i].getX() - this.objects[p].getX(), this.objects[i].getY() - this.objects[p].getY()) + this.objects[i].getRadius() + this.objects[p].getRadius();
               // get acceleration
               newAcceleration = calculateGravityAccel(
                 this.objects[i].getX(), this.objects[i].getY(),
@@ -788,7 +788,7 @@ function Main(){
           // new volume and radius
           var vol1 = obj1.getVolume(); // volume of object 1
           var vol2 = obj2.getVolume(); // volume of object 2
-          var newVolume = vol1 + vol2; // combine the two volumes to make the new volume
+          var newVolume = (vol1 + vol2)*1e-9; // combine the two volumes to make the new volume
           var newRadius = Math.floor(volumeToRadius(newVolume)); // turn the volume into a radius
 
           // new object percentage
@@ -812,7 +812,7 @@ function Main(){
           // new density
           var d1 = obj1.getDensity() * p1; // percentage of object 1's density being passed on to the new object
           var d2 = obj2.getDensity() * p2; // likewise for obejct 2
-          var newDensity = Math.floor(d1 + d2); // combine the two density amounts to form the new density.
+          var newDensity = Math.floor(d1 + d2)*(1e5/1e3); // combine the two density amounts to form the new density.
 
           // new velocity
           var vel1 = obj1.getVelocity(); // returns an array [x, y] of the velocity
