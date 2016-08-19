@@ -1,6 +1,6 @@
 const CANVAS = document.getElementById('simulation');
 const CANVAS_CONTEXT = CANVAS.getContext('2d');
-const UNIVERSAL_GRAVITATIONAL_CONSTANT = 6.67e-11;
+const UNIVERSAL_GRAVITATIONAL_CONSTANT = 6.673889e-11;
 const KM_TO_PIXELS = 1/1e3;
 const TICKS_PER_SECOND = 25;
 const ORBIT_PATH_LENGTH = 100;
@@ -472,8 +472,8 @@ var updateObjManagement = function (objects) {
       if(document.getElementById('settings-o-'+id)) {
         var vel = obj.getVelocity();
         var output = '<span>Coordinates:&nbsp;&nbsp;<span>('+Math.floor(obj.getX())+', '+Math.floor(obj.getY())+')</span></span>';   // object coordinates (x,y)
-        output += '<span>Velocity X:&nbsp;&nbsp;<span>'+Math.floor(vel[0])+'km/hr</span></span>';     // object X Velocity
-        output += '<span>Velocity Y:&nbsp;&nbsp;<span>'+Math.floor(vel[1])+'km/hr</span></span>';     // object Y Velocity
+        output += '<span>Velocity X:&nbsp;&nbsp;<span>'+(vel[0]).toExponential(3)+'km/hr</span></span>';     // object X Velocity
+        output += '<span>Velocity Y:&nbsp;&nbsp;<span>'+(vel[1]).toExponential(3)+'km/hr</span></span>';     // object Y Velocity
         document.getElementById('settings-o-changinginfo-'+id).innerHTML = output; // set the changing info section of the correct object to the information above
       } else {
         // append to the output the specific information for each object
@@ -481,11 +481,13 @@ var updateObjManagement = function (objects) {
         output += '<div class="settings-o-color" style="background: '+obj.getColor()+'"></div>'; // object colour
         output += '<div class="settings-o-information">';
         output += '<span>Density:&nbsp;&nbsp;<span>';
-        output +=  + obj.getDensity()/G_CM3_TO_KG_M3 + 'kg/m^3</span></span>';                                  // object density
+        output +=  + (obj.getDensity()/G_CM3_TO_KG_M3).toExponential(3) + 'g/cm^3</span></span>';                                  // object density
         output += '<span>Radius:&nbsp;&nbsp;<span>';
-        output +=  + obj.getRadius()/KM_TO_M + 'km</span></span>';                                       // object radius
+        output +=  + (obj.getRadius()/KM_TO_M).toExponential(3) + 'km</span></span>';                                       // object radius
         output += '<span>Volume:&nbsp;&nbsp;<span>';
-        output +=  + Math.floor(obj.getVolume()/Math.pow(KM_TO_M, 3)) + 'km^3</span></span>'
+        output +=  + (obj.getVolume()/Math.pow(KM_TO_M, 3)).toExponential(3) + 'km^3</span></span>'
+        output += '<span>Mass:&nbsp;&nbsp;<span>';
+        output +=  + (obj.getMass()).toExponential(3) + 'kg</span></span>'
         output += '<div id="settings-o-changinginfo-'+id+'"></div>';
         output += '<button class="settings-o-delete" id="settings-o-delete-'+id+'"';
         output += ' onclick="deleteObjectNum('+id+')">Delete</button>';                          // object delete button
@@ -634,7 +636,7 @@ function object (density, radius, color, x, y, id) { // Aidan
 
   this.updatePosition = function(timeScale) {
     // given the acceleration of the object for a frame, moves its position
-    var time = (timeScale*1e-3)/TICKS_PER_SECOND;
+    var time = (timeScale)/TICKS_PER_SECOND;
     this.orbitPath.unshift([this.x, this.y]);
     if (this.orbitPath.length > ORBIT_PATH_LENGTH) {
       this.orbitPath.pop();
@@ -644,7 +646,7 @@ function object (density, radius, color, x, y, id) { // Aidan
     this.x += (this.vx*time + 0.5*this.ax*Math.pow(time, 2));
     this.y += (this.vy*time + 0.5*this.ay*Math.pow(time, 2));
 
-    console.log("X Coordinate: " + this.x + "\nY Coordinate: " + this.y);
+    // console.log("X Coordinate: " + this.x + "\nY Coordinate: " + this.y);
 
     // update the objects velocity according to v = u + at
     this.vx += this.ax*time;
@@ -693,14 +695,14 @@ function object (density, radius, color, x, y, id) { // Aidan
     // gives the object an instantaneous velocity
     this.vx = vx;
     this.vy = vy;
-    console.log("X Velocity: "  + this.vx +"\nY Velocity: "+ this.vy);
+    // console.log("X Velocity: "  + this.vx +"\nY Velocity: "+ this.vy);
   };
 
   this.setAcceleration = function(ax, ay) {
     // sets the objects acceleration for the next position update
     this.ax = ax;
     this.ay = -ay;
-    console.log("X Acceleration: " + this.ax + "\nY Acceleration: " + this.ay);
+    // console.log("X Acceleration: " + this.ax + "\nY Acceleration: " + this.ay);
   };
 }
 
@@ -716,7 +718,7 @@ function calculateGravityAccel( mass, dist, angle) {
   var magnitude = UNIVERSAL_GRAVITATIONAL_CONSTANT*(mass)/Math.pow(dist, 2);
   var yMag = magnitude*Math.sin(angle*Math.PI/180)/KM_TO_M;
   var xMag = magnitude*Math.cos(angle*Math.PI/180)/KM_TO_M;
-  console.log("X Acceleration: " + xMag + "\nY Acceleration: " +yMag);
+  // console.log("X Acceleration: " + xMag + "\nY Acceleration: " +yMag);
   return [xMag, yMag];
 }
 
@@ -765,7 +767,7 @@ function Main(){
                 this.objects[p].getX(), this.objects[p].getY());
               // get distance
               distance = Math.hypot(this.objects[i].getX() - this.objects[p].getX(),
-                this.objects[i].getY() - this.objects[p].getY() )*KM_TO_M + this.objects[i].getRadius() + this.objects[p].getRadius();
+                this.objects[i].getY() - this.objects[p].getY() )*KM_TO_M;
               // get acceleration
               newAcceleration = calculateGravityAccel(
                 this.objects[p].getMass(),
@@ -797,10 +799,12 @@ function Main(){
           var newVolume = (vol1 + vol2); // combine the two volumes to make the new volume
           var newRadius = Math.floor(volumeToRadius(newVolume)); // turn the volume into a radius
 
-          // new object percentage
-          var p1 = vol1 / newVolume; // volume of the object divided by the new objects volume gives a ratio of old to new
-          var p2 = vol2 / newVolume; // this is used to calculate the percentage of the new object that belongs to the old object
+          var totalMass = obj1.getMass() + obj2.getMass();
 
+          // new object percentage
+          var p1 = obj1.getMass() / totalMass; // volume of the object divided by the new objects volume gives a ratio of old to new
+          var p2 = obj2.getMass() / totalMass; // this is used to calculate the percentage of the new object that belongs to the old object
+          console.log(p1, p2);
           // new colour
           var c1 = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(obj1.getColor()); // turn the colours into arrays of values [r,g,b]
           var c2 = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(obj2.getColor());
@@ -823,8 +827,8 @@ function Main(){
           // new velocity
           var vel1 = obj1.getVelocity(); // returns an array [x, y] of the velocity
           var vel2 = obj2.getVelocity();
-          var newVelocityX = vel1[0] * p1 + vel2[0] * p2; // add the percentage of velocitys of each object
-          var newVelocityY = vel1[1] * p1 + vel2[1] * p2; // do this for both object's x and y velocity
+          var newVelocityX = (vel1[0] * p1 + vel2[0] * p2)/2; // add the percentage of velocitys of each object
+          var newVelocityY = (vel1[1] * p1 + vel2[1] * p2)/2; // do this for both object's x and y velocity
 
           var x,y;
           if (p1 >= p2) { // if the first object is bigger
@@ -858,7 +862,7 @@ function Main(){
 
         // redraw all the objects
         for (i = 0; i < this.objects.length; i++) {
-          this.objects[i].updatePosition(this.currTimeScale*60*60*24);
+          this.objects[i].updatePosition(this.currTimeScale);
           this.objects[i].drawObject(this.currentCoordinate[0] - canvasXmid, this.currentCoordinate[1] - canvasYmid);
         }
 
@@ -899,7 +903,7 @@ function Main(){
 }
 
 function gravitationalTest (){
-    session.createObject(10, 10, '#ffffff', 200, 0);
-    window.setTimeout(function(){session.createObject(1, 10, '#000000', 800, 800);}, 100);
+    session.createObject(10000000, 10, '#ffffff', 0, 0, 0, 0);
+    session.createObject(0, 10, '#000000', 100, 0, 0, 5.287298069);
     
 }
