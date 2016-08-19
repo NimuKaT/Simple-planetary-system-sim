@@ -1,7 +1,7 @@
 const CANVAS = document.getElementById('simulation');
 const CANVAS_CONTEXT = CANVAS.getContext('2d');
 const UNIVERSAL_GRAVITATIONAL_CONSTANT = 6.673889e-11;
-const KM_TO_PIXELS = 1/1e3;
+const KM_TO_PIXELS = 1e0;
 const TICKS_PER_SECOND = 120;
 const ORBIT_PATH_LENGTH = 100;
 const ORBIT_PATH_WIDTH_INITIAL = 5;
@@ -179,8 +179,8 @@ var createFollowObject = function(radius, color, density) {
   var obj = document.getElementById('object-undermouse'); // the mouse follow object
   obj.style.display = 'block';          // set the visiblilty to show
   obj.style.background = color;         // set the background colour
-  obj.style.width = radius*2 + 'px';    // set the width
-  obj.style.height = radius*2 + 'px';   // set the height
+  obj.style.width = radius*2*KM_TO_PIXELS + 'px';    // set the width
+  obj.style.height = radius*2*KM_TO_PIXELS + 'px';   // set the height
 
   // create alert
   document.getElementById('object-alert').className = 'shown';
@@ -200,7 +200,7 @@ var createFollowObject = function(radius, color, density) {
     var y = event.pageY;
 
     // create the placeholder object
-    createPlaceholderObject(radius, color, x, y);
+    createPlaceholderObject(radius*KM_TO_PIXELS, color, x, y);
 
     // create velocity line
     createVelocityLine(x,y);
@@ -216,8 +216,8 @@ var createFollowObject = function(radius, color, density) {
       if (cf) {
         x = x - canvasXmid;
         y = y - canvasYmid;
-        var vx = event.pageX - x - canvasXmid; // x-axis length of the velocity
-        var vy = event.pageY - y - canvasYmid; // y-axis length of the velocity
+        var vx = (event.pageX - x - canvasXmid)*KM_TO_PIXELS; // x-axis length of the velocity
+        var vy = (event.pageY - y - canvasYmid)*KM_TO_PIXELS; // y-axis length of the velocity
         session.createObject(density, radius, color, x, y, vx, vy);
         console.log(density, radius, color, x, y, vx, vy);
         clearObjectCreation();
@@ -566,8 +566,8 @@ function volumeToRadius(volume) {
 function object (density, radius, color, x, y, id) { // Aidan
   // constants on creation
   this.id = id;
-  this.x = x;
-  this.y = y;
+  this.x = x*KM_TO_PIXELS;
+  this.y = y*KM_TO_PIXELS;
   this.radius = radius*KM_TO_M;
   this.density = density*G_CM3_TO_KG_M3;
   this.volume = radiusToVolume(this.radius);
@@ -586,7 +586,7 @@ function object (density, radius, color, x, y, id) { // Aidan
 
     // draw the planet's main body
     CANVAS_CONTEXT.beginPath();
-    CANVAS_CONTEXT.arc(this.x - xShift, this.y - yShift, this.radius/KM_TO_M, 0, 2 * Math.PI, false);
+    CANVAS_CONTEXT.arc(this.x - xShift, this.y - yShift, this.radius*KM_TO_PIXELS/KM_TO_M, 0, 2 * Math.PI, false);
     CANVAS_CONTEXT.fillStyle = this.color;
     CANVAS_CONTEXT.fill();
     CANVAS_CONTEXT.closePath();
@@ -643,14 +643,14 @@ function object (density, radius, color, x, y, id) { // Aidan
     }
 
     // update coordinates according to s = ut + 1/2at^2
-    this.x += (this.vx*time + 0.5*this.ax*Math.pow(time, 2));
-    this.y += (this.vy*time + 0.5*this.ay*Math.pow(time, 2));
+    this.x += (this.vx*time + 0.5*this.ax*Math.pow(time, 2))*KM_TO_PIXELS;
+    this.y += (this.vy*time + 0.5*this.ay*Math.pow(time, 2))*KM_TO_PIXELS;
 
     // console.log("X Coordinate: " + this.x + "\nY Coordinate: " + this.y);
 
     // update the objects velocity according to v = u + at
-    this.vx += this.ax*time;
-    this.vy += this.ay*time;
+    this.vx += this.ax*time*KM_TO_PIXELS;
+    this.vy += this.ay*time*KM_TO_PIXELS;
 
   };
 
@@ -889,7 +889,7 @@ function Main(){
       var y1 = object1.getY(); // y posiiton of object 1
       var x2 = object2.getX(); // x position of object 2
       var y2 = object2.getY(); // y posiiton of object 2
-      var d =  Math.hypot(x2-x1, y2-y1); // get the distance between the two center points
+      var d =  Math.hypot((x2-x1)/KM_TO_PIXELS, (y2-y1)/KM_TO_PIXELS); // get the distance between the two center points
 
       // NOTE: if the distance is smaller than the two circles radius combined then the objects are overlapped
       if (d <= parseInt(object1.getRadius()/KM_TO_M) + parseInt(object2.getRadius()/KM_TO_M)) { // check whether they overlap
@@ -903,7 +903,32 @@ function Main(){
 }
 
 function gravitationalTest (){
-    session.createObject(10000000, 10, '#ffffff', 0, 0, 0, 0);
-    session.createObject(0, 10, '#000000', 100, 0, 0, 5.287298069);
+  session.createObject(10000000, 10, '#ffffff', 0, 0, 0, 0);
+  session.createObject(0, 10, '#000000', 100, 0, 0, 5.287298069);
     
+}
+
+function twinStarTest (){
+  session.createObject(100000000,10, '#ffffff', -200, 0, 0, 8.360/2);
+  session.createObject(100000000,10, '#ffffff', 200, 0, 0, -8.360/2);
+}
+
+function quadStarsTest (){
+  session.createObject(100000000,10, '#ffffff', -200, 0, 0, 8.360);
+  session.createObject(100000000,10, '#ffffff', 200, 0, 0, -8.360);
+  session.createObject(100000000,10, '#ffffff', 0, 200, 8.360, 0);
+  session.createObject(100000000,10, '#ffffff', 0, -200, -8.360, 0);
+
+}
+
+function SunAndEarthTest (){
+  session.createObject(0,1000000, '#ffaa00', 0, 0, 0, 0);
+  session.objects[0].mass = 2e30;
+  session.createObject(0,1000000, '#00a0ff', 15e6, 0, 0, 29.78);
+  session.objects[1].mass = 6e24;
+}
+
+function EarthAndMoonTest (){
+
+
 }
