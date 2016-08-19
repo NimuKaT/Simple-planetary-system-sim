@@ -766,11 +766,6 @@ function Main(){
           this.objects[i].setAcceleration(acceleration[0], acceleration[1]);
         }
 
-        for (i = 0; i < this.objects.length; i++) {
-          this.objects[i].updatePosition(1);
-          this.objects[i].drawObject(this.currentCoordinate[0] - canvasXmid, this.currentCoordinate[1] - canvasYmid);
-        }
-
         updateObjManagement(this.objects);
 
         // for each possible pair in this.objects
