@@ -43,14 +43,36 @@
     <h2 class="sidebar-header">SPACE SIMULATOR <span>//&nbsp;&nbsp;Gab, Takumi and Aidan</span></h2>
 
     <section>
-      <div class="sidebar-title">
-        <span>01</span>
-        <h3>How to create objects.</h3>
+      <div id="tutorial-1" class="shown">
+        <div class="sidebar-title">
+          <span>01</span>
+          <h3>How to create objects.</h3>
+        </div>
+        <p>
+          To create an object you go the <i>Object Creating</i> window.<br/>
+          From there you can customise your own object giving the <b>colour</b> of the object,
+          the <b>radius</b> (in kilometers) and the <b>material</b> (aka. the density).<br/>
+          Or generate a random object, using the button provided.
+          <img src="assets/tutorial-1.jpg">
+          Once you have done one of these options, move your mouse over the space box.
+          Click the mouse to <b>place</b> the object in the selected place.<br/>
+          Once the object has been placed click again to set the <b>velocity</b> of the new object.
+          <img src="assets/tutorial-2.jpg">
+          This object has now been created.
+          You can create as many objects as you would like and watch them interact with each other.
+        </p>
+        <button class="tutorial-next" id="tutorial-next-1">Next Lesson</button>
       </div>
-      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec fermentum nisi turpis, euismod fermentum leo ullamcorper a. Etiam efficitur fringilla vulputate. Nunc suscipit laoreet lectus, sit amet dapibus nunc condimentum non. Fusce malesuada ex pulvinar orci tincidunt, id lobortis sem scelerisque. Duis lobortis risus euismod, facilisis mauris feugiat, sagittis libero. Sed ut ullamcorper nisl, vitae porttitor nunc.</p>
-    </section>
-
-    <button id="sidebar-return-tutorial">Go Back</button>
+      <div id="tutorial-2">
+        <div class="sidebar-title">
+          <span>02</span>
+          <h3>How to delete objects.</h3>
+        </div>
+        <p>
+          To remove an object
+        </p>
+        <button class="tutorial-next" id="tutorial-next-2">Next Lesson</button>
+      </div>
   </div>
 
   <!-- Creating -->
@@ -108,29 +130,26 @@
       <div class="settings-input-wrap">
         <input type="checkbox" name="velocity-line" id="settings-velocity-line" />
         <label for="velocity-line">Velocity Line</label>
-        <div class="label-information">Line showing current object velocity.</div>
       </div><br>
 
       <div class="settings-input-wrap">
         <input type="checkbox" name="acceleration-line" id="settings-acceleration-line" />
         <label for="acceleration-line">Acceleration Line</label>
-        <div class="label-information">Line showing the resultant acceleration.</div>
       </div><br>
 
       <div class="settings-input-wrap">
         <input type="checkbox" name="orbit-path" id="settings-orbit-path" checked/>
         <label for="orbit-path">Orbit Path</label>
-        <div class="label-information">Shows where the object has been previously.</div>
       </div><br>
 
       <div class="settings-input-wrap">
         <div class="input-title">Zoom:</div>
-        <input type="range" id="settings-zoom" name="settings-zoom" value="1" min="1" max="100">
+        <input type="range" id="settings-zoom" name="settings-zoom" value="1" min="1" max="20">
       </div>
 
       <div class="settings-input-wrap">
         <div class="input-title">Time Scale:</div>
-        <input type="range" id="settings-time" name="settings-time" value="1" min="1" max="100">
+        <input type="range" id="settings-time" name="settings-time" value="1" min="0.2" max="5">
       </div>
 
       <br>

@@ -173,11 +173,12 @@ document.getElementById('object-generate-random').addEventListener('mouseup', fu
 // create an object to follow the mouse around when the user creates an object
 // and give this following object the correct properties
 var createFollowObject = function(radius, color, density) {
+  var zoomRadius = radius * (1/session.magnificationMultiplier);
   var obj = document.getElementById('object-undermouse'); // the mouse follow object
   obj.style.display = 'block';          // set the visiblilty to show
   obj.style.background = color;         // set the background colour
-  obj.style.width = radius*2 + 'px';    // set the width
-  obj.style.height = radius*2 + 'px';   // set the height
+  obj.style.width = zoomRadius*2 + 'px';    // set the width
+  obj.style.height = zoomRadius*2 + 'px';   // set the height
 
   // create alert
   document.getElementById('object-alert').className = 'shown';
@@ -215,6 +216,11 @@ var createFollowObject = function(radius, color, density) {
         y = y - canvasYmid;
         var vx = event.pageX - x - canvasXmid; // x-axis length of the velocity
         var vy = event.pageY - y - canvasYmid; // y-axis length of the velocity
+
+        x = x * session.magnificationMultiplier;
+        y = y * session.magnificationMultiplier;
+        vx = vx * session.magnificationMultiplier;
+        vy = vy * session.magnificationMultiplier;
         session.createObject(density, radius, color, x, y, vx, vy);
         clearObjectCreation();
 
@@ -292,6 +298,7 @@ var clearObjectCreation = function() {
 // create placeholder object
 var createPlaceholderObject = function(radius, color, x, y) {
   var obj = document.getElementById("object-placeholder");
+  radius = radius * (1/ session.magnificationMultiplier);
   obj.style.width = radius*2 + 'px';
   obj.style.height = radius*2 + 'px';
   obj.style.background = color;
@@ -348,44 +355,42 @@ var removeVelocityLine = function() {
 //  ###########################################
 
 document.getElementById('loadstate-file').onchange = function() {
-  loadFile();
-};
-
-var loadFile = function() {
-  var files = document.getElementById('loadstate-file').files;
-  if (!files.length) {
-    alert('A file was not selected.\nPlease select a file to continue.');
+  var files = document.getElementById('loadstate-file').files; // get the files from the input element in the DOM
+  if (!files.length) { // if no file selected
+    alert('A file was not selected.\nPlease select a file to continue.'); // alert an error to the user
     return;
   }
 
-  var file = files[0];
-  var reader = new FileReader();
+  var file = files[0]; // get the first file
+  var reader = new FileReader(); // get the file reader (JS)
 
+  // when the file is fully downloaded loads the file
   reader.onloadend = function(evt) {
-    if (evt.target.readyState === FileReader.DONE) {
-      var parsed = JSON.parse(evt.target.result);
-      var arr = [];
-      for(var x in parsed){
-        arr.push(parsed[x]);
+    if (evt.target.readyState === FileReader.DONE) { // file is done loading
+      var parsed = JSON.parse(evt.target.result); // turn the JSON into readable information for JS
+      var arr = []; // create an empyt array for objects
+      for(var x in parsed){ // run through information in the JSON
+        arr.push(parsed[x]); // add the information from the JSON into the empty array
       }
-      session.objects = [];
-      var settings = arr.pop();
-      session.magnificationMultiplier = settings[0];
-      session.currTimeScale = settings[1];
-      session.currentCoordinate = settings[2];
-      session.idCounter = settings[3];
+      session.objects = []; // reset the screen's objects
+      var settings = arr.pop(); // remove the setting information from the JSON (last item in array)
+      session.magnificationMultiplier = settings[0]; // get the magnification multiplier from JSON
+      session.currTimeScale = settings[1]; // get the time scale from JSON
+      session.currentCoordinate = settings[2]; // get the current coordinate of the center from JSON
+      session.idCounter = settings[3]; // get the id counter (next object id)
 
-      for (var i = 0; i <= arr.length-1; i++) {
-        var obj = arr[i];
-        session.objects.push(new object(obj.density, obj.radius, obj.color, obj.x, obj.y, obj.id));
-        session.objects[session.objects.length-1].setVelocity(obj.vx, obj.vy);
+      for (var i = 0; i <= arr.length-1; i++) { // for objects in array
+        var obj = arr[i]; // get each object
+        session.objects.push(new object(obj.density, obj.radius, obj.color, obj.x, obj.y, obj.id)); // add the object to the session
+        session.objects[session.objects.length-1].setVelocity(obj.vx, obj.vy); // give that new object a velocity
       }
-      updateObjManagement(session.objects);
+      updateObjManagement(session.objects); // update the object management window
     }
   };
 
-  var blob = file.slice(0, file.size);
-  reader.readAsBinaryString(blob);
+  // read the file
+  var info = file.slice(0, file.size);
+  reader.readAsBinaryString(info);
 };
 
 
@@ -427,8 +432,17 @@ document.getElementById('settings-orbit-path').onchange = function () {
 };
 
 // change time scale
-document.getElementById('settings-time').onchange = function () {
+document.getElementById('settings-time').oninput = function () {
   session.currTimeScale = document.getElementById('settings-time').value;
+};
+
+document.getElementById('settings-zoom').oninput = function () {
+  session.magnificationMultiplier = document.getElementById('settings-zoom').value;
+
+  // if space is paused
+  if(document.getElementById('settings-pause').className === 'disabled') {
+    session.refreshScreen();
+  }
 };
 
 document.getElementById('settings-play').onclick = function() {
@@ -523,12 +537,13 @@ document.getElementById('download-objects').onclick = function() {
     document.body.appendChild(element); // add the element to the body
     element.click(); // force the user to click the element (thus activating the download)
     document.body.removeChild(element); // remove the element from the DOM
+    session.refreshScreen();
   }
 };
 
 // clear objects button
 document.getElementById('clear-objects').onclick = function() {
-  if (document.getElementById('download-objects').className !== 'disabled') { // make sure the button is enabled
+  if (document.getElementById('clear-objects').className !== 'disabled') { // make sure the button is enabled
     if (confirm('Are you sure you want to delete all objects?\nObjects are not recoverable.')) { // prompt the user to make sure they are sure
       session.objects = []; // clear the object array thus deleting all the objects
 
@@ -578,7 +593,7 @@ function object (density, radius, color, x, y, id) { // Aidan
 
     // draw the planet's main body
     CANVAS_CONTEXT.beginPath();
-    CANVAS_CONTEXT.arc(this.x - xShift, this.y - yShift, this.radius, 0, 2 * Math.PI, false);
+    CANVAS_CONTEXT.arc(this.x/session.magnificationMultiplier - xShift, this.y/session.magnificationMultiplier - yShift, this.radius/session.magnificationMultiplier, 0, 2 * Math.PI, false);
     CANVAS_CONTEXT.fillStyle = this.color;
     CANVAS_CONTEXT.fill();
     CANVAS_CONTEXT.closePath();
@@ -588,8 +603,8 @@ function object (density, radius, color, x, y, id) { // Aidan
     if (showVelocity === true) {
       // draw line in the direction of velocity for the current frame
       CANVAS_CONTEXT.beginPath();
-      CANVAS_CONTEXT.moveTo(this.x - xShift, this.y - yShift);
-      CANVAS_CONTEXT.lineTo(this.x - xShift + this.vx, this.y - yShift + this.vy);
+      CANVAS_CONTEXT.moveTo(this.x/session.magnificationMultiplier - xShift, this.y/session.magnificationMultiplier - yShift);
+      CANVAS_CONTEXT.lineTo((this.x + this.vx)/session.magnificationMultiplier - xShift, (this.y + this.vy)/session.magnificationMultiplier - yShift);
       CANVAS_CONTEXT.strokeStyle = "red";
       CANVAS_CONTEXT.stroke();
       CANVAS_CONTEXT.closePath();
@@ -599,8 +614,8 @@ function object (density, radius, color, x, y, id) { // Aidan
     if (showAcceleration === true) {
       // draw line in the direction of acceleration for the current frame
       CANVAS_CONTEXT.beginPath();
-      CANVAS_CONTEXT.moveTo(this.x - xShift, this.y - yShift);
-      CANVAS_CONTEXT.lineTo(this.x - xShift + this.ax, this.y - yShift + this.ay);
+      CANVAS_CONTEXT.moveTo(this.x/session.magnificationMultiplier - xShift, this.y/session.magnificationMultiplier - yShift);
+      CANVAS_CONTEXT.lineTo((this.x + this.ax)/session.magnificationMultiplier - xShift, (this.y + this.ay)/session.magnificationMultiplier - yShift);
       CANVAS_CONTEXT.strokeStyle = "blue";
       CANVAS_CONTEXT.stroke();
       CANVAS_CONTEXT.closePath();
@@ -611,10 +626,10 @@ function object (density, radius, color, x, y, id) { // Aidan
       // draw line showing the orbit path for the past ORBIT_PATH_LENGTH frames
       CANVAS_CONTEXT.beginPath();
       CANVAS_CONTEXT.strokeStyle = "green";
-      CANVAS_CONTEXT.moveTo(this.x - xShift, this.y - yShift);
+      CANVAS_CONTEXT.moveTo(this.x/session.magnificationMultiplier - xShift, this.y/session.magnificationMultiplier - yShift);
       for (var i = 0; i < this.orbitPath.length; i++) {
         CANVAS_CONTEXT.lineWidth = pathWidth;
-        CANVAS_CONTEXT.lineTo(this.orbitPath[i][0] - xShift, this.orbitPath[i][1] - yShift);
+        CANVAS_CONTEXT.lineTo(this.orbitPath[i][0]/session.magnificationMultiplier - xShift, this.orbitPath[i][1]/session.magnificationMultiplier - yShift);
         CANVAS_CONTEXT.stroke();
         pathWidth -= ORBIT_PATH_WIDTH_DECREMENT;
       }
