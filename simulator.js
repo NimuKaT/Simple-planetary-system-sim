@@ -2,7 +2,7 @@ const CANVAS = document.getElementById('simulation');
 const CANVAS_CONTEXT = CANVAS.getContext('2d');
 const UNIVERSAL_GRAVITATIONAL_CONSTANT = 6.673889e-11;
 const KM_TO_PIXELS = 1/1e3;
-const TICKS_PER_SECOND = 25;
+const TICKS_PER_SECOND = 120;
 const ORBIT_PATH_LENGTH = 100;
 const ORBIT_PATH_WIDTH_INITIAL = 5;
 const ORBIT_PATH_WIDTH_DECREMENT = 0.1;
@@ -17,7 +17,7 @@ var session = new Main();
 //  #              INIT FUNCTION              #
 //  #            used to create UI            #
 //  ###########################################
-
+//
 // flags and variables for optional draw objects
 var showOrbitPath = true;
 var showVelocity = false;
@@ -823,7 +823,7 @@ function Main(){
           var d1 = obj1.getDensity() * p1; // percentage of object 1's density being passed on to the new object
           var d2 = obj2.getDensity() * p2; // likewise for obejct 2
           var newDensity = Math.floor(d1 + d2)/G_CM3_TO_KG_M3; // combine the two density amounts to form the new density.
-
+          
           // new velocity
           var vel1 = obj1.getVelocity(); // returns an array [x, y] of the velocity
           var vel2 = obj2.getVelocity();
