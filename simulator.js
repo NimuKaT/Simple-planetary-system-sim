@@ -219,6 +219,7 @@ var createFollowObject = function(radius, color, density) {
         var vx = event.pageX - x - canvasXmid; // x-axis length of the velocity
         var vy = event.pageY - y - canvasYmid; // y-axis length of the velocity
         session.createObject(density, radius, color, x, y, vx, vy);
+        console.log(density, radius, color, x, y, vx, vy);
         clearObjectCreation();
 
         // if space is paused
@@ -380,7 +381,7 @@ var loadFile = function() {
 
       for (var i = 0; i <= arr.length-1; i++) {
         var obj = arr[i];
-        session.objects.createObject(obj.density, obj.radius, obj.color, obj.x, obj.y);
+        session.objects.push(new object(obj.density, obj.radius, obj.color, obj.x, obj.y, obj.id));
         session.objects[session.objects.length-1].setVelocity(obj.vx, obj.vy);
       }
       updateObjManagement(session.objects);
@@ -633,7 +634,7 @@ function object (density, radius, color, x, y, id) { // Aidan
 
   this.updatePosition = function(timeScale) {
     // given the acceleration of the object for a frame, moves its position
-    var time = (timeScale*1e-3)/TICKS_PER_SECOND
+    var time = (timeScale*1e-3)/TICKS_PER_SECOND;
     this.orbitPath.unshift([this.x, this.y]);
     if (this.orbitPath.length > ORBIT_PATH_LENGTH) {
       this.orbitPath.pop();
@@ -642,6 +643,8 @@ function object (density, radius, color, x, y, id) { // Aidan
     // update coordinates according to s = ut + 1/2at^2
     this.x += (this.vx*time + 0.5*this.ax*Math.pow(time, 2));
     this.y += (this.vy*time + 0.5*this.ay*Math.pow(time, 2));
+
+    console.log("X Coordinate: " + this.x + "\nY Coordinate: " + this.y);
 
     // update the objects velocity according to v = u + at
     this.vx += this.ax*time;
@@ -690,7 +693,7 @@ function object (density, radius, color, x, y, id) { // Aidan
     // gives the object an instantaneous velocity
     this.vx = vx;
     this.vy = vy;
-    console.log("X Velocity"  + this.vx +"\nY Velocity: "+ this.vy);
+    console.log("X Velocity: "  + this.vx +"\nY Velocity: "+ this.vy);
   };
 
   this.setAcceleration = function(ax, ay) {
@@ -732,10 +735,12 @@ function Main(){
     this.currentCoordinate = [0, 0];
     this.idCounter = 0;
 
-    this.createObject = function(density, radius, color, x, y){
+    this.createObject = function(density, radius, color, x, y, velocityx, velocityy){
         this.objects.push(new object(density, radius, color, x, y, this.idCounter)); // adds values into new planet object
-
-        console.log("Created object with\nDensity: " + density + "kg/m^3\nRadius: " + radius + "km\nColor: " + color + "\nCoordinates: " + x + ", " + y); // debug info
+        if (velocityx !== 0 || velocityy !== 0){ // sets velocity value if supplied (may use id to find added object when to prevent errors during clustered thread) )
+          this.objects[this.objects.length-1].setVelocity(velocityx, velocityy);
+        }
+        console.log("Created object with\nDensity: " + density + "kg/m^3\nRadius: " + radius + "km\nColor: " + color + "\nCoordinates: " + x + ", " + y + "\nVelocity: " + velocityx + ", " + velocityy + "\nID: " + this.idCounter); // debug info
         this.idCounter++;
         updateObjManagement(this.objects);
     };
@@ -760,7 +765,7 @@ function Main(){
                 this.objects[p].getX(), this.objects[p].getY());
               // get distance
               distance = Math.hypot(this.objects[i].getX() - this.objects[p].getX(),
-                this.objects[i].getY() - this.objects[p].getY() ) + this.objects[i].getRadius() + this.objects[p].getRadius();
+                this.objects[i].getY() - this.objects[p].getY() )*KM_TO_M + this.objects[i].getRadius() + this.objects[p].getRadius();
               // get acceleration
               newAcceleration = calculateGravityAccel(
                 this.objects[p].getMass(),
@@ -853,7 +858,7 @@ function Main(){
 
         // redraw all the objects
         for (i = 0; i < this.objects.length; i++) {
-          this.objects[i].updatePosition(this.currTimeScale);
+          this.objects[i].updatePosition(this.currTimeScale*60*60*24);
           this.objects[i].drawObject(this.currentCoordinate[0] - canvasXmid, this.currentCoordinate[1] - canvasYmid);
         }
 
@@ -883,7 +888,7 @@ function Main(){
       var d =  Math.hypot(x2-x1, y2-y1); // get the distance between the two center points
 
       // NOTE: if the distance is smaller than the two circles radius combined then the objects are overlapped
-      if (d <= parseInt(object1.getRadius()) + parseInt(object2.getRadius())) { // check whether they overlap
+      if (d <= parseInt(object1.getRadius()/KM_TO_M) + parseInt(object2.getRadius()/KM_TO_M)) { // check whether they overlap
          // check if the objects are already on the hit list
         if(this.objectsHitList.indexOf(object1) > -1 || this.objectsHitList.indexOf(object2) > -1) {
           return false; // if the objects are already in the list do not add them again but instead return
