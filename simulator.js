@@ -2,7 +2,7 @@ const CANVAS = document.getElementById('simulation');
 const CANVAS_CONTEXT = CANVAS.getContext('2d');
 const UNIVERSAL_GRAVITATIONAL_CONSTANT = 6.67e-11;
 const KM_TO_PIXELS = 1/1e3;
-const TICKS_PER_SECOND = 120;
+const TICKS_PER_SECOND = 25;
 const ORBIT_PATH_LENGTH = 100;
 const ORBIT_PATH_WIDTH_INITIAL = 5;
 const ORBIT_PATH_WIDTH_DECREMENT = 0.1;
@@ -380,7 +380,7 @@ var loadFile = function() {
 
       for (var i = 0; i <= arr.length-1; i++) {
         var obj = arr[i];
-        session.objects.push(new object(obj.density, obj.radius, obj.color, obj.x, obj.y, obj.id));
+        session.objects.createObject(obj.density, obj.radius, obj.color, obj.x, obj.y);
         session.objects[session.objects.length-1].setVelocity(obj.vx, obj.vy);
       }
       updateObjManagement(session.objects);
@@ -480,9 +480,11 @@ var updateObjManagement = function (objects) {
         output += '<div class="settings-o-color" style="background: '+obj.getColor()+'"></div>'; // object colour
         output += '<div class="settings-o-information">';
         output += '<span>Density:&nbsp;&nbsp;<span>';
-        output +=  + obj.getDensity() + 'kg/m^3</span></span>';                                  // object density
+        output +=  + obj.getDensity()/G_CM3_TO_KG_M3 + 'kg/m^3</span></span>';                                  // object density
         output += '<span>Radius:&nbsp;&nbsp;<span>';
-        output +=  + obj.getRadius() + 'km</span></span>';                                       // object radius
+        output +=  + obj.getRadius()/KM_TO_M + 'km</span></span>';                                       // object radius
+        output += '<span>Volume:&nbsp;&nbsp;<span>';
+        output +=  + Math.floor(obj.getVolume()/Math.pow(KM_TO_M, 3)) + 'km^3</span></span>'
         output += '<div id="settings-o-changinginfo-'+id+'"></div>';
         output += '<button class="settings-o-delete" id="settings-o-delete-'+id+'"';
         output += ' onclick="deleteObjectNum('+id+')">Delete</button>';                          // object delete button
@@ -565,7 +567,7 @@ function object (density, radius, color, x, y, id) { // Aidan
   this.y = y;
   this.radius = radius*KM_TO_M;
   this.density = density*G_CM3_TO_KG_M3;
-  this.volume = radiusToVolume(radius);
+  this.volume = radiusToVolume(this.radius);
   this.mass = this.density * this.volume;
   this.color = color;
 
@@ -631,18 +633,19 @@ function object (density, radius, color, x, y, id) { // Aidan
 
   this.updatePosition = function(timeScale) {
     // given the acceleration of the object for a frame, moves its position
+    var time = (timeScale*1e-3)/TICKS_PER_SECOND
     this.orbitPath.unshift([this.x, this.y]);
     if (this.orbitPath.length > ORBIT_PATH_LENGTH) {
       this.orbitPath.pop();
     }
 
-    // update the objects velocity according to v = u + at
-    this.vx += this.ax*timeScale/TICKS_PER_SECOND;
-    this.vy += this.ay*timeScale/TICKS_PER_SECOND;
-
     // update coordinates according to s = ut + 1/2at^2
-    this.x += (this.vx*timeScale/TICKS_PER_SECOND + 0.5*this.ax*Math.pow((timeScale/TICKS_PER_SECOND), 2));
-    this.y += (this.vy*timeScale/TICKS_PER_SECOND + 0.5*this.ay*Math.pow((timeScale/TICKS_PER_SECOND), 2));
+    this.x += (this.vx*time + 0.5*this.ax*Math.pow(time, 2));
+    this.y += (this.vy*time + 0.5*this.ay*Math.pow(time, 2));
+
+    // update the objects velocity according to v = u + at
+    this.vx += this.ax*time;
+    this.vy += this.ay*time;
 
   };
 
@@ -687,12 +690,14 @@ function object (density, radius, color, x, y, id) { // Aidan
     // gives the object an instantaneous velocity
     this.vx = vx;
     this.vy = vy;
+    console.log("X Velocity"  + this.vx +"\nY Velocity: "+ this.vy);
   };
 
   this.setAcceleration = function(ax, ay) {
     // sets the objects acceleration for the next position update
     this.ax = ax;
     this.ay = -ay;
+    console.log("X Acceleration: " + this.ax + "\nY Acceleration: " + this.ay);
   };
 }
 
@@ -703,11 +708,12 @@ function getAngleBetweenPoints(x1, y1, x2, y2) {
   return angle;
 }
 
-function calculateGravityAccel(x1, y1, x2, y2, mass, dist, angle) {
+function calculateGravityAccel( mass, dist, angle) {
   // get the effective acceleration on object 1 due to object 2
   var magnitude = UNIVERSAL_GRAVITATIONAL_CONSTANT*(mass)/Math.pow(dist, 2);
-  var yMag = magnitude*Math.sin(angle*Math.PI/180);
-  var xMag = magnitude*Math.cos(angle*Math.PI/180);
+  var yMag = magnitude*Math.sin(angle*Math.PI/180)/KM_TO_M;
+  var xMag = magnitude*Math.cos(angle*Math.PI/180)/KM_TO_M;
+  console.log("X Acceleration: " + xMag + "\nY Acceleration: " +yMag);
   return [xMag, yMag];
 }
 
@@ -726,12 +732,10 @@ function Main(){
     this.currentCoordinate = [0, 0];
     this.idCounter = 0;
 
-    this.createObject = function(density, radius, color, x, y, velocityx, velocityy){
+    this.createObject = function(density, radius, color, x, y){
         this.objects.push(new object(density, radius, color, x, y, this.idCounter)); // adds values into new planet object
-        if (velocityx !== 0 || velocityy !== 0){ // sets velocity value if supplied (may use id to find added object when to prevent errors during clustered thread) )
-          this.objects[this.objects.length-1].setVelocity(velocityx, velocityy);
-        }
-        console.log("Created object with\nDensity: " + density + "kg/m^3\nRadius: " + radius + "km\nColor: " + color + "\nCoordinates: " + x + ", " + y + "\nVelocity: " + velocityx + ", " + velocityy + "\nID: " + this.idCounter); // debug info
+
+        console.log("Created object with\nDensity: " + density + "kg/m^3\nRadius: " + radius + "km\nColor: " + color + "\nCoordinates: " + x + ", " + y); // debug info
         this.idCounter++;
         updateObjManagement(this.objects);
     };
@@ -755,11 +759,10 @@ function Main(){
               angle = getAngleBetweenPoints(this.objects[i].getX(), this.objects[i].getY(),
                 this.objects[p].getX(), this.objects[p].getY());
               // get distance
-              distance = Math.hypot(this.objects[i].getX() - this.objects[p].getX(), this.objects[i].getY() - this.objects[p].getY()) + this.objects[i].getRadius() + this.objects[p].getRadius();
+              distance = Math.hypot(this.objects[i].getX() - this.objects[p].getX(),
+                this.objects[i].getY() - this.objects[p].getY() ) + this.objects[i].getRadius() + this.objects[p].getRadius();
               // get acceleration
               newAcceleration = calculateGravityAccel(
-                this.objects[i].getX(), this.objects[i].getY(),
-                this.objects[p].getX(), this.objects[p].getY(),
                 this.objects[p].getMass(),
                 distance, angle);
               acceleration[0] += newAcceleration[0];
@@ -784,9 +787,9 @@ function Main(){
           var obj2 = this.objectsHitList[i+1]; // get the next object (object colliding)
 
           // new volume and radius
-          var vol1 = obj1.getVolume(); // volume of object 1
-          var vol2 = obj2.getVolume(); // volume of object 2
-          var newVolume = (vol1 + vol2)*1e-9; // combine the two volumes to make the new volume
+          var vol1 = obj1.getVolume()/Math.pow(KM_TO_M, 3); // volume of object 1
+          var vol2 = obj2.getVolume()/Math.pow(KM_TO_M, 3); // volume of object 2
+          var newVolume = (vol1 + vol2); // combine the two volumes to make the new volume
           var newRadius = Math.floor(volumeToRadius(newVolume)); // turn the volume into a radius
 
           // new object percentage
@@ -810,7 +813,7 @@ function Main(){
           // new density
           var d1 = obj1.getDensity() * p1; // percentage of object 1's density being passed on to the new object
           var d2 = obj2.getDensity() * p2; // likewise for obejct 2
-          var newDensity = Math.floor(d1 + d2)*(1e5/1e3); // combine the two density amounts to form the new density.
+          var newDensity = Math.floor(d1 + d2)/G_CM3_TO_KG_M3; // combine the two density amounts to form the new density.
 
           // new velocity
           var vel1 = obj1.getVelocity(); // returns an array [x, y] of the velocity
@@ -888,4 +891,10 @@ function Main(){
         this.objectsHitList.push(object1, object2); // add the obejects to the hit list
       }
     };
+}
+
+function gravitationalTest (){
+    session.createObject(10, 10, '#ffffff', 200, 0);
+    window.setTimeout(function(){session.createObject(1, 10, '#000000', 800, 800);}, 100);
+    
 }
