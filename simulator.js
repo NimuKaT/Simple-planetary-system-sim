@@ -7,6 +7,9 @@ const ORBIT_PATH_LENGTH = 100;
 const ORBIT_PATH_WIDTH_INITIAL = 5;
 const ORBIT_PATH_WIDTH_DECREMENT = 0.1;
 const DEFAULT_LINE_WIDTH = 5;
+const G_CM3_TO_KG_M3 = 1e3;
+const KM_TO_M = 1e3;
+
 
 var session = new Main();
 
@@ -560,9 +563,9 @@ function object (density, radius, color, x, y, id) { // Aidan
   this.id = id;
   this.x = x;
   this.y = y;
-  this.radius = radius;
-  this.density = density*(1e3/1e5);
-  this.volume = radiusToVolume(radius*1e9);
+  this.radius = radius*KM_TO_M;
+  this.density = density*G_CM3_TO_KG_M3;
+  this.volume = radiusToVolume(radius);
   this.mass = this.density * this.volume;
   this.color = color;
 
@@ -578,7 +581,7 @@ function object (density, radius, color, x, y, id) { // Aidan
 
     // draw the planet's main body
     CANVAS_CONTEXT.beginPath();
-    CANVAS_CONTEXT.arc(this.x - xShift, this.y - yShift, this.radius, 0, 2 * Math.PI, false);
+    CANVAS_CONTEXT.arc(this.x - xShift, this.y - yShift, this.radius/KM_TO_M, 0, 2 * Math.PI, false);
     CANVAS_CONTEXT.fillStyle = this.color;
     CANVAS_CONTEXT.fill();
     CANVAS_CONTEXT.closePath();
@@ -702,9 +705,9 @@ function getAngleBetweenPoints(x1, y1, x2, y2) {
 
 function calculateGravityAccel(x1, y1, x2, y2, mass, dist, angle) {
   // get the effective acceleration on object 1 due to object 2
-  var magnitude = UNIVERSAL_GRAVITATIONAL_CONSTANT*(mass)/Math.pow(dist*1e3, 2);
-  var yMag = magnitude*Math.sin(angle*Math.PI/180)*1e-3;
-  var xMag = magnitude*Math.cos(angle*Math.PI/180)*1e-3;
+  var magnitude = UNIVERSAL_GRAVITATIONAL_CONSTANT*(mass)/Math.pow(dist, 2);
+  var yMag = magnitude*Math.sin(angle*Math.PI/180);
+  var xMag = magnitude*Math.cos(angle*Math.PI/180);
   return [xMag, yMag];
 }
 
