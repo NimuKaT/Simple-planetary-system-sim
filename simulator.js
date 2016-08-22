@@ -2,10 +2,10 @@ const CANVAS = document.getElementById('simulation');
 const CANVAS_CONTEXT = CANVAS.getContext('2d');
 const UNIVERSAL_GRAVITATIONAL_CONSTANT = 6.67e-11;
 const KM_TO_PIXELS = 1/1e3;
-const TICKS_PER_SECOND = 25;
-const ORBIT_PATH_LENGTH = 100;
-const ORBIT_PATH_WIDTH_INITIAL = 5;
-const ORBIT_PATH_WIDTH_DECREMENT = 0.1;
+const TICKS_PER_SECOND = 120;
+const ORBIT_PATH_LENGTH = 150;
+const ORBIT_PATH_WIDTH_INITIAL = 10;
+const ORBIT_PATH_WIDTH_DECREMENT = 0.06;
 const DEFAULT_LINE_WIDTH = 5;
 
 var session = new Main();
@@ -394,6 +394,52 @@ document.getElementById('loadstate-file').onchange = function() {
 };
 
 
+// Prebuilts
+var loadStateQuadruple = function() {
+  // binary sun close
+  session.objects = [];
+  session.createObject(20, 40, "#FFFFFF", -150, 0, 0, -135);
+  session.createObject(20, 40, "#FFFFFF", 150, 0, 0, 135);
+  session.createObject(20, 40, "#FFFFFF", 0, -150, 135, 0);
+  session.createObject(20, 40, "#FFFFFF", 0, 150, -135, 0);
+  session.refreshScreen();
+}
+
+var loadStateBinary = function() {
+  // binary sun close
+  session.objects = [];
+  session.createObject(20, 40, "#00FF00", -100, 0, 0, -87);
+  session.createObject(20, 40, "#00FF00", 100, 0, 0, 87);
+  session.refreshScreen();
+}
+
+var loadStateTatooine = function() {
+  // tatooine
+  session.objects = [];
+  session.createObject(20, 40, "#BB00FF", -200, 0, 0, -60);
+  session.createObject(20, 40, "#BB00FF", 200, 0, 0, 60);
+  session.createObject(0, 20, "#EE2222", 0, 0, 0, 0);
+  session.refreshScreen();
+}
+
+var loadStateOrbit = function() {
+  // simple orbit
+  session.objects = [];
+  session.createObject(20, 50, "#FFFFFF", 0, 0, 0, 0);
+  session.createObject(0, 20, "#334455", 300, 0, -25, 120);
+  session.refreshScreen();
+}
+
+var loadStateAntigravity = function() {
+  // Antigravity system
+  session.objects = [];
+  session.createObject(-0.54, 50, "#ABCDEF", 0, 0, 0, 0);
+  session.createObject(10, 30, "#FEDCBA", 100, 0, 0, 0);
+  session.createObject(10, 30, "#FEDCBA", -100, 0, 0, 0);
+  session.createObject(0, 20, "#334455", 200, 0, -15, 95);
+  session.refreshScreen();
+}
+
 
 
 //  ###########################################
@@ -746,9 +792,7 @@ function Main(){
         console.log("Created object with\nDensity: " + density + "kg/m^3\nRadius: " + radius + "km\nColor: " + color + "\nCoordinates: " + x + ", " + y + "\nVelocity: " + velocityx + ", " + velocityy + "\nID: " + this.idCounter); // debug info
         this.idCounter++;
         updateObjManagement(this.objects);
-    };
-    //this.createObject(10, 70, 'red', 500, 350, 0, 0);
-    //this.createObject(1, 10, 'blue', 800, 350, 0, 240);
+    }
 
     this.update = function(){
       if (typeof this.objects !== 'undefined') { //prevents update when array is broken
