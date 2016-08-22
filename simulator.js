@@ -211,11 +211,12 @@ var createFollowObject = function(radius, color, density) {
     // get the next click event (for the velocity)
     document.onclick = function(event) {
       if (cf) {
+        var coordinates = session.getCoordinates();
         x = x - canvasXmid;
         y = y - canvasYmid;
         var vx = event.pageX - x - canvasXmid; // x-axis length of the velocity
         var vy = event.pageY - y - canvasYmid; // y-axis length of the velocity
-        session.createObject(density, radius, color, x, y, vx, vy);
+        session.createObject(density, radius, color, x + coordinates[0], y + coordinates[1], vx, vy);
         clearObjectCreation();
 
         // if space is paused
@@ -890,4 +891,50 @@ function Main(){
         this.objectsHitList.push(object1, object2); // add the obejects to the hit list
       }
     };
+
+    this.shiftCanvas = function(x, y){
+      this.currentCoordinate[0] -= x;
+      this.currentCoordinate[1] -= y;
+      console.log("O(", this.currentCoordinate[0], ", ", this.currentCoordinate[1], ")")
+    }
+
+    this.getCoordinates = function(){
+      return this.currentCoordinate;
+    }
 }
+
+var canvasMover = function(){
+  this.isDown = false;
+  document.getElementById("simulation").addEventListener('mousedown', function(event){
+    if (event.button === 0){
+      this.x = event.pageX;
+      this.y = event.pageY;
+      this.isDown = true;
+    }
+  });
+
+  document.getElementById("simulation").addEventListener('mouseup', function(event){
+    if (event.button === 0){
+      this.isDown = false;
+    }
+  });
+
+  document.getElementById("simulation").addEventListener('mouseleave', function(event){
+    if (event.button === 0){
+      this.isDown = false;
+    }
+  });
+
+  document.getElementById("simulation").addEventListener("mousemove",function(event){
+    if (this.isDown){    
+    this.nx = event.pageX;
+    this.ny = event.pageY;
+    console.log("X: ", this.nx-this.x, "\nY: ", this.ny-this.y);
+    session.shiftCanvas(this.nx-this.x, this.ny-this.y);
+    session.refreshScreen();
+    this.x = this.nx;
+    this.y = this.ny;
+  }
+  })
+}
+canvasMover();
