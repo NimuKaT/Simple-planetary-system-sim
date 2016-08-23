@@ -2,6 +2,72 @@
 "CodeKitInfo": "This is a CodeKit 2.x project configuration file. It is designed to sync project settings across multiple machines. MODIFYING THE CONTENTS OF THIS FILE IS A POOR LIFE DECISION. If you do so, you will likely cause CodeKit to crash. This file is not useful unless accompanied by the project that created it in CodeKit 2. This file is not backwards-compatible with CodeKit 1.x. For more information, see: http:\/\/incident57.com\/codekit",
 "creatorBuild": "19127",
 "files": {
+	"\/assets\/loadstates\/antigravity.jpg": {
+		"fileType": 16384,
+		"ignore": 0,
+		"ignoreWasSetByUser": 0,
+		"initialSize": 21636,
+		"inputAbbreviatedPath": "\/assets\/loadstates\/antigravity.jpg",
+		"outputAbbreviatedPath": "\/assets\/loadstates\/antigravity.jpg",
+		"outputPathIsOutsideProject": 0,
+		"outputPathIsSetByUser": 0,
+		"processed": 0
+		},
+	"\/assets\/loadstates\/binarystar.jpg": {
+		"fileType": 16384,
+		"ignore": 0,
+		"ignoreWasSetByUser": 0,
+		"initialSize": 19146,
+		"inputAbbreviatedPath": "\/assets\/loadstates\/binarystar.jpg",
+		"outputAbbreviatedPath": "\/assets\/loadstates\/binarystar.jpg",
+		"outputPathIsOutsideProject": 0,
+		"outputPathIsSetByUser": 0,
+		"processed": 0
+		},
+	"\/assets\/loadstates\/doublebinarystar.jpg": {
+		"fileType": 16384,
+		"ignore": 0,
+		"ignoreWasSetByUser": 0,
+		"initialSize": 27718,
+		"inputAbbreviatedPath": "\/assets\/loadstates\/doublebinarystar.jpg",
+		"outputAbbreviatedPath": "\/assets\/loadstates\/doublebinarystar.jpg",
+		"outputPathIsOutsideProject": 0,
+		"outputPathIsSetByUser": 0,
+		"processed": 0
+		},
+	"\/assets\/loadstates\/simpleorbit.jpg": {
+		"fileType": 16384,
+		"ignore": 0,
+		"ignoreWasSetByUser": 0,
+		"initialSize": 21399,
+		"inputAbbreviatedPath": "\/assets\/loadstates\/simpleorbit.jpg",
+		"outputAbbreviatedPath": "\/assets\/loadstates\/simpleorbit.jpg",
+		"outputPathIsOutsideProject": 0,
+		"outputPathIsSetByUser": 0,
+		"processed": 0
+		},
+	"\/assets\/tutorial\/1.jpg": {
+		"fileType": 16384,
+		"ignore": 0,
+		"ignoreWasSetByUser": 0,
+		"initialSize": 19736,
+		"inputAbbreviatedPath": "\/assets\/tutorial\/1.jpg",
+		"outputAbbreviatedPath": "\/assets\/tutorial\/1.jpg",
+		"outputPathIsOutsideProject": 0,
+		"outputPathIsSetByUser": 0,
+		"processed": 0
+		},
+	"\/assets\/tutorial\/2.jpg": {
+		"fileType": 16384,
+		"ignore": 0,
+		"ignoreWasSetByUser": 0,
+		"initialSize": 17954,
+		"inputAbbreviatedPath": "\/assets\/tutorial\/2.jpg",
+		"outputAbbreviatedPath": "\/assets\/tutorial\/2.jpg",
+		"outputPathIsOutsideProject": 0,
+		"outputPathIsSetByUser": 0,
+		"processed": 0
+		},
 	"\/index.css": {
 		"fileType": 16,
 		"ignore": 1,

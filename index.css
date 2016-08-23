@@ -35,6 +35,8 @@ body {
       margin: 0;
       padding: 70px 0 20px 0;
       color: #21252b; }
+      #sidebar #start h1 span {
+        color: #EB423E; }
     #sidebar #start line {
       display: block;
       position: relative;
@@ -93,10 +95,6 @@ body {
     #sidebar #tutorial .tutorial-next:hover {
       background: black;
       color: #fff; }
-  #sidebar #tutorial div {
-    display: none; }
-    #sidebar #tutorial div.shown {
-      display: block; }
   #sidebar #object-creation .input-group {
     display: block;
     margin-bottom: 20px;

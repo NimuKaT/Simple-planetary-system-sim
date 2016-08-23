@@ -354,6 +354,11 @@ var removeVelocityLine = function() {
 //  #      used in the load state window      #
 //  ###########################################
 
+var updateSettings = function() {
+  document.getElementById('settings-zoom').value = session.magnificationMultiplier;
+  document.getElementById('settings-time').value = session.currTimeScale;
+};
+
 document.getElementById('loadstate-file').onchange = function() {
   var files = document.getElementById('loadstate-file').files; // get the files from the input element in the DOM
   if (!files.length) { // if no file selected
@@ -367,24 +372,27 @@ document.getElementById('loadstate-file').onchange = function() {
   // when the file is fully downloaded loads the file
   reader.onloadend = function(evt) {
     if (evt.target.readyState === FileReader.DONE) { // file is done loading
-      var parsed = JSON.parse(evt.target.result); // turn the JSON into readable information for JS
-      var arr = []; // create an empyt array for objects
-      for(var x in parsed){ // run through information in the JSON
-        arr.push(parsed[x]); // add the information from the JSON into the empty array
-      }
-      session.objects = []; // reset the screen's objects
-      var settings = arr.pop(); // remove the setting information from the JSON (last item in array)
-      session.magnificationMultiplier = settings[0]; // get the magnification multiplier from JSON
-      session.currTimeScale = settings[1]; // get the time scale from JSON
-      session.currentCoordinate = settings[2]; // get the current coordinate of the center from JSON
-      session.idCounter = settings[3]; // get the id counter (next object id)
+      if (confirm('Are you sure you want to load a file.\nAnything you have made currently will not be recoverable.')) {
+        var parsed = JSON.parse(evt.target.result); // turn the JSON into readable information for JS
+        var arr = []; // create an empyt array for objects
+        for(var x in parsed){ // run through information in the JSON
+          arr.push(parsed[x]); // add the information from the JSON into the empty array
+        }
+        session.objects = []; // reset the screen's objects
+        var settings = arr.pop(); // remove the setting information from the JSON (last item in array)
+        session.magnificationMultiplier = settings[0]; // get the magnification multiplier from JSON
+        session.currTimeScale = settings[1]; // get the time scale from JSON
+        session.currentCoordinate = settings[2]; // get the current coordinate of the center from JSON
+        session.idCounter = settings[3]; // get the id counter (next object id)
 
-      for (var i = 0; i <= arr.length-1; i++) { // for objects in array
-        var obj = arr[i]; // get each object
-        session.objects.push(new object(obj.density, obj.radius, obj.color, obj.x, obj.y, obj.id)); // add the object to the session
-        session.objects[session.objects.length-1].setVelocity(obj.vx, obj.vy); // give that new object a velocity
+        for (var i = 0; i <= arr.length-1; i++) { // for objects in array
+          var obj = arr[i]; // get each object
+          session.objects.push(new object(obj.density, obj.radius, obj.color, obj.x, obj.y, obj.id)); // add the object to the session
+          session.objects[session.objects.length-1].setVelocity(obj.vx, obj.vy); // give that new object a velocity
+        }
+        updateObjManagement(session.objects); // update the object management window
+        updateSettings(); // update the manage space
       }
-      updateObjManagement(session.objects); // update the object management window
     }
   };
 
@@ -394,51 +402,69 @@ document.getElementById('loadstate-file').onchange = function() {
 };
 
 
-// Prebuilts
-var loadStateQuadruple = function() {
-  // binary sun close
-  session.objects = [];
-  session.createObject(20, 40, "#FFFFFF", -150, 0, 0, -135);
-  session.createObject(20, 40, "#FFFFFF", 150, 0, 0, 135);
-  session.createObject(20, 40, "#FFFFFF", 0, -150, 135, 0);
-  session.createObject(20, 40, "#FFFFFF", 0, 150, -135, 0);
-  session.refreshScreen();
-}
+// Simple orbit
+document.getElementById('loadstate-simpleorbit').addEventListener('mousedown', function() {
+  if (confirm('Are you sure you want to load a prebuilt.\nAnything you have made currently will not be recoverable.')) {
+    session.objects = [];
+    session.createObject(20, 50, "#f1c40f", 0, 0, 0, 0);
+    session.createObject(0, 20, "#27ae60", 300, 0, -25, 120);
+    session.magnificationMultiplier = 1.0;
+    session.currTimeScale = 1;
+    session.currentCoordinate = [0, 0];
+    session.idCounter = 2;
+    session.refreshScreen();
+    updateSettings(); // update the manage space
+  }
+});
 
-var loadStateBinary = function() {
-  // binary sun close
-  session.objects = [];
-  session.createObject(20, 40, "#00FF00", -100, 0, 0, -87);
-  session.createObject(20, 40, "#00FF00", 100, 0, 0, 87);
-  session.refreshScreen();
-}
+// Binary star
+document.getElementById('loadstate-binarystar').addEventListener('mousedown', function() {
+  if (confirm('Are you sure you want to load a prebuilt.\nAnything you have made currently will not be recoverable.')) {
+    session.objects = [];
+    session.createObject(20, 40, "#f1c40f", -100, 0, 0, -87);
+    session.createObject(20, 40, "#f39c12", 100, 0, 0, 87);
+    session.magnificationMultiplier = 1.0;
+    session.currTimeScale = 1;
+    session.currentCoordinate = [0, 0];
+    session.idCounter = 2;
+    session.refreshScreen();
+    updateSettings(); // update the manage space
+  }
+});
 
-var loadStateTatooine = function() {
-  // tatooine
-  session.objects = [];
-  session.createObject(20, 40, "#BB00FF", -200, 0, 0, -60);
-  session.createObject(20, 40, "#BB00FF", 200, 0, 0, 60);
-  session.createObject(0, 20, "#EE2222", 0, 0, 0, 0);
-  session.refreshScreen();
-}
+// Double binary star
+document.getElementById('loadstate-doublebinarystar').addEventListener('mousedown', function() {
+  if (confirm('Are you sure you want to load a prebuilt.\nAnything you have made currently will not be recoverable.')) {
+    session.objects = [];
+    session.createObject(20, 40, "#d35400", 150, 0, 0, 135);
+    session.createObject(20, 40, "#e67e22", 0, -150, 135, 0);
+    session.createObject(20, 40, "#f39c12", -150, 0, 0, -135);
+    session.createObject(20, 40, "#f1c40f", 0, 150, -135, 0);
+    session.magnificationMultiplier = 1.0;
+    session.currTimeScale = 1;
+    session.currentCoordinate = [0, 0];
+    session.idCounter = 4;
+    session.refreshScreen();
+    updateSettings(); // update the manage space
+  }
+});
 
-var loadStateOrbit = function() {
-  // simple orbit
-  session.objects = [];
-  session.createObject(20, 50, "#FFFFFF", 0, 0, 0, 0);
-  session.createObject(0, 20, "#334455", 300, 0, -25, 120);
-  session.refreshScreen();
-}
-
-var loadStateAntigravity = function() {
-  // Antigravity system
-  session.objects = [];
-  session.createObject(-0.54, 50, "#ABCDEF", 0, 0, 0, 0);
-  session.createObject(10, 30, "#FEDCBA", 100, 0, 0, 0);
-  session.createObject(10, 30, "#FEDCBA", -100, 0, 0, 0);
-  session.createObject(0, 20, "#334455", 200, 0, -15, 95);
-  session.refreshScreen();
-}
+// Antigravity system
+document.getElementById('loadstate-antigravity').addEventListener('mousedown', function() {
+  if (confirm('Are you sure you want to load a prebuilt.\nAnything you have made currently will not be recoverable.')) {
+    session.objects = [];
+    session.createObject(-0.54, 50, "#abcdef", 0, 0, 0, 0);
+    session.createObject(10, 30, "#f1c40f", 100, 0, 0, 0);
+    session.createObject(10, 30, "#f1c40f", -100, 0, 0, 0);
+    session.createObject(0, 20, "#2ecc71", 200, 0, -15, 95);
+    session.magnificationMultiplier = 1.0;
+    session.currTimeScale = 1;
+    session.currentCoordinate = [0, 0];
+    session.idCounter = 4;
+    session.refreshScreen();
+    updateSettings(); // update the manage space
+  }
+});
 
 
 
@@ -651,7 +677,7 @@ function object (density, radius, color, x, y, id) { // Aidan
       CANVAS_CONTEXT.beginPath();
       CANVAS_CONTEXT.moveTo(this.x/session.magnificationMultiplier - xShift, this.y/session.magnificationMultiplier - yShift);
       CANVAS_CONTEXT.lineTo((this.x + this.vx)/session.magnificationMultiplier - xShift, (this.y + this.vy)/session.magnificationMultiplier - yShift);
-      CANVAS_CONTEXT.strokeStyle = "red";
+      CANVAS_CONTEXT.strokeStyle = "#e74c3c";
       CANVAS_CONTEXT.stroke();
       CANVAS_CONTEXT.closePath();
     }
@@ -662,7 +688,7 @@ function object (density, radius, color, x, y, id) { // Aidan
       CANVAS_CONTEXT.beginPath();
       CANVAS_CONTEXT.moveTo(this.x/session.magnificationMultiplier - xShift, this.y/session.magnificationMultiplier - yShift);
       CANVAS_CONTEXT.lineTo((this.x + this.ax)/session.magnificationMultiplier - xShift, (this.y + this.ay)/session.magnificationMultiplier - yShift);
-      CANVAS_CONTEXT.strokeStyle = "blue";
+      CANVAS_CONTEXT.strokeStyle = "#2980b9";
       CANVAS_CONTEXT.stroke();
       CANVAS_CONTEXT.closePath();
     }
@@ -671,7 +697,7 @@ function object (density, radius, color, x, y, id) { // Aidan
       var pathWidth = ORBIT_PATH_WIDTH_INITIAL;
       // draw line showing the orbit path for the past ORBIT_PATH_LENGTH frames
       CANVAS_CONTEXT.beginPath();
-      CANVAS_CONTEXT.strokeStyle = "green";
+      CANVAS_CONTEXT.strokeStyle = "#1abc9c";
       CANVAS_CONTEXT.moveTo(this.x/session.magnificationMultiplier - xShift, this.y/session.magnificationMultiplier - yShift);
       for (var i = 0; i < this.orbitPath.length; i++) {
         CANVAS_CONTEXT.lineWidth = pathWidth;
@@ -854,8 +880,18 @@ function Main(){
           var p1 = vol1 / newVolume; // volume of the object divided by the new objects volume gives a ratio of old to new
           var p2 = vol2 / newVolume; // this is used to calculate the percentage of the new object that belongs to the old object
 
+          // new density
+          var d1 = obj1.getDensity() * p1; // percentage of object 1's density being passed on to the new object
+          var d2 = obj2.getDensity() * p2; // likewise for obejct 2
+          var newDensity = Math.floor(d1 + d2); // combine the two density amounts to form the new density.
+
+          // new mass percentages
+          var nm = newVolume * newDensity; // new mass
+          var pm1 = obj1.getMass() / nm; // percentage of new object's mass belonging to object 1
+          var pm2 = obj2.getMass() / nm; // likewise for object 2
+
           // new colour
-          var c1 = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(obj1.getColor()); // turn the colours into arrays of values [r,g,b]
+          var c1 = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(obj1.getColor()); // turn the colours into arrays of values [#,r,g,b]
           var c2 = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(obj2.getColor());
           var r1 = parseInt(c1[1], 16) * p1; // convert each value into hex: parseInt(num, 16)
           var r2 = parseInt(c2[1], 16) * p2; // times that number by the percentage of the new object
@@ -868,25 +904,16 @@ function Main(){
           var b = numberToHex(Math.floor(b1 + b2));
           var newColor = "#" + r + g + b; // combine the rgb hexadecimal values into one hexadecimal colour
 
-          // new density
-          var d1 = obj1.getDensity() * p1; // percentage of object 1's density being passed on to the new object
-          var d2 = obj2.getDensity() * p2; // likewise for obejct 2
-          var newDensity = Math.floor(d1 + d2); // combine the two density amounts to form the new density.
-
           // new velocity
           var vel1 = obj1.getVelocity(); // returns an array [x, y] of the velocity
           var vel2 = obj2.getVelocity();
-          var newVelocityX = vel1[0] * p1 + vel2[0] * p2; // add the percentage of velocitys of each object
-          var newVelocityY = vel1[1] * p1 + vel2[1] * p2; // do this for both object's x and y velocity
+          var newVelocityX = vel1[0] * pm1 + vel2[0] * pm2; // add the percentage of velocitys of each object
+          var newVelocityY = vel1[1] * pm1 + vel2[1] * pm2; // do this for both object's x and y velocity
 
-          var x,y;
-          if (p1 >= p2) { // if the first object is bigger
-            x = obj1.getX(); // set the x and y of the new object to the x,y of the first object
-            y = obj1.getY();
-          } else { // the second object is bigger
-            x = obj2.getX(); // likewise with the second object
-            y = obj2.getY();
-          }
+          var difX = obj1.getX() - obj2.getX();
+          var difY = obj1.getY() - obj2.getY();
+          var x = obj1.getX() - difX*pm2;
+          var y = obj1.getY() - difY*pm2;
 
           // remove the 'object management' elements for the objects merging
           var elem1 = document.getElementById('settings-o-'+ obj1.getID());
