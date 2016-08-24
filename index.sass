@@ -293,7 +293,7 @@ body
       position: relative
       box-sizing: border-box
       width: 100%
-      height: 110px
+      height: 130px
       background: #dcdcdc
       padding: 10px
       font-size: 11px
@@ -303,14 +303,14 @@ body
       .settings-o-color, .settings-o-information
         position: relative
         float: left
-        width: 90px
-        height: 90px
+        width: 110px
+        height: 110px
 
       .settings-o-information
         display: flex
         justify-content: center
         flex-direction: column
-        width: calc(100% - 90px)
+        width: calc(100% - 110px)
         padding: 0 0 0 10px
         box-sizing: border-box
         overflow: hidden
@@ -325,11 +325,11 @@ body
             font-weight: normal
 
         button
-          font-size: 11px
           display: inline
           float: left
+          height: 20px
+          font-size: 11px
           background: #bdc3c7
-          float: left
           padding: 3px 5px
           margin: 5px auto 0 0
           color: #111
@@ -475,6 +475,14 @@ canvas
   position: absolute
   background: rgba(255,255,255,0.3)
   display: block
+
+#line-coord
+  position: absolute
+  background: rgba(255,255,255,0.3)
+  display: block
+  color: white
+  padding: 5px
+  font-size: 10px
 
 #up-line
   height: 100%

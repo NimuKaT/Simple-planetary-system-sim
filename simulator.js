@@ -1,14 +1,14 @@
-const CANVAS = document.getElementById('simulation');
-const CANVAS_CONTEXT = CANVAS.getContext('2d');
-const UNIVERSAL_GRAVITATIONAL_CONSTANT = 6.67e-11;
-const KM_TO_PIXELS = 1/1e3;
-const TICKS_PER_SECOND = 120;
-const ORBIT_PATH_LENGTH = 150;
-const ORBIT_PATH_WIDTH_INITIAL = 10;
-const ORBIT_PATH_WIDTH_DECREMENT = 0.06;
-const DEFAULT_LINE_WIDTH = 5;
+const CANVAS = document.getElementById('simulation'); // get the simualtion element
+const CANVAS_CONTEXT = CANVAS.getContext('2d');       // get the simulation context which is used to draw objects
+const UNIVERSAL_GRAVITATIONAL_CONSTANT = 6.67e-11;    // set a constant for the universal gravitational constant
+const KM_TO_PIXELS = 1/1e3;               // convert between pixels and kilometers
+const TICKS_PER_SECOND = 120;             // number of ticks (refreshes) per second
+const ORBIT_PATH_LENGTH = 150;            // length of the orbit path
+const ORBIT_PATH_WIDTH_INITIAL = 10;      // start of the orbit path length (e.g. at the object)
+const ORBIT_PATH_WIDTH_DECREMENT = 0.06;  // amount the orbit decreases over time
+const DEFAULT_LINE_WIDTH = 5;             // line width for velocity and acceleration
 
-var session = new Main();
+var session = new Main(); // the instance of the application running
 
 //  ###########################################
 //  #              INIT FUNCTION              #
@@ -16,10 +16,10 @@ var session = new Main();
 //  ###########################################
 
 // flags and variables for optional draw objects
-var showOrbitPath = true;
-var showVelocity = false;
-var showAcceleration = false;
-var canvasXmid = 0;
+var showOrbitPath = true;     // determines whether the orbit path is shown by default
+var showVelocity = false;     // hides the velocity line by default
+var showAcceleration = false; // hides the acceleration line by default
+var canvasXmid = 0; // sets the canvas mid variables to integers
 var canvasYmid = 0;
 
 // open a window in the sidebar
@@ -32,7 +32,7 @@ var closeWindow = function(itemName) {
   document.getElementById(itemName).className = '';     // remove all classes from the chosen element
 };
 
-// initialise the follow object
+// initialise the follow object (for object creation)
 var initFollowObject = function() {
   document.onmousemove = function(event) {
     event = event || window.event;                                // get the mouse move event
@@ -44,25 +44,27 @@ var initFollowObject = function() {
   };
 };
 
+// called when the window resizes
 var windowResize = function() {
-  CANVAS.width = window.innerWidth * 0.75;
-  CANVAS.height = window.innerHeight;
+  CANVAS.width = window.innerWidth * 0.75; // the width of the simualtion canvas is always 75% of the document according to CSS
+  CANVAS.height = window.innerHeight; // the height of the simulation is 100% of the document
 
-  canvasXmid = CANVAS.width / 2;
-  canvasYmid = CANVAS.height / 2;
+  canvasXmid = CANVAS.width / 2;  // the x mid point of the canvas
+  canvasYmid = CANVAS.height / 2; // the y mid point of the canvas
 
   // need to add something so that it keeps what is in the middle in the same place
-  document.getElementById('up-line').style.left = (canvasXmid - 1) + 'px';
-  document.getElementById('down-line').style.top = (canvasYmid - 1) + 'px';
+  document.getElementById('up-line').style.left = (canvasXmid - 1) + 'px';  // set the location of the y axis
+  document.getElementById('down-line').style.top = (canvasYmid - 1) + 'px'; // set the location of the x axis
 };
 
-window.onresize = function() { windowResize(); };
+window.onresize = function() { windowResize(); }; // attach the above function to the window resize event
 
+// initialise function
 var init = function() {
-  // initialise the canvas
+  // ready the canvas
   windowResize();
 
-  // initialise the follow object
+  // ready the follow object
   initFollowObject();
 
   // open the starting window for the sidebar
@@ -115,9 +117,51 @@ var init = function() {
     openWindow('start');
     closeWindow('load-state');
   });
+
+  // canvas movement
+  var canvasMover = function(){
+    this.isDown = false; // flag stating whether the mouse is down on top of the simulation canvas
+
+    // on mouse press
+    document.getElementById("simulation").addEventListener('mousedown', function(event){
+      if (event.button === 0){
+        this.x = event.pageX; // get the x position of the mouse click
+        this.y = event.pageY; // get the y position too
+        this.isDown = true;   // set the mouse to down
+      }
+    });
+
+    // on mouse release
+    document.getElementById("simulation").addEventListener('mouseup', function(event){
+      if (event.button === 0){
+        this.isDown = false; //  set the mouse to up
+      }
+    });
+
+    // on mouse leaving simulation canvas
+    document.getElementById("simulation").addEventListener('mouseleave', function(event){
+      if (event.button === 0){
+        this.isDown = false; //  set the mouse to up
+      }
+    });
+
+    // on any movement of the mouse within the simulation canvas
+    document.getElementById("simulation").addEventListener("mousemove",function(event){
+      if (this.isDown){
+        this.nx = event.pageX; // get the mouse x
+        this.ny = event.pageY; // get the mouse y
+        session.shiftCanvas(this.nx-this.x, this.ny-this.y); // move the canvas in the correct direction based on location mouse
+                                                             // was previously (this.x and this.y) and the new location (this.nx, this.ny)
+        session.refreshScreen(); // refresh the screen (updating object location)
+        this.x = this.nx; // set the x and y to the current location of the mouse (for the next move)
+        this.y = this.ny;
+      }
+    })
+  }
+  canvasMover(); // run the canvas mover (allowing the user to move the canvas around)
 };
 
-init();
+init(); // run the initialise code (above)
 
 
 
@@ -211,25 +255,30 @@ var createFollowObject = function(radius, color, density) {
 
     // get the next click event (for the velocity)
     document.onclick = function(event) {
-      if (cf) {
-        x = x - canvasXmid;
+      if (cf) { // gets the second click (because the first click is still running from above)
+        var coordinates = session.getCoordinates(); // get the coordinates of the center
+        x = x - canvasXmid; // get the x position in terms of the canvas (rather than the screen: event.pageX or event.pageY)
         y = y - canvasYmid;
         var vx = event.pageX - x - canvasXmid; // x-axis length of the velocity
         var vy = event.pageY - y - canvasYmid; // y-axis length of the velocity
 
-        x = x * session.magnificationMultiplier;
-        y = y * session.magnificationMultiplier;
-        vx = vx * session.magnificationMultiplier;
+        x = (x + coordinates[0]) * session.magnificationMultiplier; // get the correct x in terms of canvas shifting and zoom
+        y = (y + coordinates[1]) * session.magnificationMultiplier; // same as above but for y
+        vx = vx * session.magnificationMultiplier; // get the velocity relative to the zoom of the simulation
         vy = vy * session.magnificationMultiplier;
+
+        // create the object
         session.createObject(density, radius, color, x, y, vx, vy);
+
+        // remove the placeholder
         clearObjectCreation();
 
         // if space is paused
         if(document.getElementById('settings-pause').className === 'disabled') {
-          session.refreshScreen();
+          session.refreshScreen(); // refresh the simulation
         }
 
-      } else { cf = true; }
+      } else { cf = true; } // set cf to true so next time the code runs
     };
   };
 
@@ -299,16 +348,18 @@ var clearObjectCreation = function() {
 var createPlaceholderObject = function(radius, color, x, y) {
   var obj = document.getElementById("object-placeholder");
   radius = radius * (1/ session.magnificationMultiplier);
-  obj.style.width = radius*2 + 'px';
-  obj.style.height = radius*2 + 'px';
-  obj.style.background = color;
-  obj.style.left = (x - radius) + 'px';
-  obj.style.top = (y - radius) + 'px';
+  obj.style.width = radius*2 + 'px';   // set the width to twice the radius
+  obj.style.height = radius*2 + 'px';  // same with the height
+  obj.style.background = color;        // set the background colour
+  obj.style.left = (x - radius) + 'px';// set the x offset on the screen
+  obj.style.top = (y - radius) + 'px'; // set the y offset on the screen
 };
 
 // remove placeholder object
 var removePlaceholderObject = function() {
   var obj = document.getElementById("object-placeholder");
+
+  // reset styles for placeholder object
   obj.style.width = '';
   obj.style.height = '';
   obj.style.background = 'none';
@@ -319,8 +370,11 @@ var removePlaceholderObject = function() {
 // create velocity line
 var createVelocityLine = function(x,y) {
   var obj = document.getElementById("velocity-line");
+
+  // set the location
   obj.style.left = x + 'px';
   obj.style.top = y + 'px';
+
   var a = 0; // flag needed for below
 
   // when the mouse is moved
@@ -340,6 +394,8 @@ var createVelocityLine = function(x,y) {
 // remove velocity line
 var removeVelocityLine = function() {
   var obj = document.getElementById("velocity-line");
+
+  // reset the styles of the velocity line
   obj.style.display = 'none';
   obj.style.left = '';
   obj.style.top = '';
@@ -354,16 +410,18 @@ var removeVelocityLine = function() {
 //  #      used in the load state window      #
 //  ###########################################
 
+// update the settings for when loading in a state
+// so that the range elements show the correct value
 var updateSettings = function() {
   document.getElementById('settings-zoom').value = session.magnificationMultiplier;
   document.getElementById('settings-time').value = session.currTimeScale;
 };
 
+// on any file selection or cancel
 document.getElementById('loadstate-file').onchange = function() {
   var files = document.getElementById('loadstate-file').files; // get the files from the input element in the DOM
   if (!files.length) { // if no file selected
-    alert('A file was not selected.\nPlease select a file to continue.'); // alert an error to the user
-    return;
+    return; // stop the code from running
   }
 
   var file = files[0]; // get the first file
@@ -404,14 +462,18 @@ document.getElementById('loadstate-file').onchange = function() {
 
 // Simple orbit
 document.getElementById('loadstate-simpleorbit').addEventListener('mousedown', function() {
-  if (confirm('Are you sure you want to load a prebuilt.\nAnything you have made currently will not be recoverable.')) {
-    session.objects = [];
-    session.createObject(20, 50, "#f1c40f", 0, 0, 0, 0);
-    session.createObject(0, 20, "#27ae60", 300, 0, -25, 120);
+  if (confirm('Are you sure you want to load a prebuilt.\nAnything you have made currently will not be recoverable.')) { // make sure they want to do it
+    session.objects = []; // clear screen
+    session.createObject(20, 50, "#f1c40f", 0, 0, 0, 0);        // first object
+    session.createObject(0, 20, "#27ae60", 300, 0, -25, 120);   // second object
+
+    // settings
     session.magnificationMultiplier = 1.0;
     session.currTimeScale = 1;
     session.currentCoordinate = [0, 0];
     session.idCounter = 2;
+
+    // make it appear
     session.refreshScreen();
     updateSettings(); // update the manage space
   }
@@ -419,14 +481,18 @@ document.getElementById('loadstate-simpleorbit').addEventListener('mousedown', f
 
 // Binary star
 document.getElementById('loadstate-binarystar').addEventListener('mousedown', function() {
-  if (confirm('Are you sure you want to load a prebuilt.\nAnything you have made currently will not be recoverable.')) {
-    session.objects = [];
-    session.createObject(20, 40, "#f1c40f", -100, 0, 0, -87);
-    session.createObject(20, 40, "#f39c12", 100, 0, 0, 87);
+  if (confirm('Are you sure you want to load a prebuilt.\nAnything you have made currently will not be recoverable.')) { // make sure they want to do it
+    session.objects = []; // clear screen
+    session.createObject(20, 40, "#f1c40f", -100, 0, 0, -87);  // first object
+    session.createObject(20, 40, "#f39c12", 100, 0, 0, 87);    // second object
+
+    // settings
     session.magnificationMultiplier = 1.0;
     session.currTimeScale = 1;
     session.currentCoordinate = [0, 0];
     session.idCounter = 2;
+
+    // make it appear
     session.refreshScreen();
     updateSettings(); // update the manage space
   }
@@ -434,16 +500,20 @@ document.getElementById('loadstate-binarystar').addEventListener('mousedown', fu
 
 // Double binary star
 document.getElementById('loadstate-doublebinarystar').addEventListener('mousedown', function() {
-  if (confirm('Are you sure you want to load a prebuilt.\nAnything you have made currently will not be recoverable.')) {
-    session.objects = [];
-    session.createObject(20, 40, "#d35400", 150, 0, 0, 135);
-    session.createObject(20, 40, "#e67e22", 0, -150, 135, 0);
-    session.createObject(20, 40, "#f39c12", -150, 0, 0, -135);
-    session.createObject(20, 40, "#f1c40f", 0, 150, -135, 0);
+  if (confirm('Are you sure you want to load a prebuilt.\nAnything you have made currently will not be recoverable.')) { // make sure they want to do it
+    session.objects = []; // clear screen
+    session.createObject(20, 40, "#d35400", 150, 0, 0, 135);   // first object
+    session.createObject(20, 40, "#e67e22", 0, -150, 135, 0);  // second object
+    session.createObject(20, 40, "#f39c12", -150, 0, 0, -135); // third object
+    session.createObject(20, 40, "#f1c40f", 0, 150, -135, 0);  // fourth object
+
+    // settings
     session.magnificationMultiplier = 1.0;
     session.currTimeScale = 1;
     session.currentCoordinate = [0, 0];
     session.idCounter = 4;
+
+    // make it appear
     session.refreshScreen();
     updateSettings(); // update the manage space
   }
@@ -451,16 +521,20 @@ document.getElementById('loadstate-doublebinarystar').addEventListener('mousedow
 
 // Antigravity system
 document.getElementById('loadstate-antigravity').addEventListener('mousedown', function() {
-  if (confirm('Are you sure you want to load a prebuilt.\nAnything you have made currently will not be recoverable.')) {
-    session.objects = [];
-    session.createObject(-0.54, 50, "#abcdef", 0, 0, 0, 0);
-    session.createObject(10, 30, "#f1c40f", 100, 0, 0, 0);
-    session.createObject(10, 30, "#f1c40f", -100, 0, 0, 0);
-    session.createObject(0, 20, "#2ecc71", 200, 0, -15, 95);
+  if (confirm('Are you sure you want to load a prebuilt.\nAnything you have made currently will not be recoverable.')) { // make sure they want to do it
+    session.objects = []; // clear screen
+    session.createObject(-0.54, 50, "#abcdef", 0, 0, 0, 0);  // first object
+    session.createObject(10, 30, "#f1c40f", 100, 0, 0, 0);   // second object
+    session.createObject(10, 30, "#f1c40f", -100, 0, 0, 0);  // third object
+    session.createObject(0, 20, "#2ecc71", 200, 0, -15, 95); // fourth object
+
+    // settings
     session.magnificationMultiplier = 1.0;
     session.currTimeScale = 1;
     session.currentCoordinate = [0, 0];
     session.idCounter = 4;
+
+    // make it appear
     session.refreshScreen();
     updateSettings(); // update the manage space
   }
@@ -475,63 +549,63 @@ document.getElementById('loadstate-antigravity').addEventListener('mousedown', f
 
 // velocity line toggle
 document.getElementById('settings-velocity-line').onchange = function () {
-  showVelocity = document.getElementById('settings-velocity-line').checked;
+  showVelocity = document.getElementById('settings-velocity-line').checked; // update the settings based on value user clicked
 
   // if space is paused
   if(document.getElementById('settings-pause').className === 'disabled') {
-    session.refreshScreen();
+    session.refreshScreen();  // refresh the screen
   }
 };
 
 // acceleration line toggle
 document.getElementById('settings-acceleration-line').onchange = function () {
-  showAcceleration = document.getElementById('settings-acceleration-line').checked;
+  showAcceleration = document.getElementById('settings-acceleration-line').checked; // update the settings based on value user clicked
 
   // if space is paused
   if(document.getElementById('settings-pause').className === 'disabled') {
-    session.refreshScreen();
+    session.refreshScreen();  // refresh the screen
   }
 };
 
 // orbit path toggle
 document.getElementById('settings-orbit-path').onchange = function () {
-  showOrbitPath = document.getElementById('settings-orbit-path').checked;
+  showOrbitPath = document.getElementById('settings-orbit-path').checked; // update the settings based on value user clicked
 
   // if space is paused
   if(document.getElementById('settings-pause').className === 'disabled') {
-    session.refreshScreen();
+    session.refreshScreen();  // refresh the screen
   }
 };
 
 // change time scale
 document.getElementById('settings-time').oninput = function () {
-  session.currTimeScale = document.getElementById('settings-time').value;
+  session.currTimeScale = document.getElementById('settings-time').value; // update the settings based on value user clicked
 };
 
 document.getElementById('settings-zoom').oninput = function () {
-  session.magnificationMultiplier = document.getElementById('settings-zoom').value;
+  session.magnificationMultiplier = document.getElementById('settings-zoom').value; // update the settings based on value user clicked
 
   // if space is paused
   if(document.getElementById('settings-pause').className === 'disabled') {
-    session.refreshScreen();
+    session.refreshScreen();  // refresh the screen
   }
 };
 
 document.getElementById('settings-play').onclick = function() {
   if(this.className === '') {
-    session.interval = window.setInterval(function(){session.update();}, 1000/TICKS_PER_SECOND);
-    this.className = 'disabled';
-    document.getElementById('settings-pause').className = '';
-    document.getElementById('space-paused-alert').className = '';
+    session.interval = window.setInterval(function(){session.update();}, 1000/TICKS_PER_SECOND); // set the interval for the session update
+    this.className = 'disabled'; // disable the play button
+    document.getElementById('settings-pause').className = ''; // enable the pause button
+    document.getElementById('space-paused-alert').className = ''; // remove the pause alert
   }
 };
 
 document.getElementById('settings-pause').onclick = function() {
   if(this.className === '') {
-    clearInterval(session.interval);
-    this.className = 'disabled';
-    document.getElementById('settings-play').className = '';
-    document.getElementById('space-paused-alert').className = 'shown';
+    clearInterval(session.interval); // clear the session update interval
+    this.className = 'disabled'; // disable the pause button
+    document.getElementById('settings-play').className = ''; // enable the play button
+    document.getElementById('space-paused-alert').className = 'shown'; // show the pause alert
   }
 };
 
@@ -569,6 +643,8 @@ var updateObjManagement = function (objects) {
         output += '<div id="settings-o-changinginfo-'+id+'"></div>';
         output += '<button class="settings-o-delete" id="settings-o-delete-'+id+'"';
         output += ' onclick="deleteObjectNum('+id+')">Delete</button>';                          // object delete button
+        output += '<button class="settings-o-jump" id="settings-o-jump-'+id+'"';
+        output += ' onclick="jumpObj('+id+')">Jump to Object</button>';                          // object delete button
         output += '</div></div>';
 
         objManagement.innerHTML += output; // add the output to the window
@@ -579,19 +655,31 @@ var updateObjManagement = function (objects) {
 
 // delete object num
 var deleteObjectNum = function(a) {
-  if (confirm('Are you sure you wish to delete this object?\nObjects are not recoverable.')) {
+  if (confirm('Are you sure you wish to delete this object?\nObjects are not recoverable.')) { // confirm they wish to delete object
     for(var i = 0; i < session.objects.length; i++) { // run through each object on the screen
-      var obj = session.objects[i];
-      if(obj.getID() === a) {
-        session.objects.splice(i, 1);
-        var elem = document.getElementById('settings-o-'+a);
-        document.getElementById('object-management').removeChild(elem);
+      var obj = session.objects[i]; // get each object
+      if(obj.getID() === a) { // if the object is the selected object
+        session.objects.splice(i, 1); // remove it from the objects array
+        var elem = document.getElementById('settings-o-'+a);              // get its 'object management' information element
+        document.getElementById('object-management').removeChild(elem);   // remove that object
 
         // if space is paused
         if(document.getElementById('settings-pause').className === 'disabled') {
-          session.refreshScreen();
+          session.refreshScreen(); // refresh the screen
         }
       }
+    }
+  }
+};
+
+// jump to a specific object on the screen
+var jumpObj = function(a) {
+  for(var i = 0; i < session.objects.length; i++) { // run through each object on the screen
+    var obj = session.objects[i]; // get each object
+    if(obj.getID() === a) { // if the objet is the correct object
+      session.currentCoordinate[0] = Math.floor(obj.getX()); // set the simulation center to the x
+      session.currentCoordinate[1] = Math.floor(obj.getY()); // likewise for the y
+      session.refreshScreen(); // refresh the screen
     }
   }
 };
@@ -609,7 +697,7 @@ document.getElementById('download-objects').onclick = function() {
     document.body.appendChild(element); // add the element to the body
     element.click(); // force the user to click the element (thus activating the download)
     document.body.removeChild(element); // remove the element from the DOM
-    session.refreshScreen();
+    session.refreshScreen(); // refresh the screen
   }
 };
 
@@ -621,7 +709,7 @@ document.getElementById('clear-objects').onclick = function() {
 
       // if space is paused
       if(document.getElementById('settings-pause').className === 'disabled') {
-        session.refreshScreen();
+        session.refreshScreen(); // refresh the screen
       }
     }
   }
@@ -649,8 +737,8 @@ function object (density, radius, color, x, y, id) { // Aidan
   this.y = y;
   this.radius = radius;
   this.density = density;
-  this.volume = radiusToVolume(radius);
-  this.mass = this.density * this.volume;
+  this.volume = radiusToVolume(radius); // convert the radius into a volume
+  this.mass = this.density * this.volume; // get the mass from the density and the volume
   this.color = color;
 
   // variables that change as the planet moves
@@ -804,7 +892,7 @@ function calculateGravityAccel(x1, y1, x2, y2, mass, dist, angle) {
 
 function Main(){
     this.objects = []; // contains all the planet objects
-    this.objectsHitList = [];
+    this.objectsHitList = []; // contains all the unresolved hits
     this.magnificationMultiplier = 1.0;
     this.currTimeScale = 1;
     this.currentCoordinate = [0, 0];
@@ -812,12 +900,17 @@ function Main(){
 
     this.createObject = function(density, radius, color, x, y, velocityx, velocityy){
         this.objects.push(new object(density, radius, color, x, y, this.idCounter)); // adds values into new planet object
-        if (velocityx !== 0 || velocityy !== 0){ // sets velocity value if supplied (may use id to find added object when to prevent errors during clustered thread) )
+
+        // sets velocity value if supplied
+        if (velocityx !== 0 || velocityy !== 0){
           this.objects[this.objects.length-1].setVelocity(velocityx, velocityy);
         }
-        console.log("Created object with\nDensity: " + density + "kg/m^3\nRadius: " + radius + "km\nColor: " + color + "\nCoordinates: " + x + ", " + y + "\nVelocity: " + velocityx + ", " + velocityy + "\nID: " + this.idCounter); // debug info
-        this.idCounter++;
-        updateObjManagement(this.objects);
+
+        // log this to console (for testing)
+        // console.log("Created object with\nDensity: " + density + "kg/m^3\nRadius: " + radius + "km\nColor: " + color + "\nCoordinates: " + x + ", " + y + "\nVelocity: " + velocityx + ", " + velocityy + "\nID: " + this.idCounter); // debug info
+
+        this.idCounter++; // add one to the id counter so that two objects cannot have same id
+        updateObjManagement(this.objects); // update the object management
     }
 
     this.update = function(){
@@ -938,8 +1031,8 @@ function Main(){
 
         // redraw all the objects
         for (i = 0; i < this.objects.length; i++) {
-          this.objects[i].updatePosition(this.currTimeScale);
-          this.objects[i].drawObject(this.currentCoordinate[0] - canvasXmid, this.currentCoordinate[1] - canvasYmid);
+          this.objects[i].updatePosition(this.currTimeScale); // update the position, for the amount of time dictated by this.currTimeScale
+          this.objects[i].drawObject(this.currentCoordinate[0] - canvasXmid, this.currentCoordinate[1] - canvasYmid); // draw the object in the correct place on the screen
         }
 
         // update the object management tab
@@ -957,6 +1050,7 @@ function Main(){
         this.objects[i].drawObject(this.currentCoordinate[0] - canvasXmid, this.currentCoordinate[1] - canvasYmid); // draw the object to the screen
       }
       updateObjManagement(this.objects); // update the 'object management' window
+      document.getElementById("line-coord").innerHTML = "Center: [" + session.currentCoordinate[0] + ", " + session.currentCoordinate[1] + "]";
     };
 
     // determine whether two given objects have collided (overlap)
@@ -976,4 +1070,21 @@ function Main(){
         this.objectsHitList.push(object1, object2); // add the obejects to the hit list
       }
     };
+
+    // move the canvas relative to current position
+    this.shiftCanvas = function(x, y){
+      this.currentCoordinate[0] -= x; // minus the x amount from current x position
+      this.currentCoordinate[1] -= y; // likewise for the y
+    }
+
+    // move the canvas to an absolute position
+    this.setCoordinates = function(x, y){
+      this.currentCoordinate[0] = x; // set the x position to 'x'
+      this.currentCoordinate[1] = y; // likewise for y and 'y'
+    }
+
+    // get the current coordinates
+    this.getCoordinates = function(){
+      return this.currentCoordinate;
+    }
 }
