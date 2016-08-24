@@ -38,6 +38,9 @@ body
       padding: 70px 0 20px 0
       color: #21252b
 
+      span
+        color: #EB423E
+
     line
       display: block
       position: relative
@@ -83,6 +86,37 @@ body
         width: calc(100% - 110px)
         margin: 0
         padding: 6px 0
+
+    br
+      content: " "
+      display: block
+      height: 7px
+
+    img
+      position: relative
+      width: 97.5%
+      margin: 10px 0 10px 3px
+      display: block
+      box-shadow: 1px 1px 5px 1px rgba(0,0,0,0.3)
+
+    .tutorial-next
+      float: right
+      border: none
+      background: #333
+      padding: 5px 10px
+      color: #eee
+      margin-top: 0
+      margin-right: 5px
+
+      &:hover
+        background: darken(#111, 10%)
+        color: #fff
+
+    // div
+    //   display: none
+    //
+    //   &.shown
+    //     display: block
 
   #object-creation
     .input-group
@@ -230,53 +264,6 @@ body
         width: 70px
         margin: 0
 
-      .label-information
-        opacity: 0
-        position: absolute
-        margin-left: 20px
-        margin-top: 1px
-        background: lighten(#3498db, 10%)
-        padding: 4px 5px
-        border-radius: 3px
-        color: white
-        font-size: 12px
-        font-style: italic
-
-        &::before
-          position: absolute
-          top: -6px
-          display: block
-          content: ' '
-          width: 0
-          height: 0
-          border-style: solid
-          border-width: 0 5px 6px 5px
-          border-color: transparent transparent lighten(#3498db, 10%) transparent
-
-      &:hover
-        .label-information
-          opacity: 1
-          animation: labelinformation 3s
-
-        @keyframes labelinformation
-          0%
-            opacity: 0
-
-          80%
-            opacity: 0
-            transform: translate(0px, 10px)
-
-          92%
-            transform: translate(0px, 0px)
-
-          96%
-            transform: translate(0px, -3px)
-
-          100%
-            transform: translate(0px, 0px)
-            opacity: 1
-
-
       &:nth-child(3)
         padding-top: 5px
 
@@ -306,7 +293,7 @@ body
       position: relative
       box-sizing: border-box
       width: 100%
-      height: 110px
+      height: 130px
       background: #dcdcdc
       padding: 10px
       font-size: 11px
@@ -316,14 +303,14 @@ body
       .settings-o-color, .settings-o-information
         position: relative
         float: left
-        width: 90px
-        height: 90px
+        width: 110px
+        height: 110px
 
       .settings-o-information
         display: flex
         justify-content: center
         flex-direction: column
-        width: calc(100% - 90px)
+        width: calc(100% - 110px)
         padding: 0 0 0 10px
         box-sizing: border-box
         overflow: hidden
@@ -338,11 +325,11 @@ body
             font-weight: normal
 
         button
-          font-size: 11px
           display: inline
           float: left
+          height: 20px
+          font-size: 11px
           background: #bdc3c7
-          float: left
           padding: 3px 5px
           margin: 5px auto 0 0
           color: #111
@@ -408,10 +395,7 @@ body
     &:hover
       cursor: pointer
       color: #e74c3c
-      // #EB423E
       border-bottom: 2px solid #e74c3c
-      //#EB423E
-
 
 #object-undermouse
   position: absolute
@@ -491,6 +475,14 @@ canvas
   position: absolute
   background: rgba(255,255,255,0.3)
   display: block
+
+#line-coord
+  position: absolute
+  background: rgba(255,255,255,0.3)
+  display: block
+  color: white
+  padding: 5px
+  font-size: 10px
 
 #up-line
   height: 100%

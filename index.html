@@ -10,6 +10,7 @@
 <div id="up-line"></div>
 <div id="down-line"></div>
 <canvas id="simulation"></canvas>
+<div id="line-coord">Center: [0, 0]</div>
 
 <div id="object-undermouse"></div>
 <div id="object-placeholder"></div>
@@ -21,7 +22,7 @@
 
   <!-- Start Sidebar -->
   <div id="start">
-    <h1>SPACE SIMULATOR</h1>
+    <h1>SPACE <span>SIM</span>ULATOR</h1>
     <line></line>
     <p>
       A simulation of the physics of space, as seen on a 2D plane.
@@ -43,13 +44,38 @@
     <h2 class="sidebar-header">SPACE SIMULATOR <span>//&nbsp;&nbsp;Gab, Takumi and Aidan</span></h2>
 
     <section>
-      <div class="sidebar-title">
-        <span>01</span>
-        <h3>How to create objects.</h3>
+      <div id="tutorial-1" class="shown">
+        <div class="sidebar-title">
+          <span>01</span>
+          <h3>How to create objects.</h3>
+        </div>
+        <p>
+          To create an object you go the <i>Object Creating</i> window.<br/>
+          From there you can customise your own object giving the <b>colour</b> of the object,
+          the <b>radius</b> (in kilometers) and the <b>material</b> (aka. the density).<br/>
+          Or generate a random object, using the button provided.
+          <img src="assets/tutorial/1.jpg">
+          Once you have done one of these options, move your mouse over the space box.
+          Click the mouse to <b>place</b> the object in the selected place.<br/>
+          Once the object has been placed click again to set the <b>velocity</b> of the new object.
+          <img src="assets/tutorial/2.jpg">
+          This object has now been created.
+          You can create as many objects as you would like and watch them interact with each other.
+        </p>
+        <button class="tutorial-next" id="tutorial-next-1">Next Lesson</button>
       </div>
-      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec fermentum nisi turpis, euismod fermentum leo ullamcorper a. Etiam efficitur fringilla vulputate. Nunc suscipit laoreet lectus, sit amet dapibus nunc condimentum non. Fusce malesuada ex pulvinar orci tincidunt, id lobortis sem scelerisque. Duis lobortis risus euismod, facilisis mauris feugiat, sagittis libero. Sed ut ullamcorper nisl, vitae porttitor nunc.</p>
+      <div id="tutorial-2">
+        <div class="sidebar-title">
+          <span>02</span>
+          <h3>How to delete objects.</h3>
+        </div>
+        <p>
+          To remove an object go to the <i>Manage Space</i> window.<br/>
+          Under the Object Management section find the object you wish to delete. Then click the Delete button
+        </p>
+        <button class="tutorial-next" id="tutorial-next-2">Next Lesson</button>
+      </div>
     </section>
-
     <button id="sidebar-return-tutorial">Go Back</button>
   </div>
 
@@ -108,29 +134,26 @@
       <div class="settings-input-wrap">
         <input type="checkbox" name="velocity-line" id="settings-velocity-line" />
         <label for="velocity-line">Velocity Line</label>
-        <div class="label-information">Line showing current object velocity.</div>
       </div><br>
 
       <div class="settings-input-wrap">
         <input type="checkbox" name="acceleration-line" id="settings-acceleration-line" />
         <label for="acceleration-line">Acceleration Line</label>
-        <div class="label-information">Line showing the resultant acceleration.</div>
       </div><br>
 
       <div class="settings-input-wrap">
         <input type="checkbox" name="orbit-path" id="settings-orbit-path" checked/>
         <label for="orbit-path">Orbit Path</label>
-        <div class="label-information">Shows where the object has been previously.</div>
       </div><br>
 
       <div class="settings-input-wrap">
         <div class="input-title">Zoom:</div>
-        <input type="range" id="settings-zoom" name="settings-zoom" value="1" min="1" max="100">
+        <input type="range" id="settings-zoom" name="settings-zoom" value="1" min="1" max="20">
       </div>
 
       <div class="settings-input-wrap">
         <div class="input-title">Time Scale:</div>
-        <input type="range" id="settings-time" name="settings-time" value="1" min="1" max="100">
+        <input type="range" id="settings-time" name="settings-time" value="1" step="0.2" min="0.2" max="5">
       </div>
 
       <br>
@@ -140,28 +163,7 @@
       <div class="settings-gap"></div>
 
       <h4>Object Management</h4>
-      <div id="object-management">
-        <div class="settings-object-wrap">
-          <div class="settings-o-color"></div>
-          <div class="settings-o-information">
-            <div class="settings-o-density">
-              <span>Density:&nbsp;&nbsp;<span></span></span>
-            </div>
-            <div class="settings-o-radius">
-              <span>Radius:&nbsp;&nbsp;<span></span></span>
-            </div>
-            <div class="settings-o-coordinates">
-              <span>Coordinates:&nbsp;&nbsp;<span></span></span>
-            </div>
-            <div class="settings-o-velocityx">
-              <span>Velocity X:&nbsp;&nbsp;<span></span></span>
-            </div>
-            <div class="settings-o-velocityy">
-              <span>Velocity Y:&nbsp;&nbsp;<span></span></span>
-            </div>
-          </div>
-        </div>
-      </div>
+      <div id="object-management"></div>
 
       <button id="clear-objects">Remove All Objects</button>
       <button id="download-objects">Download Objects</button>
@@ -177,32 +179,42 @@
     <section>
       <h3>Load State</h3>
 
-      <div class="load-item">
-        <img src="https://placehold.it/90/f1c40f" />
+      <div class="load-item" id="loadstate-simpleorbit">
+        <img src="assets/loadstates/simpleorbit.jpg" />
         <div class="load-information">
           <h4>Simple Orbit</h4>
           <p>
-            A simple planet orbitting around a gas star.
+            A planet orbitting around a star.
           </p>
         </div>
       </div>
 
-      <div class="load-item">
-        <img src="https://placehold.it/90/e67e22" />
+      <div class="load-item" id="loadstate-binarystar">
+        <img src="assets/loadstates/binarystar.jpg" />
         <div class="load-information">
-          <h4>Our Solar System</h4>
+          <h4>Binary Star</h4>
           <p>
-            A simple model of our solar system, fit with the Sun, 8 planets and Pluto.
+            Two stars in orbit around each other.
           </p>
         </div>
       </div>
 
-      <div class="load-item">
-        <img src="https://placehold.it/90/e74c3c" />
+      <div class="load-item" id="loadstate-doublebinarystar">
+        <img src="assets/loadstates/doublebinarystar.jpg" />
         <div class="load-information">
-          <h4>Complex Planet Battle</h4>
+          <h4>Double Binary Star</h4>
           <p>
-            We wanted to see who would win.
+            Four stars orbitting each other.
+          </p>
+        </div>
+      </div>
+
+      <div class="load-item" id="loadstate-antigravity">
+        <img src="assets/loadstates/antigravity.jpg" />
+        <div class="load-information">
+          <h4>Antigravity System</h4>
+          <p>
+            We broke the space time continuum.
           </p>
         </div>
       </div>
@@ -218,12 +230,6 @@
     <button id="sidebar-return-loadstate">Go Back</button>
   </div>
 </div>
-
-<!-- <form onsubmit="download(this['name'].value, this['text'].value)">
-  <input type="text" name="name" value="test.txt">
-  <textarea name="text"></textarea>
-  <input type="submit" value="Download">
-</form> -->
 
 <script src="simulator.js"></script>
 </body>
