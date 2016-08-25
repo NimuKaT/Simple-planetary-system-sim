@@ -782,18 +782,19 @@ function object (density, radius, color, x, y, id) { // Aidan
     }
 
     if (showOrbitPath === true) {
-      var pathWidth = ORBIT_PATH_WIDTH_INITIAL;
       // draw line showing the orbit path for the past ORBIT_PATH_LENGTH frames
-      CANVAS_CONTEXT.beginPath();
-      CANVAS_CONTEXT.strokeStyle = "#1abc9c";
+      var pathWidth = ORBIT_PATH_WIDTH_INITIAL; // set the initial width
+      CANVAS_CONTEXT.beginPath(); // start the orbit path
+      CANVAS_CONTEXT.strokeStyle = "#1abc9c"; // set the colour for the orbit path
       CANVAS_CONTEXT.moveTo(this.x/session.magnificationMultiplier - xShift, this.y/session.magnificationMultiplier - yShift);
-      for (var i = 0; i < this.orbitPath.length; i++) {
-        CANVAS_CONTEXT.lineWidth = pathWidth;
-        CANVAS_CONTEXT.lineTo(this.orbitPath[i][0]/session.magnificationMultiplier - xShift, this.orbitPath[i][1]/session.magnificationMultiplier - yShift);
-        CANVAS_CONTEXT.stroke();
-        pathWidth -= ORBIT_PATH_WIDTH_DECREMENT;
+      for (var i = 0; i < this.orbitPath.length; i++) { // for every unit of length wanted to be drawn
+        CANVAS_CONTEXT.lineWidth = pathWidth; // set the new width of the path for drawin
+        CANVAS_CONTEXT.lineTo(this.orbitPath[i][0]/session.magnificationMultiplier - xShift,
+         this.orbitPath[i][1]/session.magnificationMultiplier - yShift); // draw the line to the position it was in i frames ago
+        CANVAS_CONTEXT.stroke(); // fill in the line so it can be seen
+        pathWidth -= ORBIT_PATH_WIDTH_DECREMENT; // reduce the size of the path for the next iteration
       }
-      CANVAS_CONTEXT.closePath();
+      CANVAS_CONTEXT.closePath(); // end the orbit path
     }
 
     // reset acceleration for the next frame
