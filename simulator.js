@@ -1,12 +1,15 @@
 const CANVAS = document.getElementById('simulation'); // get the simualtion element
 const CANVAS_CONTEXT = CANVAS.getContext('2d');       // get the simulation context which is used to draw objects
 const UNIVERSAL_GRAVITATIONAL_CONSTANT = 6.67e-11;    // set a constant for the universal gravitational constant
-const KM_TO_PIXELS = 1/1e3;               // convert between pixels and kilometers
-const TICKS_PER_SECOND = 120;             // number of ticks (refreshes) per second
-const ORBIT_PATH_LENGTH = 150;            // length of the orbit path
-const ORBIT_PATH_WIDTH_INITIAL = 10;      // start of the orbit path length (e.g. at the object)
-const ORBIT_PATH_WIDTH_DECREMENT = 0.06;  // amount the orbit decreases over time
-const DEFAULT_LINE_WIDTH = 5;             // line width for velocity and acceleration
+const KM_TO_PIXELS = 1/1e3;                 // convert between pixels and kilometers
+const TICKS_PER_SECOND = 120;               // number of ticks (refreshes) per second
+const ORBIT_PATH_LENGTH = 150;              // length of the orbit path
+const ORBIT_PATH_WIDTH_INITIAL = 10;        // start of the orbit path length (e.g. at the object)
+const ORBIT_PATH_WIDTH_DECREMENT = 0.06;    // amount the orbit decreases over time
+const VELOCITY_LINE_COLOR = "#e74c3c";      // color of velocity lines
+const ACCELERATION_LINE_COLOR =  "#2980b9"; // color of acceleration lines
+const ORBIT_PATH_COLOR = "#1abc9c";         // color of the orbit path
+const DEFAULT_LINE_WIDTH = 5;               // line width for velocity and acceleration
 
 var session = new Main(); // the instance of the application running
 
@@ -183,7 +186,7 @@ document.getElementById('object-material').onchange = function () {
 // 'create object' button
 document.getElementById('object-create').addEventListener('mouseup', function() {
   var radius = document.getElementById('object-radius').value;    // get the value for the radius
-  var color = document.getElementById('object-color').value;    // get the value for the colour
+  var color = document.getElementById('object-color').value;    // get the value for the color
   var density = document.getElementById('object-material').value; // get the value for the material
 
   // check for the custom density selected
@@ -207,7 +210,7 @@ document.getElementById('object-generate-random').addEventListener('mouseup', fu
   var r = Math.floor((Math.random() * 255)); // 0 - 254
   var g = Math.floor((Math.random() * 255)); // 0 - 254
   var b = Math.floor((Math.random() * 255)); // 0 - 254
-  var color = '#' + numberToHex(r) + numberToHex(g) + numberToHex(b); // convert them to hex colour
+  var color = '#' + numberToHex(r) + numberToHex(g) + numberToHex(b); // convert them to hex color
   var density = Math.floor((Math.random() * 100) + 1); // 1 - 100
 
   // create the object
@@ -220,7 +223,7 @@ var createFollowObject = function(radius, color, density) {
   var zoomRadius = radius * (1/session.magnificationMultiplier);
   var obj = document.getElementById('object-undermouse'); // the mouse follow object
   obj.style.display = 'block';          // set the visiblilty to show
-  obj.style.background = color;         // set the background colour
+  obj.style.background = color;         // set the background color
   obj.style.width = zoomRadius*2 + 'px';    // set the width
   obj.style.height = zoomRadius*2 + 'px';   // set the height
 
@@ -350,7 +353,7 @@ var createPlaceholderObject = function(radius, color, x, y) {
   radius = radius * (1/ session.magnificationMultiplier);
   obj.style.width = radius*2 + 'px';   // set the width to twice the radius
   obj.style.height = radius*2 + 'px';  // same with the height
-  obj.style.background = color;        // set the background colour
+  obj.style.background = color;        // set the background colou
   obj.style.left = (x - radius) + 'px';// set the x offset on the screen
   obj.style.top = (y - radius) + 'px'; // set the y offset on the screen
 };
@@ -634,7 +637,7 @@ var updateObjManagement = function (objects) {
       } else {
         // append to the output the specific information for each object
         var output = '<div class="settings-object-wrap" id="settings-o-'+id+'">';
-        output += '<div class="settings-o-color" style="background: '+obj.getColor()+'"></div>'; // object colour
+        output += '<div class="settings-o-color" style="background: '+obj.getColor()+'"></div>'; // object color
         output += '<div class="settings-o-information">';
         output += '<span>Density:&nbsp;&nbsp;<span>';
         output +=  + obj.getDensity() + 'kg/m^3</span></span>';                                  // object density
@@ -752,40 +755,42 @@ function object (density, radius, color, x, y, id) { // Aidan
     // given its position on the canvas, draws it centred to that location
 
     // draw the planet's main body
-    CANVAS_CONTEXT.beginPath();
-    CANVAS_CONTEXT.arc(this.x/session.magnificationMultiplier - xShift, this.y/session.magnificationMultiplier - yShift, this.radius/session.magnificationMultiplier, 0, 2 * Math.PI, false);
-    CANVAS_CONTEXT.fillStyle = this.color;
-    CANVAS_CONTEXT.fill();
-    CANVAS_CONTEXT.closePath();
+    CANVAS_CONTEXT.beginPath(); // open the planet body
+    CANVAS_CONTEXT.arc(this.x/session.magnificationMultiplier - xShift, this.y/session.magnificationMultiplier - yShift,
+     this.radius/session.magnificationMultiplier, 0, 2 * Math.PI, false); // create the vector for the planet body
+    CANVAS_CONTEXT.fillStyle = this.color; // set the planets color
+    CANVAS_CONTEXT.fill(); // give the planet its color
+    CANVAS_CONTEXT.closePath(); // close the planet body
 
-    CANVAS_CONTEXT.lineWidth = DEFAULT_LINE_WIDTH;
+    CANVAS_CONTEXT.lineWidth = DEFAULT_LINE_WIDTH; // set the line width for acceleration and velocity
 
     if (showVelocity === true) {
       // draw line in the direction of velocity for the current frame
-      CANVAS_CONTEXT.beginPath();
-      CANVAS_CONTEXT.moveTo(this.x/session.magnificationMultiplier - xShift, this.y/session.magnificationMultiplier - yShift);
-      CANVAS_CONTEXT.lineTo((this.x + this.vx)/session.magnificationMultiplier - xShift, (this.y + this.vy)/session.magnificationMultiplier - yShift);
-      CANVAS_CONTEXT.strokeStyle = "#e74c3c";
-      CANVAS_CONTEXT.stroke();
-      CANVAS_CONTEXT.closePath();
+      CANVAS_CONTEXT.beginPath(); // start the velocity line
+      CANVAS_CONTEXT.moveTo(this.x/session.magnificationMultiplier - xShift, this.y/session.magnificationMultiplier - yShift); // move the first point of the line to the planet
+      CANVAS_CONTEXT.lineTo((this.x + this.vx)/session.magnificationMultiplier - xShift,
+       (this.y + this.vy)/session.magnificationMultiplier - yShift); // draw the line in the direction of velocity
+      CANVAS_CONTEXT.strokeStyle = VELOCITY_LINE_COLOR; // set the lines color
+      CANVAS_CONTEXT.stroke(); // fill it in for viewing
+      CANVAS_CONTEXT.closePath(); // end the velocity line
     }
 
 
     if (showAcceleration === true) {
       // draw line in the direction of acceleration for the current frame
-      CANVAS_CONTEXT.beginPath();
-      CANVAS_CONTEXT.moveTo(this.x/session.magnificationMultiplier - xShift, this.y/session.magnificationMultiplier - yShift);
-      CANVAS_CONTEXT.lineTo((this.x + this.ax)/session.magnificationMultiplier - xShift, (this.y + this.ay)/session.magnificationMultiplier - yShift);
-      CANVAS_CONTEXT.strokeStyle = "#2980b9";
-      CANVAS_CONTEXT.stroke();
-      CANVAS_CONTEXT.closePath();
+      CANVAS_CONTEXT.beginPath(); // start the acceleration line
+      CANVAS_CONTEXT.moveTo(this.x/session.magnificationMultiplier - xShift, this.y/session.magnificationMultiplier - yShift); // move the line start to the planet
+      CANVAS_CONTEXT.lineTo((this.x + this.ax)/session.magnificationMultiplier - xShift, (this.y + this.ay)/session.magnificationMultiplier - yShift); // draw the line in the direction of acceleration
+      CANVAS_CONTEXT.strokeStyle =ACCELERATION_LINE_COLOR; // set the line color
+      CANVAS_CONTEXT.stroke(); // fill in the line for viewing
+      CANVAS_CONTEXT.closePath(); // close that path
     }
 
     if (showOrbitPath === true) {
       // draw line showing the orbit path for the past ORBIT_PATH_LENGTH frames
       var pathWidth = ORBIT_PATH_WIDTH_INITIAL; // set the initial width
       CANVAS_CONTEXT.beginPath(); // start the orbit path
-      CANVAS_CONTEXT.strokeStyle = "#1abc9c"; // set the colour for the orbit path
+      CANVAS_CONTEXT.strokeStyle = ORBIT_PATH_COLOR; // set the color for the orbit path
       CANVAS_CONTEXT.moveTo(this.x/session.magnificationMultiplier - xShift, this.y/session.magnificationMultiplier - yShift);
       for (var i = 0; i < this.orbitPath.length; i++) { // for every unit of length wanted to be drawn
         CANVAS_CONTEXT.lineWidth = pathWidth; // set the new width of the path for drawin
@@ -979,8 +984,8 @@ function Main(){
           var pm1 = obj1.getMass() / nm; // percentage of new object's mass belonging to object 1
           var pm2 = obj2.getMass() / nm; // likewise for object 2
 
-          // new colour
-          var c1 = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(obj1.getColor()); // turn the colours into arrays of values [#,r,g,b]
+          // new color
+          var c1 = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(obj1.getColor()); // turn the colors into arrays of values [#,r,g,b]
           var c2 = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(obj2.getColor());
           var r1 = parseInt(c1[1], 16) * p1; // convert each value into hex: parseInt(num, 16)
           var r2 = parseInt(c2[1], 16) * p2; // times that number by the percentage of the new object
@@ -991,7 +996,7 @@ function Main(){
           var r = numberToHex(Math.floor(r1 + r2)); // floor the combined rgb: Math.floor(num)
           var g = numberToHex(Math.floor(g1 + g2)); // turn that number back into a hexadecimal: numberToHex(num)
           var b = numberToHex(Math.floor(b1 + b2));
-          var newColor = "#" + r + g + b; // combine the rgb hexadecimal values into one hexadecimal colour
+          var newColor = "#" + r + g + b; // combine the rgb hexadecimal values into one hexadecimal color
 
           // new velocity
           var vel1 = obj1.getVelocity(); // returns an array [x, y] of the velocity
