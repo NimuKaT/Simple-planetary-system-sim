@@ -14,7 +14,7 @@ body
   overflow: hidden
   background: #21252b
 
-#sidebar, canvas
+#sidebar, canvas, #eric
   position: relative
   display: block
   height: 100%
@@ -493,3 +493,90 @@ canvas
   width: 100%
   height: 2px
   top: calc(50% - 1px)
+
+#eric
+  display: none
+  background: white
+  top: -100%
+  width: 100%
+
+  #eric-left, #eric-right
+    float: left
+    display: block
+    width: 800px
+    height: 100%
+
+  #eric-left
+    #eric-simulation
+      display: block
+      width: 800px
+      height: 500px
+      margin-bottom: 50px
+      background:
+        color: #21252b
+        size: cover
+        position: center
+      cursor: pointer
+
+      #eric-ball
+        display: block
+        position: absolute
+        border-radius: 50%
+
+    #eric-instructions
+      display: block
+      font-family: Helvetica
+      font-weight: 300
+      padding: 0 50px
+      overflow: scroll
+      height: calc(100% - 600px)
+
+  #eric-right
+    width: calc(100% - 800px)
+    padding: 30px
+    box-sizing: border-box
+
+    img
+      display: block
+      width: 100%
+      height: auto
+      margin-bottom: 30px
+
+    input
+      margin-right: 10px
+
+      &:hover, &:active, &:focus
+        outline: none
+
+    #eric-ball-image, #eric-background-image
+      display: inline-block
+      height: 60px
+      padding: 5px 5px 5px 10px
+      box-sizing: border-box
+      background: #efefef
+
+      input[type="color"]
+        height: 48px
+
+      img, input
+        position: relative
+        display: block
+        width: 50px
+        height: 50px
+        float: left
+        background: #bdc3c7
+        padding: 0
+        margin: 0
+        margin-right: 5px
+
+        &.selected
+          outline: 1px solid blue
+          box-shadow: 0 0 5px 1px
+          background: #95a5a6
+
+          &:hover
+            outline: 1px solid blue
+
+        &:hover
+          cursor: pointer
+          outline: 1px solid lightblue

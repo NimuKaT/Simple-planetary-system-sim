@@ -13,7 +13,7 @@ body {
   overflow: hidden;
   background: #21252b; }
 
-#sidebar, canvas {
+#sidebar, canvas, #eric {
   position: relative;
   display: block;
   height: 100%;
@@ -410,3 +410,74 @@ canvas {
   width: 100%;
   height: 2px;
   top: calc(50% - 1px); }
+
+#eric {
+  display: none;
+  background: white;
+  top: -100%;
+  width: 100%; }
+  #eric #eric-left, #eric #eric-right {
+    float: left;
+    display: block;
+    width: 800px;
+    height: 100%; }
+  #eric #eric-left #eric-simulation {
+    display: block;
+    width: 800px;
+    height: 500px;
+    margin-bottom: 50px;
+    background-color: #21252b;
+    background-size: cover;
+    background-position: center;
+    cursor: pointer; }
+    #eric #eric-left #eric-simulation #eric-ball {
+      display: block;
+      position: absolute;
+      border-radius: 50%; }
+  #eric #eric-left #eric-instructions {
+    display: block;
+    font-family: Helvetica;
+    font-weight: 300;
+    padding: 0 50px;
+    overflow: scroll;
+    height: calc(100% - 600px); }
+  #eric #eric-right {
+    width: calc(100% - 800px);
+    padding: 30px;
+    box-sizing: border-box; }
+    #eric #eric-right img {
+      display: block;
+      width: 100%;
+      height: auto;
+      margin-bottom: 30px; }
+    #eric #eric-right input {
+      margin-right: 10px; }
+      #eric #eric-right input:hover, #eric #eric-right input:active, #eric #eric-right input:focus {
+        outline: none; }
+    #eric #eric-right #eric-ball-image, #eric #eric-right #eric-background-image {
+      display: inline-block;
+      height: 60px;
+      padding: 5px 5px 5px 10px;
+      box-sizing: border-box;
+      background: #efefef; }
+      #eric #eric-right #eric-ball-image input[type="color"], #eric #eric-right #eric-background-image input[type="color"] {
+        height: 48px; }
+      #eric #eric-right #eric-ball-image img, #eric #eric-right #eric-ball-image input, #eric #eric-right #eric-background-image img, #eric #eric-right #eric-background-image input {
+        position: relative;
+        display: block;
+        width: 50px;
+        height: 50px;
+        float: left;
+        background: #bdc3c7;
+        padding: 0;
+        margin: 0;
+        margin-right: 5px; }
+        #eric #eric-right #eric-ball-image img.selected, #eric #eric-right #eric-ball-image input.selected, #eric #eric-right #eric-background-image img.selected, #eric #eric-right #eric-background-image input.selected {
+          outline: 1px solid blue;
+          box-shadow: 0 0 5px 1px;
+          background: #95a5a6; }
+          #eric #eric-right #eric-ball-image img.selected:hover, #eric #eric-right #eric-ball-image input.selected:hover, #eric #eric-right #eric-background-image img.selected:hover, #eric #eric-right #eric-background-image input.selected:hover {
+            outline: 1px solid blue; }
+        #eric #eric-right #eric-ball-image img:hover, #eric #eric-right #eric-ball-image input:hover, #eric #eric-right #eric-background-image img:hover, #eric #eric-right #eric-background-image input:hover {
+          cursor: pointer;
+          outline: 1px solid lightblue; }

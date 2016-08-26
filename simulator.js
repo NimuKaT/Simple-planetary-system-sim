@@ -1,6 +1,5 @@
 const CANVAS = document.getElementById('simulation'); // get the simualtion element
 const CANVAS_CONTEXT = CANVAS.getContext('2d');       // get the simulation context which is used to draw objects
-const UNIVERSAL_GRAVITATIONAL_CONSTANT = 6.67e-11;    // set a constant for the universal gravitational constant
 const KM_TO_PIXELS = 1/1e3;               // convert between pixels and kilometers
 const TICKS_PER_SECOND = 120;             // number of ticks (refreshes) per second
 const ORBIT_PATH_LENGTH = 150;            // length of the orbit path
@@ -156,7 +155,7 @@ var init = function() {
         this.x = this.nx; // set the x and y to the current location of the mouse (for the next move)
         this.y = this.ny;
       }
-    })
+    });
   }
   canvasMover(); // run the canvas mover (allowing the user to move the canvas around)
 };
@@ -430,7 +429,7 @@ document.getElementById('loadstate-file').onchange = function() {
   // when the file is fully downloaded loads the file
   reader.onloadend = function(evt) {
     if (evt.target.readyState === FileReader.DONE) { // file is done loading
-      if (confirm('Are you sure you want to load a file.\nAnything you have made currently will not be recoverable.')) {
+      if (`confirm`('Are you sure you want to load a file.\nAnything you have made currently will not be recoverable.')) {
         var parsed = JSON.parse(evt.target.result); // turn the JSON into readable information for JS
         var arr = []; // create an empyt array for objects
         for(var x in parsed){ // run through information in the JSON
@@ -448,10 +447,11 @@ document.getElementById('loadstate-file').onchange = function() {
           session.objects.push(new object(obj.density, obj.radius, obj.color, obj.x, obj.y, obj.id)); // add the object to the session
           session.objects[session.objects.length-1].setVelocity(obj.vx, obj.vy); // give that new object a velocity
         }
+
         updateObjManagement(session.objects); // update the object management window
         updateSettings(); // update the manage space
       }
-    }
+    };
   };
 
   // read the file
@@ -1083,3 +1083,148 @@ function Main(){
       return this.currentCoordinate;
     }
 }
+
+
+
+// eric mode
+var ericCanvas = document.getElementById('eric-simulation');
+var ballElem = document.getElementById('eric-ball');
+var ball = [];
+var ballColor = '#e74c3c';
+var ballImg = "";
+var lastTypedKeys = [];
+document.onkeypress = function(evt) {
+  lastTypedKeys.push(evt.which);
+  var len = lastTypedKeys.length;
+  if (lastTypedKeys[len-1] == '99' && lastTypedKeys[len-2] == '105' && lastTypedKeys[len-3] == '114' && lastTypedKeys[len-4] == '101') {
+    if(confirm('Do you want to launch Eric mode?')) {
+      document.getElementById('eric').style.display = 'block';
+      window.onresize = '';
+      document.onkeypress = '';
+      document.onclick = '';
+      document.onmousemove = '';
+      session.interval = '';
+    }
+  }
+}
+
+// radius
+document.getElementById('eric-radius').oninput = function() {
+  document.getElementById('eric-radius-value').innerHTML = this.value + 'px';
+};
+
+// ball color/image
+document.getElementById('eric-ball-color').oninput = function() {
+  ballColor = this.value;
+  ballImg = '';
+  this.className = 'selected';
+  document.getElementById('eric-b1').className = '';
+  document.getElementById('eric-b2').className = '';
+  document.getElementById('eric-b3').className = '';
+};
+
+document.getElementById('eric-b1').onclick = function() {
+  ballImg = "url('assets/eric/soccer.png')";
+  this.className = 'selected';
+  document.getElementById('eric-ball-color').className = '';
+  document.getElementById('eric-b2').className = '';
+  document.getElementById('eric-b3').className = '';
+}
+
+document.getElementById('eric-b2').onclick = function() {
+  ballImg = "url('assets/eric/tennis.png')";
+  this.className = 'selected';
+  document.getElementById('eric-ball-color').className = '';
+  document.getElementById('eric-b1').className = '';
+  document.getElementById('eric-b3').className = '';
+}
+
+document.getElementById('eric-b3').onclick = function() {
+  ballImg = "url('assets/eric/poke.png')";
+  this.className = 'selected';
+  document.getElementById('eric-ball-color').className = '';
+  document.getElementById('eric-b1').className = '';
+  document.getElementById('eric-b2').className = '';
+}
+
+// background image
+document.getElementById('eric-background-color').oninput = function() {
+  ericCanvas.style.background = this.value;
+  this.className = 'selected';
+  document.getElementById('eric-bg1').className = '';
+  document.getElementById('eric-bg2').className = '';
+  document.getElementById('eric-bg3').className = '';
+};
+
+document.getElementById('eric-bg1').onclick = function() {
+  ericCanvas.style.backgroundImage = "url('assets/eric/forest.jpg')";
+  this.className = 'selected';
+  document.getElementById('eric-background-color').className = '';
+  document.getElementById('eric-bg2').className = '';
+  document.getElementById('eric-bg3').className = '';
+};
+
+document.getElementById('eric-bg2').onclick = function() {
+  ericCanvas.style.backgroundImage = "url('assets/eric/chs.jpg')";
+  this.className = 'selected';
+  document.getElementById('eric-background-color').className = '';
+  document.getElementById('eric-bg1').className = '';
+  document.getElementById('eric-bg3').className = '';
+};
+
+document.getElementById('eric-bg3').onclick = function() {
+  ericCanvas.style.backgroundImage = "url('assets/eric/beach.jpg')";
+  this.className = 'selected';
+  document.getElementById('eric-background-color').className = '';
+  document.getElementById('eric-bg1').className = '';
+  document.getElementById('eric-bg2').className = '';
+};
+
+function Ball(x, y, radius) {
+  this.x = x;
+  this.y = y;
+  this.vx = 0;
+  this.vy = 1;
+  this.radius = radius;
+
+  //init
+  ballElem.style.width = this.radius*2 + 'px';
+  ballElem.style.height = this.radius*2 + 'px';
+
+  if(ballImg != '') {
+    ballElem.style.background = '';
+    ballElem.style.backgroundImage = ballImg;
+    ballElem.style.backgroundSize = 'cover';
+  } else {
+    ballElem.style.background = ballColor;
+  }
+
+  this.draw = function() {
+    this.x += this.vx;
+    this.y += this.vy;
+    ballElem.style.left = this.x - this.radius + 'px';
+    ballElem.style.top = this.y - this.radius + 'px';
+  };
+
+  this.update = function() {
+    if (this.vy > 0 && this.y + parseInt(this.radius) >= 500) {
+      this.vy = (this.vy * -1);
+      if(this.vy + 1/2 < 0) { this.vy += 1/2;}
+    } else {
+      this.vy += 1/30;
+    }
+    this.draw();
+  }
+}
+
+var ericUpdate = function() {
+  var b = ball[0];
+  if (b){ b.update(); }
+}
+
+document.getElementById('eric-simulation').onclick = function(e) {
+  ball = [];
+  ball.push(new Ball(e.pageX, e.pageY, document.getElementById('eric-radius').value));
+}
+
+window.setInterval(function(){ ericUpdate(); }, 3);
