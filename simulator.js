@@ -468,7 +468,7 @@ document.getElementById('loadstate-simpleorbit').addEventListener('mousedown', f
   if (confirm('Are you sure you want to load a prebuilt.\nAnything you have made currently will not be recoverable.')) { // make sure they want to do it
     session.objects = []; // clear screen
     session.createObject(20, 50, "#f1c40f", 0, 0, 0, 0);        // first object
-    session.createObject(0, 20, "#27ae60", 300, 0, -25, 120);   // second object
+    session.createObject(0, 20, "#27ae60", 300, 0, -25, 180);   // second object
 
     // settings
     session.magnificationMultiplier = 1.0;
@@ -486,8 +486,8 @@ document.getElementById('loadstate-simpleorbit').addEventListener('mousedown', f
 document.getElementById('loadstate-binarystar').addEventListener('mousedown', function() {
   if (confirm('Are you sure you want to load a prebuilt.\nAnything you have made currently will not be recoverable.')) { // make sure they want to do it
     session.objects = []; // clear screen
-    session.createObject(20, 40, "#f1c40f", -100, 0, 0, -87);  // first object
-    session.createObject(20, 40, "#f39c12", 100, 0, 0, 87);    // second object
+    session.createObject(20, 40, "#f1c40f", -100, 0, 0, -123);  // first object
+    session.createObject(20, 40, "#f39c12", 100, 0, 0, 123);    // second object
 
     // settings
     session.magnificationMultiplier = 1.0;
@@ -505,10 +505,10 @@ document.getElementById('loadstate-binarystar').addEventListener('mousedown', fu
 document.getElementById('loadstate-doublebinarystar').addEventListener('mousedown', function() {
   if (confirm('Are you sure you want to load a prebuilt.\nAnything you have made currently will not be recoverable.')) { // make sure they want to do it
     session.objects = []; // clear screen
-    session.createObject(20, 40, "#d35400", 150, 0, 0, 135);   // first object
-    session.createObject(20, 40, "#e67e22", 0, -150, 135, 0);  // second object
-    session.createObject(20, 40, "#f39c12", -150, 0, 0, -135); // third object
-    session.createObject(20, 40, "#f1c40f", 0, 150, -135, 0);  // fourth object
+    session.createObject(20, 40, "#d35400", 150, 0, 0, 193);   // first object
+    session.createObject(20, 40, "#e67e22", 0, -150, 193, 0);  // second object
+    session.createObject(20, 40, "#f39c12", -150, 0, 0, -193); // third object
+    session.createObject(20, 40, "#f1c40f", 0, 150, -193, 0);  // fourth object
 
     // settings
     session.magnificationMultiplier = 1.0;
@@ -529,7 +529,7 @@ document.getElementById('loadstate-antigravity').addEventListener('mousedown', f
     session.createObject(-0.54, 50, "#abcdef", 0, 0, 0, 0);  // first object
     session.createObject(10, 30, "#f1c40f", 100, 0, 0, 0);   // second object
     session.createObject(10, 30, "#f1c40f", -100, 0, 0, 0);  // third object
-    session.createObject(0, 20, "#2ecc71", 200, 0, -15, 95); // fourth object
+    session.createObject(0, 20, "#2ecc71", 200, 0, -15, 135); // fourth object
 
     // settings
     session.magnificationMultiplier = 1.0;
@@ -745,11 +745,13 @@ function object (density, radius, color, x, y, id) { // Aidan
   this.color = color;
 
   // variables that change as the planet moves
+  // velocity
   this.vx = 0;
   this.vy = 0;
+  //acceleration
   this.ax = 0;
   this.ay = 0;
-  this.orbitPath = [];
+  this.orbitPath = []; // stores previous positions for the orbit path
 
   this.drawObject = function(xShift, yShift) {
     // given its position on the canvas, draws it centred to that location
@@ -781,7 +783,7 @@ function object (density, radius, color, x, y, id) { // Aidan
       CANVAS_CONTEXT.beginPath(); // start the acceleration line
       CANVAS_CONTEXT.moveTo(this.x/session.magnificationMultiplier - xShift, this.y/session.magnificationMultiplier - yShift); // move the line start to the planet
       CANVAS_CONTEXT.lineTo((this.x + this.ax)/session.magnificationMultiplier - xShift, (this.y + this.ay)/session.magnificationMultiplier - yShift); // draw the line in the direction of acceleration
-      CANVAS_CONTEXT.strokeStyle =ACCELERATION_LINE_COLOR; // set the line color
+      CANVAS_CONTEXT.strokeStyle = ACCELERATION_LINE_COLOR; // set the line color
       CANVAS_CONTEXT.stroke(); // fill in the line for viewing
       CANVAS_CONTEXT.closePath(); // close that path
     }
