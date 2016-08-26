@@ -897,6 +897,7 @@ function Main(){
     this.currTimeScale = 1;
     this.currentCoordinate = [0, 0];
     this.idCounter = 0;
+    this.gridLineInterval = 100;
 
     this.createObject = function(density, radius, color, x, y, velocityx, velocityy){
         this.objects.push(new object(density, radius, color, x, y, this.idCounter)); // adds values into new planet object
@@ -1081,6 +1082,19 @@ function Main(){
     // get the current coordinates
     this.getCoordinates = function(){
       return this.currentCoordinate;
+    }
+
+    // add grid lines for coordinates
+    this.addgridlines = function(){
+        var screenWidth = document.getElementById("simulation").width;
+        var screenHeight = document.getElementById("simulation").height;
+        var latitudeLineNumber = Math.floor(this.magnificationMultiplier * screenHeight/this.gridLineInterval);
+        var longitudeLineNumber = Math.floor(this.magnificationMultiplier * screenWidth/this.gridLineInterval);
+        var i = 0;
+        var startingx = this.currentCoordinate[0] - (this.magnificationMultiplier * screenWidth) + 100 - (screenWidth % 100);
+        for (i = 0; i < latitudeLineNumber; i++){
+
+        }
     }
 }
 
