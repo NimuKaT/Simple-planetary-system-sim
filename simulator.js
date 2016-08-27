@@ -1,4 +1,4 @@
-const CANVAS = document.getElementById('simulation'); // get the simualtion element
+const CANVAS = document.getElementById('simulation'); // get the simulation element
 const CANVAS_CONTEXT = CANVAS.getContext('2d');       // get the simulation context which is used to draw objects
 const KM_TO_PIXELS = 1/1e3;               // convert between pixels and kilometers
 const TICKS_PER_SECOND = 120;             // number of ticks (refreshes) per second
@@ -45,7 +45,7 @@ var initFollowObject = function() {
 
 // called when the window resizes
 var windowResize = function() {
-  CANVAS.width = window.innerWidth * 0.75; // the width of the simualtion canvas is always 75% of the document according to CSS
+  CANVAS.width = window.innerWidth * 0.75; // the width of the simulation canvas is always 75% of the document according to CSS
   CANVAS.height = window.innerHeight; // the height of the simulation is 100% of the document
 
   canvasXmid = CANVAS.width / 2;  // the x mid point of the canvas
@@ -218,7 +218,7 @@ document.getElementById('object-generate-random').addEventListener('mouseup', fu
 var createFollowObject = function(radius, color, density) {
   var zoomRadius = radius * (1/session.magnificationMultiplier);
   var obj = document.getElementById('object-undermouse'); // the mouse follow object
-  obj.style.display = 'block';          // set the visiblilty to show
+  obj.style.display = 'block';          // set the visibility to show
   obj.style.background = color;         // set the background colour
   obj.style.width = zoomRadius*2 + 'px';    // set the width
   obj.style.height = zoomRadius*2 + 'px';   // set the height
@@ -382,7 +382,7 @@ var createVelocityLine = function(x,y) {
     var mx = event.pageX; // get the x position of the mouse
     var my = event.pageY; // get the y position of the mouse
 
-    var distance = Math.hypot(mx-x, my-y); // get the length of the velocity line (hypotenuse of an immaginary right angle triangle)
+    var distance = Math.hypot(mx-x, my-y); // get the length of the velocity line (hypotenuse of an imaginary right angle triangle)
     var angle = Math.atan2(my-y, mx-x) * 180 / Math.PI; // get the angle of incline/decline from right (0)
 
     obj.style.width = distance + 'px'; // set the width of the object to the distance of the hypotenuse
@@ -519,7 +519,7 @@ document.getElementById('loadstate-doublebinarystar').addEventListener('mousedow
   }
 });
 
-// Antigravity system
+// Anti gravity system
 document.getElementById('loadstate-antigravity').addEventListener('mousedown', function() {
   if (confirm('Are you sure you want to load a prebuilt.\nAnything you have made currently will not be recoverable.')) { // make sure they want to do it
     session.objects = []; // clear screen
@@ -676,7 +676,7 @@ var deleteObjectNum = function(a) {
 var jumpObj = function(a) {
   for(var i = 0; i < session.objects.length; i++) { // run through each object on the screen
     var obj = session.objects[i]; // get each object
-    if(obj.getID() === a) { // if the objet is the correct object
+    if(obj.getID() === a) { // if the object is the correct object
       session.currentCoordinate[0] = Math.floor(obj.getX()); // set the simulation center to the x
       session.currentCoordinate[1] = Math.floor(obj.getY()); // likewise for the y
       session.refreshScreen(); // refresh the screen
@@ -690,7 +690,7 @@ document.getElementById('download-objects').onclick = function() {
     var array = session.objects;
     array.push([session.magnificationMultiplier, session.currTimeScale, session.currentCoordinate, session.idCounter]);
     var text = JSON.stringify(array,null,2);  // convert the objects array into json
-    var element = document.createElement('a'); // create an ancor element (link)
+    var element = document.createElement('a'); // create an anchor element (link)
     element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text)); // give the link a location (a text file)
     element.setAttribute('download', 'objects.json'); // turn the anchor into a download link
     element.style.display = 'none'; // hide the anchor element
@@ -749,7 +749,7 @@ function object (density, radius, color, x, y, id) { // Aidan
   this.orbitPath = [];
 
   this.drawObject = function(xShift, yShift) {
-    // given its position on the canvas, draws it centred to that location
+    // given its position on the canvas, draws it centered to that location
 
     // draw the planet's main body
     CANVAS_CONTEXT.beginPath();
@@ -971,7 +971,7 @@ function Main(){
 
           // new density
           var d1 = obj1.getDensity() * p1; // percentage of object 1's density being passed on to the new object
-          var d2 = obj2.getDensity() * p2; // likewise for obejct 2
+          var d2 = obj2.getDensity() * p2; // likewise for object 2
           var newDensity = Math.floor(d1 + d2); // combine the two density amounts to form the new density.
 
           // new mass percentages
@@ -980,7 +980,7 @@ function Main(){
           var pm2 = obj2.getMass() / nm; // likewise for object 2
 
           // new colour
-          var c1 = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(obj1.getColor()); // turn the colours into arrays of values [#,r,g,b]
+          var c1 = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(obj1.getColor()); // turn the colors into arrays of values [#,r,g,b]
           var c2 = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(obj2.getColor());
           var r1 = parseInt(c1[1], 16) * p1; // convert each value into hex: parseInt(num, 16)
           var r2 = parseInt(c2[1], 16) * p2; // times that number by the percentage of the new object
@@ -996,7 +996,7 @@ function Main(){
           // new velocity
           var vel1 = obj1.getVelocity(); // returns an array [x, y] of the velocity
           var vel2 = obj2.getVelocity();
-          var newVelocityX = vel1[0] * pm1 + vel2[0] * pm2; // add the percentage of velocitys of each object
+          var newVelocityX = vel1[0] * pm1 + vel2[0] * pm2; // add the percentage of velocities of each object
           var newVelocityY = vel1[1] * pm1 + vel2[1] * pm2; // do this for both object's x and y velocity
 
           var difX = obj1.getX() - obj2.getX();
@@ -1012,7 +1012,7 @@ function Main(){
 
           // remove the objects for the object list
           this.objects.splice(this.objects.indexOf(obj1), 1); // remove objects in array using array.splice(index, numToRemove)
-          this.objects.splice(this.objects.indexOf(obj2), 1); // get the index of the obejects using this.objects.indexOf(itemInArray)
+          this.objects.splice(this.objects.indexOf(obj2), 1); // get the index of the objects using this.objects.indexOf(itemInArray)
 
           // remove the objects from the hit list
           this.objectsHitList.splice(i+1, 1); // remove objects in array using array.splice(index, numToRemove)
@@ -1024,6 +1024,9 @@ function Main(){
 
         // clear the hit list
         this.objectsHitList = [];
+
+        // draws the grid lines
+        this.addGridlLines();
 
         // redraw all the objects
         for (i = 0; i < this.objects.length; i++) {
@@ -1042,6 +1045,7 @@ function Main(){
     // used to update the screen without moving objects (e.g. when paused)
     this.refreshScreen = function() {
       CANVAS_CONTEXT.clearRect(0, 0, CANVAS.width, CANVAS.height); // clear the screen
+      this.addGridlLines(); // draws grid lines
       for (var i = 0; i < this.objects.length; i++) { // go through each object that should be on the screen
         this.objects[i].drawObject(this.currentCoordinate[0] - canvasXmid, this.currentCoordinate[1] - canvasYmid); // draw the object to the screen
       }
@@ -1052,9 +1056,9 @@ function Main(){
     // determine whether two given objects have collided (overlap)
     this.hitDetect = function(object1, object2){
       var x1 = object1.getX(); // x position of object 1
-      var y1 = object1.getY(); // y posiiton of object 1
+      var y1 = object1.getY(); // y position of object 1
       var x2 = object2.getX(); // x position of object 2
-      var y2 = object2.getY(); // y posiiton of object 2
+      var y2 = object2.getY(); // y position of object 2
       var d =  Math.hypot(x2-x1, y2-y1); // get the distance between the two center points
 
       // NOTE: if the distance is smaller than the two circles radius combined then the objects are overlapped
@@ -1063,7 +1067,7 @@ function Main(){
         if(this.objectsHitList.indexOf(object1) > -1 || this.objectsHitList.indexOf(object2) > -1) {
           return false; // if the objects are already in the list do not add them again but instead return
         }
-        this.objectsHitList.push(object1, object2); // add the obejects to the hit list
+        this.objectsHitList.push(object1, object2); // add the objects to the hit list
       }
     };
 
@@ -1084,18 +1088,64 @@ function Main(){
       return this.currentCoordinate;
     }
 
-    // add grid lines for coordinates
-    this.addgridlines = function(){
-        var screenWidth = document.getElementById("simulation").width;
-        var screenHeight = document.getElementById("simulation").height;
+    // add grid lines on canvas
+    this.addGridlLines = function(){
+      // get width and height of canvas
+        var screenWidth = CANVAS.width;
+        var screenHeight = CANVAS.height;
+        console.log("Screen width: ", screenWidth, "\nScreen height: ", screenHeight);
+
+      // calculate number of intervals for the grid
         var latitudeLineNumber = Math.floor(this.magnificationMultiplier * screenHeight/this.gridLineInterval);
         var longitudeLineNumber = Math.floor(this.magnificationMultiplier * screenWidth/this.gridLineInterval);
-        var i = 0;
-        var startingx = this.currentCoordinate[0] - (this.magnificationMultiplier * screenWidth) + 100 - (screenWidth % 100);
-        for (i = 0; i < latitudeLineNumber; i++){
+        console.log("Latitude line number: ", latitudeLineNumber, "\nLongitudinal line number: ", longitudeLineNumber);
 
-        }
+      // get distance from the center in terms of the grid
+        var halfWidth = this.magnificationMultiplier*canvasXmid;
+        var hadlfHeight = this.magnificationMultiplier*canvasYmid;
+
+        var i = 0;
+      // calculate the first positions of the grid lines
+        var startingx = this.currentCoordinate[0] - halfWidth + ((halfWidth - this.currentCoordinate[0]) % (this.gridLineInterval));
+        var startingy = this.currentCoordinate[1] - hadlfHeight + ((hadlfHeight - this.currentCoordinate[1]) % (this.gridLineInterval));
+        console.log("starting x coordinate: ", startingx);
+
+      // draws the grid
+        this.drawGridLines(startingx, startingy, this.magnificationMultiplier, latitudeLineNumber, longitudeLineNumber, this.currentCoordinate[0]-halfWidth, this.currentCoordinate[1]-hadlfHeight);
     }
+
+    // draws the grid lines
+    this.drawGridLines = function (x, y, scale, latitudeLineNumber, longitudeLineNumber, firstx, firsty){
+      var i = 0;
+    // coordinate of the grid line, reused for both x and y axis
+      var coordinate = 0;
+    // initialises the path's properties
+      CANVAS_CONTEXT.beginPath();
+      CANVAS_CONTEXT.strokeStyle = "#000000";
+      CANVAS_CONTEXT.lineWidth = .5;
+
+      for (i = 0; i < longitudeLineNumber; i++){
+      // calculates the x value in terms of canvas coordinates
+        coordinate = Math.floor((x + i * this.gridLineInterval - firstx) / scale)
+      // creates path from top to bottom of the canvas at the x coordinates
+        CANVAS_CONTEXT.moveTo(coordinate, 0);
+        CANVAS_CONTEXT.lineTo(coordinate, CANVAS.height);
+      }
+
+      for (i = 0; i < latitudeLineNumber; i++){
+      // calculates the y value in terms of canvas coordinates
+        coordinate = Math.floor((y + i * this.gridLineInterval - firsty) / scale)
+      // creates path from left to right of the canvas at the y coordinates
+        CANVAS_CONTEXT.moveTo(0, coordinate);
+        CANVAS_CONTEXT.lineTo(CANVAS.width, coordinate);
+      }
+
+    // draws the lines and remove the paths
+      CANVAS_CONTEXT.stroke();
+      CANVAS_CONTEXT.closePath();
+
+    }
+    
 }
 
 
