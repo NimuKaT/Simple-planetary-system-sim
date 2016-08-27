@@ -1093,12 +1093,10 @@ function Main(){
       // get width and height of canvas
         var screenWidth = CANVAS.width;
         var screenHeight = CANVAS.height;
-        console.log("Screen width: ", screenWidth, "\nScreen height: ", screenHeight);
 
       // calculate number of intervals for the grid
         var latitudeLineNumber = Math.floor(this.magnificationMultiplier * screenHeight/this.gridLineInterval);
         var longitudeLineNumber = Math.floor(this.magnificationMultiplier * screenWidth/this.gridLineInterval);
-        console.log("Latitude line number: ", latitudeLineNumber, "\nLongitudinal line number: ", longitudeLineNumber);
 
       // get distance from the center in terms of the grid
         var halfWidth = this.magnificationMultiplier*canvasXmid;
@@ -1108,7 +1106,6 @@ function Main(){
       // calculate the first positions of the grid lines
         var startingx = this.currentCoordinate[0] - halfWidth + ((halfWidth - this.currentCoordinate[0]) % (this.gridLineInterval));
         var startingy = this.currentCoordinate[1] - hadlfHeight + ((hadlfHeight - this.currentCoordinate[1]) % (this.gridLineInterval));
-        console.log("starting x coordinate: ", startingx);
 
       // draws the grid
         this.drawGridLines(startingx, startingy, this.magnificationMultiplier, latitudeLineNumber, longitudeLineNumber, this.currentCoordinate[0]-halfWidth, this.currentCoordinate[1]-hadlfHeight);
