@@ -239,6 +239,7 @@ var createFollowObject = function(radius, color, density) {
     // create the object on the canvas
     var x = event.pageX;
     var y = event.pageY;
+    console.log(x, y);
 
     // create the placeholder object
     createPlaceholderObject(radius, color, x, y);
@@ -256,13 +257,12 @@ var createFollowObject = function(radius, color, density) {
     document.onclick = function(event) {
       if (cf) { // gets the second click (because the first click is still running from above)
         var coordinates = session.getCoordinates(); // get the coordinates of the center
-        x = x - canvasXmid; // get the x position in terms of the canvas (rather than the screen: event.pageX or event.pageY)
-        y = y - canvasYmid;
-        var vx = event.pageX - x - canvasXmid; // x-axis length of the velocity
-        var vy = event.pageY - y - canvasYmid; // y-axis length of the velocity
 
-        x = (x + coordinates[0]) * session.magnificationMultiplier; // get the correct x in terms of canvas shifting and zoom
-        y = (y + coordinates[1]) * session.magnificationMultiplier; // same as above but for y
+        var vx = event.pageX - x; // x-axis length of the velocity
+        var vy = event.pageY - y; // y-axis length of the velocity
+
+        x = ((x - canvasXmid) * session.magnificationMultiplier + coordinates[0]); // get the correct x in terms of canvas shifting and zoom
+        y = ((y - canvasYmid) * session.magnificationMultiplier + coordinates[1]); // same as above but for y
         vx = vx * session.magnificationMultiplier; // get the velocity relative to the zoom of the simulation
         vy = vy * session.magnificationMultiplier;
 
@@ -915,6 +915,7 @@ function Main(){
     }
 
     this.update = function(){
+      var start = new Date().getTime();
       if (typeof this.objects !== 'undefined') { //prevents update when array is broken
         var acceleration = [0, 0];
         var angle = 0;
@@ -1037,6 +1038,7 @@ function Main(){
         // update the object management tab
         updateObjManagement(this.objects);
       }
+      // console.log(new Date().getTime() - start);
     };
 
     // update the session every tick
