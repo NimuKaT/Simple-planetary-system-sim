@@ -1073,8 +1073,8 @@ function Main(){
 
     // move the canvas relative to current position
     this.shiftCanvas = function(x, y){
-      this.currentCoordinate[0] -= x; // minus the x amount from current x position
-      this.currentCoordinate[1] -= y; // likewise for the y
+      this.currentCoordinate[0] -= x*this.magnificationMultiplier; // minus the x amount from current x position
+      this.currentCoordinate[1] -= y*this.magnificationMultiplier; // likewise for the y
     }
 
     // move the canvas to an absolute position
