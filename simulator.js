@@ -126,27 +126,27 @@ var init = function() {
       if (event.button === 0){
         this.x = event.pageX; // get the x position of the mouse click
         this.y = event.pageY; // get the y position too
-        this.isDown = true;   // set the mouse to down
+        this.isDown = true;   // set the mouse pressed to true
       }
     });
 
     // on mouse release
     document.getElementById("simulation").addEventListener('mouseup', function(event){
       if (event.button === 0){
-        this.isDown = false; //  set the mouse to up
+        this.isDown = false; //  set the mouse pressed to false upon mouse up
       }
     });
 
     // on mouse leaving simulation canvas
     document.getElementById("simulation").addEventListener('mouseleave', function(event){
       if (event.button === 0){
-        this.isDown = false; //  set the mouse to up
+        this.isDown = false; //  set the mouse pressed to false upon exiting element
       }
     });
 
     // on any movement of the mouse within the simulation canvas
     document.getElementById("simulation").addEventListener("mousemove",function(event){
-      if (this.isDown){
+      if (this.isDown){ // execute if mouse is detected as being down
         this.nx = event.pageX; // get the mouse x
         this.ny = event.pageY; // get the mouse y
         session.shiftCanvas(this.nx-this.x, this.ny-this.y); // move the canvas in the correct direction based on location mouse
