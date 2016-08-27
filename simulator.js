@@ -753,7 +753,7 @@ function object (density, radius, color, x, y, id) { // Aidan
 
     // draw the planet's main body
     CANVAS_CONTEXT.beginPath();
-    CANVAS_CONTEXT.arc(this.x/session.magnificationMultiplier - xShift, this.y/session.magnificationMultiplier - yShift, this.radius/session.magnificationMultiplier, 0, 2 * Math.PI, false);
+    CANVAS_CONTEXT.arc((this.x - xShift)/session.magnificationMultiplier, (this.y - yShift)/session.magnificationMultiplier, this.radius/session.magnificationMultiplier, 0, 2 * Math.PI, false);
     CANVAS_CONTEXT.fillStyle = this.color;
     CANVAS_CONTEXT.fill();
     CANVAS_CONTEXT.closePath();
@@ -763,8 +763,8 @@ function object (density, radius, color, x, y, id) { // Aidan
     if (showVelocity === true) {
       // draw line in the direction of velocity for the current frame
       CANVAS_CONTEXT.beginPath();
-      CANVAS_CONTEXT.moveTo(this.x/session.magnificationMultiplier - xShift, this.y/session.magnificationMultiplier - yShift);
-      CANVAS_CONTEXT.lineTo((this.x + this.vx)/session.magnificationMultiplier - xShift, (this.y + this.vy)/session.magnificationMultiplier - yShift);
+      CANVAS_CONTEXT.moveTo((this.x - xShift)/session.magnificationMultiplier, (this.y - yShift)/session.magnificationMultiplier);
+      CANVAS_CONTEXT.lineTo((this.x + this.vx - xShift)/session.magnificationMultiplier, (this.y + this.vy - yShift)/session.magnificationMultiplier);
       CANVAS_CONTEXT.strokeStyle = "#e74c3c";
       CANVAS_CONTEXT.stroke();
       CANVAS_CONTEXT.closePath();
@@ -774,8 +774,8 @@ function object (density, radius, color, x, y, id) { // Aidan
     if (showAcceleration === true) {
       // draw line in the direction of acceleration for the current frame
       CANVAS_CONTEXT.beginPath();
-      CANVAS_CONTEXT.moveTo(this.x/session.magnificationMultiplier - xShift, this.y/session.magnificationMultiplier - yShift);
-      CANVAS_CONTEXT.lineTo((this.x + this.ax)/session.magnificationMultiplier - xShift, (this.y + this.ay)/session.magnificationMultiplier - yShift);
+      CANVAS_CONTEXT.moveTo((this.x - xShift)/session.magnificationMultiplier, (this.y - yShift)/session.magnificationMultiplier);
+      CANVAS_CONTEXT.lineTo((this.x + this.ax - xShift)/session.magnificationMultiplier, (this.y + this.ay - yShift)/session.magnificationMultiplier);
       CANVAS_CONTEXT.strokeStyle = "#2980b9";
       CANVAS_CONTEXT.stroke();
       CANVAS_CONTEXT.closePath();
@@ -786,10 +786,10 @@ function object (density, radius, color, x, y, id) { // Aidan
       // draw line showing the orbit path for the past ORBIT_PATH_LENGTH frames
       CANVAS_CONTEXT.beginPath();
       CANVAS_CONTEXT.strokeStyle = "#1abc9c";
-      CANVAS_CONTEXT.moveTo(this.x/session.magnificationMultiplier - xShift, this.y/session.magnificationMultiplier - yShift);
+      CANVAS_CONTEXT.moveTo((this.x - xShift)/session.magnificationMultiplier, (this.y - yShift)/session.magnificationMultiplier);
       for (var i = 0; i < this.orbitPath.length; i++) {
         CANVAS_CONTEXT.lineWidth = pathWidth;
-        CANVAS_CONTEXT.lineTo(this.orbitPath[i][0]/session.magnificationMultiplier - xShift, this.orbitPath[i][1]/session.magnificationMultiplier - yShift);
+        CANVAS_CONTEXT.lineTo((this.orbitPath[i][0] - xShift)/session.magnificationMultiplier, (this.orbitPath[i][1] - yShift)/session.magnificationMultiplier);
         CANVAS_CONTEXT.stroke();
         pathWidth -= ORBIT_PATH_WIDTH_DECREMENT;
       }
@@ -1031,7 +1031,7 @@ function Main(){
         // redraw all the objects
         for (i = 0; i < this.objects.length; i++) {
           this.objects[i].updatePosition(this.currTimeScale); // update the position, for the amount of time dictated by this.currTimeScale
-          this.objects[i].drawObject(this.currentCoordinate[0] - canvasXmid, this.currentCoordinate[1] - canvasYmid); // draw the object in the correct place on the screen
+          this.objects[i].drawObject(this.currentCoordinate[0] - canvasXmid*this.magnificationMultiplier, this.currentCoordinate[1] - canvasYmid*this.magnificationMultiplier); // draw the object in the correct place on the screen
         }
 
         // update the object management tab
@@ -1047,7 +1047,7 @@ function Main(){
       CANVAS_CONTEXT.clearRect(0, 0, CANVAS.width, CANVAS.height); // clear the screen
       this.addGridlLines(); // draws grid lines
       for (var i = 0; i < this.objects.length; i++) { // go through each object that should be on the screen
-        this.objects[i].drawObject(this.currentCoordinate[0] - canvasXmid, this.currentCoordinate[1] - canvasYmid); // draw the object to the screen
+        this.objects[i].drawObject(this.currentCoordinate[0] - canvasXmid*this.magnificationMultiplier, this.currentCoordinate[1] - canvasYmid*this.magnificationMultiplier); // draw the object to the screen
       }
       updateObjManagement(this.objects); // update the 'object management' window
       document.getElementById("line-coord").innerHTML = "Center: [" + session.currentCoordinate[0] + ", " + session.currentCoordinate[1] + "]";
