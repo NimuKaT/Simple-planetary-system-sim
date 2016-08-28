@@ -875,7 +875,7 @@ function getAngleBetweenPoints(x1, y1, x2, y2) {
   return angle;
 }
 
-function calculateGravityAccel(x1, y1, x2, y2, mass, dist, angle) {
+function calculateGravityAccel(mass, dist, angle) {
   // get the effective acceleration on object 1 due to object 2
   var magnitude = (mass)/Math.pow(dist, 2);
   var yMag = magnitude*Math.sin(angle*Math.PI/180);
@@ -934,11 +934,7 @@ function Main(){
               // get distance
               distance = Math.hypot(this.objects[i].getX() - this.objects[p].getX(), this.objects[i].getY() - this.objects[p].getY());
               // get acceleration
-              newAcceleration = calculateGravityAccel(
-                this.objects[i].getX(), this.objects[i].getY(),
-                this.objects[p].getX(), this.objects[p].getY(),
-                this.objects[p].getMass(),
-                distance, angle);
+              newAcceleration = calculateGravityAccel(this.objects[p].getMass(), distance, angle);
               acceleration[0] += newAcceleration[0];
               acceleration[1] += newAcceleration[1];
             }
