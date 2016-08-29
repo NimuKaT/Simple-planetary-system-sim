@@ -242,7 +242,6 @@ var createFollowObject = function(radius, color, density) {
     // create the object on the canvas
     var x = event.pageX;
     var y = event.pageY;
-    console.log(x, y);
 
     // create the placeholder object
     createPlaceholderObject(radius, color, x, y);
